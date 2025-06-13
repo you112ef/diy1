@@ -60,12 +60,12 @@ export default function ProfileTab() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="space-y-6">
+    <div className="max-w-2xl mx-auto px-2 sm:px-0"> {/* MODIFIED */}
+      <div className="space-y-4 sm:space-y-6"> {/* MODIFIED */}
         {/* Personal Information Section */}
         <div>
           {/* Avatar Upload */}
-          <div className="flex items-start gap-6 mb-8">
+          <div className="flex items-start gap-6 mb-4 sm:mb-6 md:mb-8"> {/* MODIFIED */}
             <div
               className={classNames(
                 'w-24 h-24 rounded-full overflow-hidden',
@@ -125,7 +125,7 @@ export default function ProfileTab() {
           </div>
 
           {/* Username Input */}
-          <div className="mb-6">
+          <div className="mb-4 sm:mb-6"> {/* MODIFIED */}
             <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Username</label>
             <div className="relative group">
               <div className="absolute left-3.5 top-1/2 -translate-y-1/2">
@@ -150,7 +150,7 @@ export default function ProfileTab() {
           </div>
 
           {/* Bio Input */}
-          <div className="mb-8">
+          <div className="mb-4 sm:mb-6 md:mb-8"> {/* MODIFIED */}
             <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Bio</label>
             <div className="relative group">
               <div className="absolute left-3.5 top-3">

@@ -117,6 +117,59 @@ video {
     // Ensure line-height adjusts if it was fixed or too large
     line-height: 1.4; // Example, adjust as needed
   }
+
+  // --- Improve Tappable Areas ---
+
+  // For UnoCSS-generated small buttons (e.g., Button size="sm" which is h-8, px-3, text-xs)
+  // Target class for h-8 (2rem height) buttons
+  :global(button[class*="h-8"][class*="px-3"]) {
+    min-height: 2.5rem; // Ensure minimum height of h-10 (40px)
+    padding-top: 0.625rem; // Adjust py if h-* doesn't incorporate it fully
+    padding-bottom: 0.625rem;
+  }
+
+  // For standard input fields and select elements to increase their height
+  // Inputs like in ProfileTab (after previous scaling: py-2, text-sm)
+  // Selects in SettingsTab (py-2, px-3, text-sm)
+  :global(input.pl-11.pr-4), // Targeting the previously styled inputs
+  :global(textarea.pl-11.pr-4),
+  :global(select[class*="px-3"][class*="py-2"][class*="text-sm"]) {
+    padding-top: 0.625rem;    // py-2.5 equivalent (makes height around 38-40px with text-sm)
+    padding-bottom: 0.625rem; // py-2.5 equivalent
+    // font-size: 0.875rem; // text-sm (already applied or default)
+  }
+  // Specifically for the ProfileTab inputs to override more specific previous padding rules for height
+  :global(input.pl-11.pr-4[style*="padding-top: 0.5rem"]),
+  :global(textarea.pl-11.pr-4[style*="padding-top: 0.5rem"]) {
+     padding-top: 0.625rem !important;
+     padding-bottom: 0.625rem !important;
+  }
+
+  // Switch component: Revert very small screen scaling for height, ensure at least h-6.
+  // Original size: h-6 w-11. Previous override for max-width:425px made it h-5 w-10.
+  // Let's ensure h-6 (24px) is the minimum height, and width can be w-10 or w-11.
+  // The transform override for the thumb needs to be for the h-6, w-11 size.
+  :global([role="switch"][class*="w-11"][class*="h-6"]) { // If it became h-5, this selector won't match.
+                                                          // We need to ensure it IS h-6, or target based on what it became.
+                                                          // Let's assume we want to enforce h-6.
+    min-height: 1.5rem; // h-6
+    // width: 2.5rem; // w-10 - allow width to be compact
+  }
+  :global([role="switch"][class*="w-11"][class*="h-6"] > span) { // Thumb for h-6 switch
+    // Ensure thumb is h-5 w-5 as in original Switch.tsx for h-6 root
+    min-height: 1.25rem; // h-5
+    min-width: 1.25rem;  // w-5
+  }
+  // Re-evaluate thumb translation for standard h-6, w-11 switch.
+  // Original SwitchPrimitive.Thumb: translate-x-0.5 (2px), data-[state=checked]:translate-x-[1.375rem] (22px)
+  // This is for a 2.75rem (44px) wide switch with a 1.25rem (20px) thumb.
+  // Movement = 44 - 20 - 2*thumb_border_or_internal_padding_of_root = 24px approx.
+  // 1.375rem is 22px. So original movement is correct.
+  // If we made switch w-10 (2.5rem = 40px) and thumb h-4 w-4 (1rem = 16px).
+  // Movement = 40 - 16 - (2*2px) = 20px = 1.25rem.
+  // The CSS for translate-x in the previous step for max-width:425px might be okay if switch is w-10.
+  // For now, let's assume the switch is kept at h-6, w-11 or h-6, w-10 and its default Radix transforms are fine.
+  // The main thing is to ensure its height isn't too small.
 }
 
 // For very small screens (e.g., iPhone SE - 320px, and up to ~425px)
@@ -238,5 +291,21 @@ video {
   :global(h2[class*="text-lg"][class*="font-medium"][class*="text-bolt-elements-textPrimary"]) {
     font-size: 0.875rem; // text-sm equivalent
     line-height: 1.3; // Example
+  }
+
+  // Further ensure tappable heights for inputs on very small screens if needed
+  :global(input.pl-11.pr-4),
+  :global(textarea.pl-11.pr-4),
+  :global(select[class*="px-3"][class*="py-2"][class*="text-sm"]) {
+    // font-size: 0.875rem; // text-sm
+    // padding-top: 0.625rem; // py-2.5 already set above
+    // padding-bottom: 0.625rem; // py-2.5 already set above
+  }
+
+  // If small buttons (h-8 / 32px default) are still too small, increase their padding more.
+  :global(button[class*="h-8"][class*="px-3"]) {
+    min-height: 2.5rem; // h-10 (40px)
+    // padding-top: 0.75rem; // py-3 (if h-10 means 2.5rem total height)
+    // padding-bottom: 0.75rem; // py-3
   }
 }
