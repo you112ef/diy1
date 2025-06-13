@@ -63,7 +63,7 @@ export default function SettingsTab() {
     <div className="space-y-3 sm:space-y-4"> {/* MODIFIED */}
       {/* Language & Notifications */}
       <motion.div
-        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-3 sm:p-4 space-y-4" {/* MODIFIED */}
+        className="bg-white dark:bg-[#0A0A0A] rounded-lg shadow-sm dark:shadow-none p-3 sm:p-4 space-y-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
