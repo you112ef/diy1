@@ -7,46 +7,97 @@ video {
   height: auto;
 }
 
-// Media queries for specific mobile breakpoints
-// Adjustments here are examples and will need verification during testing.
-
-// For very small screens (e.g., iPhone SE - 320px, and up to ~400px)
-@media (max-width: 425px) { // Targeting 320, 375, 425px breakpoints
-  // Example: Reduce horizontal padding for elements that might be too constrained.
-  // This is a generic class placeholder. Specific elements will need to be identified.
-  .mobile-padding-adjustment {
-    padding-left: 0.75rem; // 12px
-    padding-right: 0.75rem; // 12px
+// Media queries for general mobile screens (up to md breakpoint / 768px)
+@media (max-width: 768px) {
+  // Reduce header padding. The header element in Header.tsx has classes "flex items-center p-5".
+  // We need a selector specific enough to target it without being overly fragile.
+  // Assuming the <header> tag is unique enough or has a specific parent if needed.
+  // For now, targeting based on its current classes and tag.
+  body > div#root > header.flex.items-center.p-5, // More specific if #root is the immediate parent in final DOM
+  header.p-5.border-b { // A common pattern for headers
+    padding-left: 1rem;   // Was p-5 (1.25rem) -> px-4
+    padding-right: 1rem;  // Was p-5 (1.25rem) -> px-4
+    padding-top: 0.75rem;    // Was p-5 (1.25rem) -> py-3
+    padding-bottom: 0.75rem; // Was p-5 (1.25rem) -> py-3
   }
 
-  // Example: Slightly reduce base font sizes for very small screens if necessary.
-  // Be cautious with global font size changes; target elements if possible.
-  // html {
-  //   font-size: 14px; // This would make 1rem = 14px. Default is usually 16px.
-  // }
+  /* Assuming .MarkdownContent is globally available or this file is processed in a way that allows targeting it */
+  :global(.MarkdownContent) { // Use :global if needed, or adjust selector if MarkdownContent is hashed by CSS Modules build
+    line-height: 1.5;
 
-  // Example: Adjust specific text elements
-  // .text-too-large-on-mobile {
-  //   font-size: 0.875rem; // text-sm
-  // }
-  //
-  // .button-too-large-on-mobile {
-  //   padding: 0.5rem 0.75rem;
-  //   font-size: 0.875rem;
-  // }
+    > *:not(:last-child) {
+      margin-block-end: 12px;
+    }
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      margin-block-start: 18px;
+      margin-block-end: 12px;
+      line-height: 1.2;
+    }
+
+    p:not(:last-of-type) {
+      margin-block-end: 12px;
+    }
+
+    :is(ul, ol) {
+      margin-block-end: 12px;
+      padding-left: 1.5em;
+    }
+
+    li + li {
+      margin-block-start: 6px;
+    }
+
+    hr {
+      margin: 16px 0;
+    }
+  }
 }
 
-// For medium mobile screens (up to 768px, UnoCSS 'md' breakpoint is 768px)
-// @media (max-width: 768px) {
-//   // Styles for screens up to tablets. Many styles might be covered by UnoCSS sm: and md: prefixes.
-//   // Add specific overrides here if UnoCSS utilities are not sufficient or convenient.
-// }
+// For very small screens (e.g., iPhone SE - 320px, and up to ~425px)
+@media (max-width: 425px) {
+  body > div#root > header.flex.items-center.p-5,
+  header.p-5.border-b {
+    padding-left: 0.75rem;   // px-3
+    padding-right: 0.75rem;  // px-3
+    padding-top: 0.5rem;     // py-2
+    padding-bottom: 0.5rem;  // py-2
+  }
 
-// Ensure the main chat area content doesn't exceed viewport width due to padding.
-// The .max-w-chat utility (max-width: 37rem ~ 592px) is used on several key elements.
-// These elements also have classes like px-2, sm:px-6, or px-4.
-// On screens < 592px, the max-width won't be the limiting factor, but padding might be.
-// Example: If an element has `px-6` (1.5rem padding on each side = 3rem total),
-// on a 320px screen (20rem), this leaves 17rem for content. This should be fine.
-// We need to ensure no element *forces* a width wider than the viewport.
-// The `min(640px, 100%)` for `--chat-min-width` helps prevent the container from being too wide.
+  // Placeholder for other very-small-screen adjustments
+  // .mobile-padding-adjustment {
+  //   padding-left: 0.5rem;
+  //   padding-right: 0.5rem;
+  // }
+
+  :global(.MarkdownContent) { // Use :global if needed
+    line-height: 1.45;
+
+    > *:not(:last-child) {
+      margin-block-end: 10px;
+    }
+
+    :is(h1, h2, h3, h4, h5, h6) {
+      margin-block-start: 16px;
+      margin-block-end: 10px;
+      line-height: 1.15;
+    }
+
+    p:not(:last-of-type) {
+      margin-block-end: 10px;
+    }
+
+    :is(ul, ol) {
+      margin-block-end: 10px;
+      padding-left: 1.25em;
+    }
+
+    li + li {
+      margin-block-start: 4px;
+    }
+
+    hr {
+      margin: 12px 0;
+    }
+  }
+}
