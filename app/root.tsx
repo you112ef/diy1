@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react';
-import type { LinksFunction } from '@remix-run/cloudflare';
+import type { LinksFunction, MetaFunction } from "@remix-run/react";
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from '@remix-run/react';
 import tailwindReset from '@unocss/reset/tailwind-compat.css?url';
 import { themeStore } from './lib/stores/theme';
@@ -15,6 +15,13 @@ import globalStyles from './styles/index.scss?url';
 import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 
 import 'virtual:uno.css';
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "موقعنا النموذجي" }, // Placeholder: "Our Model Site"
+    { name: "description", content: "هذا وصف نموذجي لموقعنا الإلكتروني." }, // Placeholder: "This is a sample description for our website."
+  ];
+};
 
 export const links: LinksFunction = () => [
   {
@@ -88,13 +95,15 @@ export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
+    document.documentElement.lang = 'ar'; // Set lang to Arabic
+    // Other operations in useEffect, like logStore, can remain if they have their own dependencies or are meant to run once.
     logStore.logSystem('Application initialized', {
-      theme,
+      theme, // theme is used here
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
     });
-  }, []);
+  }, [theme]); // Dependency array includes theme because logStore uses it. lang='ar' is static.
 
   return (
     <Layout>

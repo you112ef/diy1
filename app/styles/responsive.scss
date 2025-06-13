@@ -1,0 +1,52 @@
+// app/styles/responsive.scss
+
+// Ensure images and videos are responsive by default
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+// Media queries for specific mobile breakpoints
+// Adjustments here are examples and will need verification during testing.
+
+// For very small screens (e.g., iPhone SE - 320px, and up to ~400px)
+@media (max-width: 425px) { // Targeting 320, 375, 425px breakpoints
+  // Example: Reduce horizontal padding for elements that might be too constrained.
+  // This is a generic class placeholder. Specific elements will need to be identified.
+  .mobile-padding-adjustment {
+    padding-left: 0.75rem; // 12px
+    padding-right: 0.75rem; // 12px
+  }
+
+  // Example: Slightly reduce base font sizes for very small screens if necessary.
+  // Be cautious with global font size changes; target elements if possible.
+  // html {
+  //   font-size: 14px; // This would make 1rem = 14px. Default is usually 16px.
+  // }
+
+  // Example: Adjust specific text elements
+  // .text-too-large-on-mobile {
+  //   font-size: 0.875rem; // text-sm
+  // }
+  //
+  // .button-too-large-on-mobile {
+  //   padding: 0.5rem 0.75rem;
+  //   font-size: 0.875rem;
+  // }
+}
+
+// For medium mobile screens (up to 768px, UnoCSS 'md' breakpoint is 768px)
+// @media (max-width: 768px) {
+//   // Styles for screens up to tablets. Many styles might be covered by UnoCSS sm: and md: prefixes.
+//   // Add specific overrides here if UnoCSS utilities are not sufficient or convenient.
+// }
+
+// Ensure the main chat area content doesn't exceed viewport width due to padding.
+// The .max-w-chat utility (max-width: 37rem ~ 592px) is used on several key elements.
+// These elements also have classes like px-2, sm:px-6, or px-4.
+// On screens < 592px, the max-width won't be the limiting factor, but padding might be.
+// Example: If an element has `px-6` (1.5rem padding on each side = 3rem total),
+// on a 320px screen (20rem), this leaves 17rem for content. This should be fine.
+// We need to ensure no element *forces* a width wider than the viewport.
+// The `min(640px, 100%)` for `--chat-min-width` helps prevent the container from being too wide.
