@@ -61,6 +61,7 @@ export const Head = createHead(() => (
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <Meta />
     <Links />
+    <link rel="manifest" href="/manifest.json" />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
   </>
 ));

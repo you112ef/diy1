@@ -42,26 +42,31 @@ export const IconButton = memo(
       }: IconButtonProps,
       ref: ForwardedRef<HTMLButtonElement>,
     ) => {
-      return (
-        <button
-          ref={ref}
-          className={classNames(
-            'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed',
-            {
-              [classNames('opacity-30', disabledClassName)]: disabled,
-            },
-            className,
-          )}
-          title={title}
-          disabled={disabled}
-          onClick={(event) => {
-            if (disabled) {
-              return;
-            }
+      const buttonProps: React.ButtonHTMLAttributes<HTMLButtonElement> = {
+        ref: ref,
+        className: classNames(
+          'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed',
+          {
+            [classNames('opacity-30', disabledClassName)]: disabled,
+          },
+          className,
+        ),
+        title: title,
+        disabled: disabled,
+        onClick: (event) => {
+          if (disabled) {
+            return;
+          }
+          onClick?.(event);
+        },
+      };
 
-            onClick?.(event);
-          }}
-        >
+      if (!children && icon && title) {
+        buttonProps['aria-label'] = title;
+      }
+
+      return (
+        <button {...buttonProps}>
           {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)}></div>}
         </button>
       );
