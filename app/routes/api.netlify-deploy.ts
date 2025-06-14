@@ -35,7 +35,8 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
       if (!createSiteResponse.ok) {
-        return json({ error: 'Failed to create site' }, { status: 400 });
+        const errorData = await createSiteResponse.json().catch(() => ({ message: createSiteResponse.statusText }));
+        return json({ error: 'Failed to create site on Netlify', details: errorData.message || errorData.error || errorData }, { status: createSiteResponse.status });
       }
 
       const newSite = (await createSiteResponse.json()) as any;
@@ -84,7 +85,8 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (!createSiteResponse.ok) {
-          return json({ error: 'Failed to create site' }, { status: 400 });
+          const errorData = await createSiteResponse.json().catch(() => ({ message: createSiteResponse.statusText }));
+          return json({ error: 'Failed to create site on Netlify', details: errorData.message || errorData.error || errorData }, { status: createSiteResponse.status });
         }
 
         const newSite = (await createSiteResponse.json()) as any;
@@ -127,7 +129,8 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (!deployResponse.ok) {
-      return json({ error: 'Failed to create deployment' }, { status: 400 });
+      const errorData = await deployResponse.json().catch(() => ({ message: deployResponse.statusText }));
+      return json({ error: 'Failed to create deployment on Netlify', details: errorData.message || errorData.error || errorData }, { status: deployResponse.status });
     }
 
     const deploy = (await deployResponse.json()) as any;
@@ -169,9 +172,11 @@ export async function action({ request }: ActionFunctionArgs) {
               uploadSuccess = uploadResponse.ok;
 
               if (!uploadSuccess) {
-                console.error('Upload failed:', await uploadResponse.text());
+                const errorText = await uploadResponse.text().catch(() => uploadResponse.statusText);
+                console.error('Upload failed:', errorText);
                 uploadRetries++;
                 await new Promise((resolve) => setTimeout(resolve, 2000));
+                // No early return here, let the outer loop decide if all retries failed for this file
               }
             } catch (error) {
               console.error('Upload error:', error);
@@ -181,7 +186,8 @@ export async function action({ request }: ActionFunctionArgs) {
           }
 
           if (!uploadSuccess) {
-            return json({ error: `Failed to upload file ${filePath}` }, { status: 500 });
+            // If after all retries, a file still failed to upload
+            return json({ error: `Failed to upload file ${filePath} after multiple retries.`, details: `Last attempt status: ${uploadResponse?.statusText || 'Unknown'}` }, { status: 500 });
           }
         }
       }
@@ -202,7 +208,7 @@ export async function action({ request }: ActionFunctionArgs) {
       }
 
       if (status.state === 'error') {
-        return json({ error: status.error_message || 'Deploy preparation failed' }, { status: 500 });
+        return json({ error: 'Deploy preparation failed on Netlify', details: status.error_message || 'Unknown Netlify deploy error' }, { status: 500 });
       }
 
       retryCount++;
@@ -224,6 +230,6 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   } catch (error) {
     console.error('Deploy error:', error);
-    return json({ error: 'Deployment failed' }, { status: 500 });
+    return json({ error: 'Deployment failed', details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }

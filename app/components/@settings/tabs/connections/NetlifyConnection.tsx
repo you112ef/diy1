@@ -193,7 +193,7 @@ export default function NetlifyConnection() {
       fetchNetlifyStats(tokenInput);
     } catch (error) {
       console.error('Error connecting to Netlify:', error);
-      toast.error(`Failed to connect to Netlify: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to connect to Netlify: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setIsConnecting(false);
       setTokenInput('');
@@ -284,7 +284,7 @@ export default function NetlifyConnection() {
       toast.success('Netlify stats updated');
     } catch (error) {
       console.error('Error fetching Netlify stats:', error);
-      toast.error(`Failed to fetch Netlify stats: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Failed to fetch Netlify stats: ${error instanceof Error ? error.message : String(error)}`);
     } finally {
       setFetchingStats(false);
     }

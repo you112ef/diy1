@@ -86,8 +86,9 @@ export async function fetchVercelStats(token: string) {
     });
   } catch (error) {
     console.error('Vercel API Error:', error);
-    logStore.logError('Failed to fetch Vercel stats', { error });
-    toast.error('Failed to fetch Vercel statistics');
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    logStore.logError('Failed to fetch Vercel stats', { error: errorMessage });
+    toast.error(`Failed to fetch Vercel statistics: ${errorMessage}`);
   } finally {
     isFetchingStats.set(false);
   }

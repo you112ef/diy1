@@ -20,7 +20,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     if (!projectResponse.ok) {
-      return json({ error: 'Failed to fetch project' }, { status: 400 });
+      const errorData = await projectResponse.json().catch(() => ({ error: { message: projectResponse.statusText } }));
+      return json({ error: `Failed to fetch Vercel project: ${errorData.error?.message || 'Unknown Vercel API error'}`, details: errorData.error || errorData }, { status: projectResponse.status });
     }
 
     const projectData = (await projectResponse.json()) as any;
@@ -33,7 +34,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
 
     if (!deploymentsResponse.ok) {
-      return json({ error: 'Failed to fetch deployments' }, { status: 400 });
+      const errorData = await deploymentsResponse.json().catch(() => ({ error: { message: deploymentsResponse.statusText } }));
+      return json({ error: `Failed to fetch Vercel deployments: ${errorData.error?.message || 'Unknown Vercel API error'}`, details: errorData.error || errorData }, { status: deploymentsResponse.status });
     }
 
     const deploymentsData = (await deploymentsResponse.json()) as any;
@@ -56,7 +58,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
     });
   } catch (error) {
     console.error('Error fetching Vercel deployment:', error);
-    return json({ error: 'Failed to fetch deployment' }, { status: 500 });
+    return json({ error: 'Failed to fetch Vercel deployment status', details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }
 
@@ -94,10 +96,10 @@ export async function action({ request }: ActionFunctionArgs) {
       });
 
       if (!createProjectResponse.ok) {
-        const errorData = (await createProjectResponse.json()) as any;
+        const errorData = await createProjectResponse.json().catch(() => ({ error: { message: createProjectResponse.statusText } }));
         return json(
-          { error: `Failed to create project: ${errorData.error?.message || 'Unknown error'}` },
-          { status: 400 },
+          { error: `Failed to create Vercel project: ${errorData.error?.message || 'Unknown Vercel API error'}`, details: errorData.error || errorData },
+          { status: createProjectResponse.status },
         );
       }
 
@@ -141,10 +143,10 @@ export async function action({ request }: ActionFunctionArgs) {
         });
 
         if (!createProjectResponse.ok) {
-          const errorData = (await createProjectResponse.json()) as any;
+          const errorData = await createProjectResponse.json().catch(() => ({ error: { message: createProjectResponse.statusText } }));
           return json(
-            { error: `Failed to create project: ${errorData.error?.message || 'Unknown error'}` },
-            { status: 400 },
+            { error: `Failed to create Vercel project: ${errorData.error?.message || 'Unknown Vercel API error'}`, details: errorData.error || errorData },
+            { status: createProjectResponse.status },
           );
         }
 
@@ -188,10 +190,10 @@ export async function action({ request }: ActionFunctionArgs) {
     });
 
     if (!deployResponse.ok) {
-      const errorData = (await deployResponse.json()) as any;
+      const errorData = await deployResponse.json().catch(() => ({ error: { message: deployResponse.statusText } }));
       return json(
-        { error: `Failed to create deployment: ${errorData.error?.message || 'Unknown error'}` },
-        { status: 400 },
+        { error: `Failed to create Vercel deployment: ${errorData.error?.message || 'Unknown Vercel API error'}`, details: errorData.error || errorData },
+        { status: deployResponse.status },
       );
     }
 
@@ -225,11 +227,13 @@ export async function action({ request }: ActionFunctionArgs) {
     }
 
     if (deploymentState === 'ERROR') {
-      return json({ error: 'Deployment failed' }, { status: 500 });
+      // Attempt to get more specific error from deployment status if possible, though Vercel might not always provide it here
+      const statusError = (await statusResponse.json().catch(() => ({}))) as any;
+      return json({ error: 'Vercel deployment failed', details: statusError.error?.message || statusError.error || 'Deployment indicated an error state.' }, { status: 500 });
     }
 
     if (retryCount >= maxRetries) {
-      return json({ error: 'Deployment timed out' }, { status: 500 });
+      return json({ error: 'Vercel deployment timed out', details: 'Polling for deployment readiness exceeded maximum retries.' }, { status: 500 });
     }
 
     return json({
@@ -245,6 +249,6 @@ export async function action({ request }: ActionFunctionArgs) {
     });
   } catch (error) {
     console.error('Vercel deploy error:', error);
-    return json({ error: 'Deployment failed' }, { status: 500 });
+    return json({ error: 'Vercel deployment process failed', details: error instanceof Error ? error.message : String(error) }, { status: 500 });
   }
 }

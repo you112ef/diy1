@@ -54,7 +54,7 @@ export default function VercelConnection() {
     } catch (error) {
       console.error('Auth error:', error);
       logStore.logError('Failed to authenticate with Vercel', { error });
-      toast.error('Failed to connect to Vercel');
+      toast.error(`Failed to connect to Vercel: ${error instanceof Error ? error.message : String(error)}`);
       updateVercelConnection({ user: null, token: '' });
     } finally {
       isConnecting.set(false);

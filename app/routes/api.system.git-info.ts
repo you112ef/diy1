@@ -81,29 +81,28 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
   console.log('Git info action:', action);
 
   if (action === 'getUser' || action === 'getRepos' || action === 'getOrgs' || action === 'getActivity') {
-    // Use server-side token instead of client-side token
-    const serverGithubToken = process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN;
-    const cookieToken = request.headers
-      .get('Cookie')
-      ?.split(';')
-      .find((cookie) => cookie.trim().startsWith('githubToken='))
-      ?.split('=')[1];
-
-    // Also check for token in Authorization header
     const authHeader = request.headers.get('Authorization');
     const headerToken = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : null;
 
-    const token = serverGithubToken || headerToken || cookieToken;
+    let token: string | undefined | null = headerToken;
+    let tokenSource = 'auth header';
 
-    console.log(
-      'Using GitHub token from:',
-      serverGithubToken ? 'server env' : headerToken ? 'auth header' : cookieToken ? 'cookie' : 'none',
-    );
+    if (!token) {
+      const serverGithubToken = process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN;
+      if (serverGithubToken) {
+        token = serverGithubToken;
+        tokenSource = 'server env';
+      }
+    }
+
+    // Removed cookie token logic
+
+    console.log('Using GitHub token from:', tokenSource, token ? token.substring(0, 5) + '...' : 'none');
 
     if (!token) {
       console.error('No GitHub token available');
       return json(
-        { error: 'No GitHub token available' },
+        { error: 'No GitHub token available. Please provide a token in the Authorization header or set GITHUB_ACCESS_TOKEN on the server.' },
         {
           status: 401,
           headers: {
