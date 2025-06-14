@@ -10,8 +10,8 @@ interface SwitchProps {
 
 export const Switch = memo(({ className, onCheckedChange, checked }: SwitchProps) => {
   return (
-    {/* Switch track sized for better touch interaction (h-8 => 22px, w-14 => 38.5px at 11px root) */}
     <SwitchPrimitive.Root
+      // Switch track sized for better touch interaction (h-8 => 22px, w-14 => 38.5px at 11px root)
       className={classNames(
         'relative h-8 w-14 cursor-pointer rounded-full bg-bolt-elements-button-primary-background', // h-6 w-11 to h-8 w-14
         'transition-colors duration-200 ease-in-out',
