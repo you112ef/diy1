@@ -65,10 +65,10 @@ export default function ProfileTab() {
         {/* Personal Information Section */}
         <div>
           {/* Avatar Upload */}
-          <div className="flex items-start gap-6 mb-8">
+          <div className="flex items-start gap-6 mb-6"> {/* mb-8 to mb-6 */}
             <div
               className={classNames(
-                'w-24 h-24 rounded-full overflow-hidden',
+                'w-20 h-20 rounded-full overflow-hidden', // w-24 h-24 to w-20 h-20
                 'bg-gray-100 dark:bg-gray-800/50',
                 'flex items-center justify-center',
                 'ring-1 ring-gray-200 dark:ring-gray-700',
@@ -151,7 +151,7 @@ export default function ProfileTab() {
           </div>
 
           {/* Bio Input */}
-          <div className="mb-8">
+          <div className="mb-6"> {/* mb-8 to mb-6 */}
             <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Bio</label>
             <div className="relative group">
               <div className="absolute left-3.5 top-3">
@@ -169,7 +169,7 @@ export default function ProfileTab() {
                   'focus:outline-none focus:ring-2 focus:ring-purple-500/50 focus:border-purple-500/50',
                   'transition-all duration-300 ease-out',
                   'resize-none',
-                  'h-32',
+                  'h-28', // h-32 to h-28
                 )}
                 placeholder="Tell us about yourself"
               />

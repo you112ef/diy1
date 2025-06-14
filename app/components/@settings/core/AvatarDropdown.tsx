@@ -22,7 +22,7 @@ export const AvatarDropdown = ({ onSelectTab }: AvatarDropdownProps) => {
     <DropdownMenu.Root>
       <DropdownMenu.Trigger asChild>
         <motion.button
-          className="w-10 h-10 rounded-full bg-transparent flex items-center justify-center focus:outline-none"
+          className="w-[4rem] h-[4rem] rounded-full bg-transparent flex items-center justify-center focus:outline-none" // w-10 h-10 to w-[4rem] h-[4rem]
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
@@ -86,7 +86,7 @@ export const AvatarDropdown = ({ onSelectTab }: AvatarDropdownProps) => {
 
           <DropdownMenu.Item
             className={classNames(
-              'flex items-center gap-2 px-4 py-2.5',
+              'flex items-center gap-2 px-4 py-2.5 min-h-[4rem]', // Ensure this is the final state for item 1
               'text-sm text-gray-700 dark:text-gray-200',
               'hover:bg-purple-50 dark:hover:bg-purple-500/10',
               'hover:text-purple-500 dark:hover:text-purple-400',
@@ -102,7 +102,7 @@ export const AvatarDropdown = ({ onSelectTab }: AvatarDropdownProps) => {
 
           <DropdownMenu.Item
             className={classNames(
-              'flex items-center gap-2 px-4 py-2.5',
+              'flex items-center gap-2 px-4 py-2.5 min-h-[4rem]', // Ensure this is the final state for item 2
               'text-sm text-gray-700 dark:text-gray-200',
               'hover:bg-purple-50 dark:hover:bg-purple-500/10',
               'hover:text-purple-500 dark:hover:text-purple-400',
@@ -120,7 +120,7 @@ export const AvatarDropdown = ({ onSelectTab }: AvatarDropdownProps) => {
 
           <DropdownMenu.Item
             className={classNames(
-              'flex items-center gap-2 px-4 py-2.5',
+              'flex items-center gap-2 px-4 py-2.5 min-h-[4rem]', // Corrected for item 3
               'text-sm text-gray-700 dark:text-gray-200',
               'hover:bg-purple-50 dark:hover:bg-purple-500/10',
               'hover:text-purple-500 dark:hover:text-purple-400',
@@ -137,7 +137,7 @@ export const AvatarDropdown = ({ onSelectTab }: AvatarDropdownProps) => {
 
           <DropdownMenu.Item
             className={classNames(
-              'flex items-center gap-2 px-4 py-2.5',
+              'flex items-center gap-2 px-4 py-2.5 min-h-[4rem]', // Added min-h-[4rem] for item 4
               'text-sm text-gray-700 dark:text-gray-200',
               'hover:bg-purple-50 dark:hover:bg-purple-500/10',
               'hover:text-purple-500 dark:hover:text-purple-400',
