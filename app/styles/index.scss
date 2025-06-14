@@ -11,6 +11,15 @@ html,
 body {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Ensure the root element for Remix app also takes full height */
+#root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 :root {
@@ -21,4 +30,16 @@ body {
   // --primary-color: rgba(147, 112, 219, var(--gradient-opacity));
   // --secondary-color: rgba(138, 43, 226, var(--gradient-opacity));
   // --accent-color: rgba(180, 170, 220, var(--gradient-opacity));
+}
+
+.responsive-container {
+  max-width: 360px;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allows the container to grow and fill height */
+  /* Optional: align items in the center if the content itself shouldn't stretch */
+  /* align-items: center; */
+  /* justify-content: center; */ /* This would center content vertically */
 }

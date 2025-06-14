@@ -101,6 +101,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
                 width="24"
                 crossOrigin="anonymous"
                 src="https://cdn.simpleicons.org/netlify"
+                loading="lazy"
               />
               <span className="mx-auto">
                 {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify'}
@@ -123,6 +124,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
                 crossOrigin="anonymous"
                 src="https://cdn.simpleicons.org/vercel/white"
                 alt="vercel"
+                loading="lazy"
               />
               <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel'}</span>
               {vercelConn.user && <VercelDeploymentLink />}
@@ -140,6 +142,7 @@ export function HeaderActionButtons({}: HeaderActionButtonsProps) {
                 crossOrigin="anonymous"
                 src="https://cdn.simpleicons.org/cloudflare"
                 alt="cloudflare"
+                loading="lazy"
               />
               <span className="mx-auto">Deploy to Cloudflare (Coming Soon)</span>
             </Button>

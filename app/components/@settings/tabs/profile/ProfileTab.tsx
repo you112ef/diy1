@@ -87,6 +87,7 @@ export default function ProfileTab() {
                     'transition-all duration-300 ease-out',
                     'group-hover:scale-105 group-hover:brightness-90',
                   )}
+                  loading="lazy"
                 />
               ) : (
                 <div className="i-ph:robot-fill w-16 h-16 text-gray-400 dark:text-gray-500 transition-colors group-hover:text-purple-500/70 transform -translate-y-1" />

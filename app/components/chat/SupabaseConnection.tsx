@@ -90,6 +90,7 @@ export function SupabaseConnection() {
             width="20"
             crossOrigin="anonymous"
             src="https://cdn.simpleicons.org/supabase"
+              loading="lazy"
           />
           {isConnected && supabaseConn.project && (
             <span className="ml-1 text-xs max-w-[100px] truncate">{supabaseConn.project.name}</span>
@@ -109,6 +110,7 @@ export function SupabaseConnection() {
                     width="24"
                     crossOrigin="anonymous"
                     src="https://cdn.simpleicons.org/supabase"
+                    loading="lazy"
                   />
                   Connect to Supabase
                 </DialogTitle>
@@ -181,6 +183,7 @@ export function SupabaseConnection() {
                       width="24"
                       crossOrigin="anonymous"
                       src="https://cdn.simpleicons.org/supabase"
+                      loading="lazy"
                     />
                     Supabase Connection
                   </DialogTitle>

@@ -17,6 +17,7 @@ import xtermStyles from '@xterm/xterm/css/xterm.css?url';
 import 'virtual:uno.css';
 
 export const links: LinksFunction = () => [
+  { rel: 'manifest', href: '/manifest.json' },
   {
     rel: 'icon',
     href: '/favicon.svg',
@@ -58,7 +59,8 @@ const inlineThemeCode = stripIndents`
 export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <meta name="theme-color" content="#000000" />
     <Meta />
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
@@ -97,7 +99,9 @@ export default function App() {
 
   return (
     <Layout>
-      <Outlet />
+      <div className="responsive-container">
+        <Outlet />
+      </div>
     </Layout>
   );
 }
