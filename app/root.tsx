@@ -59,6 +59,13 @@ export const Head = createHead(() => (
   <>
     <meta charSet="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>تطبيق بولت | Bolt App</title>
+    <meta name="description" content="تطبيق ويب محسن وخفيف وسريع مصمم لتلبية احتياجاتك بكفاءة عالية." />
+    <link rel="manifest" href="/manifest.json" />
+    {/* Security Meta Tags - Note: Setting these via HTTP headers is generally preferred */}
+    <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'self' https://*.youtube.com https://*.vimeo.com; object-src 'none'; base-uri 'self';" />
+    <meta httpEquiv="X-Frame-Options" content="DENY" />
+    <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
     <Meta />
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
@@ -70,6 +77,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     document.querySelector('html')?.setAttribute('data-theme', theme);
+    // Ensure lang is set on client-side hydration as well, though server-side is preferred
+    document.documentElement.lang = 'ar';
   }, [theme]);
 
   return (

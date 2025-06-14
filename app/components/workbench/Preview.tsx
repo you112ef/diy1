@@ -196,8 +196,8 @@ export const Preview = memo(() => {
         style={{
           position: 'absolute',
           top: 0,
-          ...(side === 'left' ? { left: 0, marginLeft: '-7px' } : { right: 0, marginRight: '-7px' }),
-          width: '15px',
+          ...(side === 'left' ? { left: 0, marginLeft: '-0.54rem' /* original: -7px */ } : { right: 0, marginRight: '-0.54rem' /* original: -7px */ }),
+          width: '1.15rem', /* original: 15px */
           height: '100%',
           cursor: 'ew-resize',
           background: 'var(--bolt-elements-background-depth-4, rgba(0,0,0,.3))',
@@ -380,8 +380,8 @@ export const Preview = memo(() => {
       <div
         style={{
           color: 'var(--bolt-elements-textSecondary, rgba(0,0,0,0.5))',
-          fontSize: '10px',
-          lineHeight: '5px',
+          fontSize: '0.77rem', /* original: 10px */
+          lineHeight: '0.38rem', /* original: 5px */
           userSelect: 'none',
           marginLeft: '1px',
         }}
@@ -478,11 +478,11 @@ export const Preview = memo(() => {
                 
                 .device-name {
                   position: absolute;
-                  top: -30px;
+                  top: -2.31rem; /* original: -30px */
                   left: 0;
                   right: 0;
                   text-align: center;
-                  font-size: 14px;
+                  font-size: 1.08rem; /* original: 14px */
                   color: #333;
                 }
                 
@@ -491,7 +491,7 @@ export const Preview = memo(() => {
                   border-radius: ${frameRadius};
                   background: ${frameColor};
                   padding: ${framePadding};
-                  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                  box-shadow: 0 0.77rem 2.31rem rgba(0,0,0,0.2); /* original: 0 10px 30px */
                   overflow: hidden;
                 }
                 
@@ -505,7 +505,7 @@ export const Preview = memo(() => {
                   width: ${notchWidth};
                   height: ${notchHeight};
                   background: #333;
-                  border-radius: 4px;
+                  border-radius: 0.31rem; /* original: 4px */
                   z-index: 2;
                 }
                 
@@ -980,14 +980,14 @@ export const Preview = memo(() => {
               <div
                 style={{
                   position: 'absolute',
-                  top: '-25px',
+                  top: '-1.92rem', /* original: -25px */
                   left: '50%',
                   transform: 'translateX(-50%)',
                   background: 'var(--bolt-elements-background-depth-3, rgba(0,0,0,0.7))',
                   color: 'var(--bolt-elements-textPrimary, white)',
-                  padding: '2px 8px',
-                  borderRadius: '4px',
-                  fontSize: '12px',
+                  padding: '0.15rem 0.62rem', /* original: 2px 8px */
+                  borderRadius: '0.31rem', /* original: 4px */
+                  fontSize: '0.92rem', /* original: 12px */
                   pointerEvents: 'none',
                   opacity: resizingState.current.isResizing ? 1 : 0,
                   transition: 'opacity 0.3s',

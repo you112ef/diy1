@@ -725,6 +725,7 @@ export default function GitHubConnection() {
                 src={connection.user.avatar_url}
                 alt={connection.user.login}
                 className="w-12 h-12 rounded-full border-2 border-bolt-elements-item-contentAccent dark:border-bolt-elements-item-contentAccent"
+                loading="lazy"
               />
               <div>
                 <h4 className="text-sm font-medium text-bolt-elements-textPrimary dark:text-bolt-elements-textPrimary">

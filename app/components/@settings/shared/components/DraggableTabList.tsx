@@ -75,7 +75,7 @@ const DraggableTabItem = ({
       initial={false}
       animate={{
         scale: isDragging ? 1.02 : 1,
-        boxShadow: isDragging ? '0 8px 16px rgba(0,0,0,0.1)' : 'none',
+        boxShadow: isDragging ? '0 0.62rem 1.23rem rgba(0,0,0,0.1)' : 'none', /* original: 0 8px 16px */
       }}
       className={classNames(
         'flex items-center justify-between p-4 rounded-lg',

@@ -4,8 +4,8 @@
 }
 
 .diff-panel-content::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 0.62rem; /* original: 8px */
+  height: 0.62rem; /* original: 8px */
 }
 
 .diff-panel-content::-webkit-scrollbar-track {
@@ -14,8 +14,8 @@
 
 .diff-panel-content::-webkit-scrollbar-thumb {
   background-color: rgba(155, 155, 155, 0.5);
-  border-radius: 4px;
-  border: 2px solid transparent;
+  border-radius: 0.31rem; /* original: 4px */
+  border: 0.15rem solid transparent; /* original: 2px */
 }
 
 .diff-panel-content::-webkit-scrollbar-thumb:hover {
