@@ -81,7 +81,7 @@ export default function ProfileTab() {
               {profile.avatar ? (
                 <img
                   src={profile.avatar}
-                  alt="Profile"
+                  alt={profile.username ? `Profile picture of ${profile.username}` : 'Current profile picture'}
                   className={classNames(
                     'w-full h-full object-cover',
                     'transition-all duration-300 ease-out',

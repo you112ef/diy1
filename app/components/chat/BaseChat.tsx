@@ -550,6 +550,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         maxHeight: TEXTAREA_MAX_HEIGHT,
                       }}
                       placeholder="How can Bolt help you today?"
+                      aria-label="Chat input: How can Bolt help you today?"
                       translate="no"
                     />
                     <ClientOnly>
