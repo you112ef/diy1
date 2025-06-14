@@ -8,7 +8,46 @@ video {
 }
 
 // Media queries for general mobile screens (up to md breakpoint / 768px)
-@media (max-width: 768px) {
+@media (max-width: 768px) { // General mobile adjustments, including tablets in portrait
+  html {
+    font-size: 87.5%; // Scales 1rem from 16px to 14px, achieving ~85-87.5% reduction
+  }
+
+  // --- Max-Width Constraint for Main Content ---
+
+  // 1. Adjust --chat-max-width for the main chat interface content
+  // Original --chat-max-width is 37rem.
+  // Target 414px. At 1rem = 14px (due to html font scaling), 414px is approx 29.5rem.
+  // If content wrapper needs px-3 (0.75rem -> 10.5px at 1rem=14px) padding:
+  // Max content width = 414px - (2 * 10.5px) = 393px.
+  // 393px / 14px/rem = 28.07rem. Let's use 28rem for --chat-max-width.
+  :root {
+    --chat-max-width: 28rem; // Approx 392px content + padding makes it fit 414px
+  }
+  // And ensure elements using .max-w-chat have appropriate padding for mobile, e.g., px-3
+  // This might require checking BaseChat.tsx again for the specific classes on elements using max-w-chat.
+  // For now, changing the variable is the main goal. The padding is already responsive on those elements.
+
+  // 2. Constrain ProfileTab.tsx content width
+  // ProfileTab's main div has `max-w-2xl mx-auto px-2 sm:px-0`.
+  // `max-w-2xl` (42rem) becomes 42 * 14 = 588px. Too wide.
+  // We need to override this max-width.
+  // The `px-2 sm:px-0` applies *outside* this max-width.
+  // We want the content *within* ControlPanel's padding (which is p-3 on mobile)
+  // to then have a max-width of 414px (including ProfileTab's own internal padding if any).
+  // Let's target the ProfileTab main div specifically.
+  // Assuming ProfileTab's root div might get a specific class or can be targeted if it's unique.
+  // If ProfileTab's root element is just `<div className="max-w-2xl mx-auto px-2 sm:px-0">`
+  :global(div[class*="max-w-2xl"][class*="mx-auto"]) { // Attempt to target ProfileTab's main div
+    // On mobile, after html font scaling, 1rem=14px.
+    // Target 414px. If it has internal padding (e.g. ProfileTab itself adds p-3),
+    // then max-width should be 414px - (2 * padding_px).
+    // ProfileTab's `space-y-4 sm:space-y-6` doesn't add horizontal padding to the root.
+    // The `px-2` (0.5rem = 7px at 1rem=14px) on the ProfileTab root
+    // will apply outside this max-width, ensuring it doesn't touch edges if viewport is < 413px + 14px.
+    max-width: 29.5rem; // Approx 413px
+  }
+
   // Reduce header padding. The header element in Header.tsx has classes "flex items-center p-5".
   // We need a selector specific enough to target it without being overly fragile.
   // Assuming the <header> tag is unique enough or has a specific parent if needed.
@@ -113,63 +152,79 @@ video {
   // This selector is based on: classNames('text-lg font-medium text-bolt-elements-textPrimary ...')
   // It's brittle. A custom class on DialogTitle would be better.
   :global(h2[class*="text-lg"][class*="font-medium"][class*="text-bolt-elements-textPrimary"]) {
-    font-size: 1rem; // text-base equivalent
+    // font-size: 1rem; // Removed to allow root font scaling for text-lg
     // Ensure line-height adjusts if it was fixed or too large
     line-height: 1.4; // Example, adjust as needed
   }
 
-  // --- Improve Tappable Areas ---
+  // --- Ensure Tappable Areas for Buttons & Forms after root font scaling ---
+  // html { font-size: 87.5%; } is already at the top of this media query.
+  // Now, 1rem = 14px. Target height ~40px => ~2.85rem.
+  // For text-sm (0.875rem = 12.25px), padding needed per side is (40-12.25)/2 = ~13.875px => ~1rem at new scale.
 
-  // For UnoCSS-generated small buttons (e.g., Button size="sm" which is h-8, px-3, text-xs)
-  // Target class for h-8 (2rem height) buttons
-  :global(button[class*="h-8"][class*="px-3"]) {
-    min-height: 2.5rem; // Ensure minimum height of h-10 (40px)
-    padding-top: 0.625rem; // Adjust py if h-* doesn't incorporate it fully
-    padding-bottom: 0.625rem;
+  // Buttons:
+  // Default buttons (h-9 px-4 py-2, text-sm in CVA)
+  // Small buttons (h-8 px-3, text-xs in CVA)
+  // Large buttons (h-10 px-8, text-sm default in CVA)
+  // We aim for a consistent touch height.
+  // Overriding CVA-generated classes for height and padding.
+  // This applies to <button> elements matching these common CVA size patterns.
+  :global(button[class*="h-8"][class*="text-xs"]), // targets size="sm"
+  :global(button[class*="h-9"][class*="text-sm"]), // targets size="default"
+  :global(button[class*="h-10"][class*="text-sm"]) { // targets size="lg" (assuming text-sm if not specified)
+    min-height: 2.8rem; // Approx 39.2px
+    padding-top: 0.5rem;    // Keep some base padding from CVA like py-2 (0.5rem now 7px)
+    padding-bottom: 0.5rem; // and let min-height ensure the total.
+                            // More direct: if text-sm is 0.875rem (12.25px),
+                            // then py should be (2.8rem - 0.875rem)/2 = ~0.96rem.
+                            // So, py-3.5 (0.875rem) or py-4 (1rem) would be better.
+    padding-top: 0.9rem;    // Revised for direct height contribution
+    padding-bottom: 0.9rem; // Revised for direct height contribution
+    // Horizontal padding (px-3, px-4, px-8 from CVA) will also scale with rem if defined in rem.
+    // px-3 (0.75rem) -> 10.5px
+    // px-4 (1rem)   -> 14px
+    // px-8 (2rem)   -> 28px. This px-8 for lg buttons is very large for mobile.
   }
 
-  // For standard input fields and select elements to increase their height
-  // Inputs like in ProfileTab (after previous scaling: py-2, text-sm)
-  // Selects in SettingsTab (py-2, px-3, text-sm)
-  :global(input.pl-11.pr-4), // Targeting the previously styled inputs
+  // Specifically for lg buttons, reduce horizontal padding on mobile
+  :global(button[class*="h-10"][class*="px-8"]) { // targets size="lg"
+    padding-left: 1rem;  // px-4 equivalent (14px)
+    padding-right: 1rem; // px-4 equivalent (14px)
+  }
+
+  // Inputs and Selects:
+  // Targeting inputs/textareas like in ProfileTab and standard selects.
+  // Previous rules set py-2.5 (0.625rem) which is now 8.75px. Font is text-sm (12.25px). Height ~30px.
+  // Need to increase py to hit ~40px total height.
+  :global(input.pl-11.pr-4), // ProfileTab style inputs
   :global(textarea.pl-11.pr-4),
-  :global(select[class*="px-3"][class*="py-2"][class*="text-sm"]) {
-    padding-top: 0.625rem;    // py-2.5 equivalent (makes height around 38-40px with text-sm)
-    padding-bottom: 0.625rem; // py-2.5 equivalent
-    // font-size: 0.875rem; // text-sm (already applied or default)
+  :global(select[class*="px-3"][class*="py-2"][class*="text-sm"]) { // Standard select
+    padding-top: 0.9rem;    // Target ~12.5px-14px padding (at 1rem=14px)
+    padding-bottom: 0.9rem; // This makes total height with text-sm (~12px) around 12+12.5+12.5 = ~37px + borders.
+                           // Let's use 1rem for ~40px
+    padding-top: 1rem;      // Approx 14px
+    padding-bottom: 1rem;   // Approx 14px
+    // Ensure font size is consistently text-sm for these inputs on mobile
+    font-size: 0.875rem; // text-sm (12.25px)
   }
-  // Specifically for the ProfileTab inputs to override more specific previous padding rules for height
-  :global(input.pl-11.pr-4[style*="padding-top: 0.5rem"]),
-  :global(textarea.pl-11.pr-4[style*="padding-top: 0.5rem"]) {
-     padding-top: 0.625rem !important;
-     padding-bottom: 0.625rem !important;
-  }
+  // Remove more specific padding overrides that might conflict from previous steps if they are too small
+  // This is tricky; ideally, prior overrides would be removed or updated.
+  // For now, these new general rules should take precedence if more specific or !important is not used elsewhere.
 
-  // Switch component: Revert very small screen scaling for height, ensure at least h-6.
-  // Original size: h-6 w-11. Previous override for max-width:425px made it h-5 w-10.
-  // Let's ensure h-6 (24px) is the minimum height, and width can be w-10 or w-11.
-  // The transform override for the thumb needs to be for the h-6, w-11 size.
-  :global([role="switch"][class*="w-11"][class*="h-6"]) { // If it became h-5, this selector won't match.
-                                                          // We need to ensure it IS h-6, or target based on what it became.
-                                                          // Let's assume we want to enforce h-6.
-    min-height: 1.5rem; // h-6
-    // width: 2.5rem; // w-10 - allow width to be compact
-  }
-  :global([role="switch"][class*="w-11"][class*="h-6"] > span) { // Thumb for h-6 switch
-    // Ensure thumb is h-5 w-5 as in original Switch.tsx for h-6 root
-    min-height: 1.25rem; // h-5
-    min-width: 1.25rem;  // w-5
-  }
-  // Re-evaluate thumb translation for standard h-6, w-11 switch.
-  // Original SwitchPrimitive.Thumb: translate-x-0.5 (2px), data-[state=checked]:translate-x-[1.375rem] (22px)
-  // This is for a 2.75rem (44px) wide switch with a 1.25rem (20px) thumb.
-  // Movement = 44 - 20 - 2*thumb_border_or_internal_padding_of_root = 24px approx.
-  // 1.375rem is 22px. So original movement is correct.
-  // If we made switch w-10 (2.5rem = 40px) and thumb h-4 w-4 (1rem = 16px).
-  // Movement = 40 - 16 - (2*2px) = 20px = 1.25rem.
-  // The CSS for translate-x in the previous step for max-width:425px might be okay if switch is w-10.
-  // For now, let's assume the switch is kept at h-6, w-11 or h-6, w-10 and its default Radix transforms are fine.
-  // The main thing is to ensure its height isn't too small.
+  // Switch component:
+  // Original h-6 (1.5rem) is now 21px. This is small.
+  // Let's make it slightly larger to improve tappability if it's standalone.
+  // If it's always part of a larger tappable row, this might not be needed.
+  // For now, keeping it as scaled by root font, as it's often in a row with a label.
+  // :global([role="switch"][class*="w-11"][class*="h-6"]) {
+  //   min-height: 1.75rem; // ~24.5px
+  // }
+  // :global([role="switch"][class*="w-11"][class*="h-6"] > span) { // Thumb
+  //   min-height: 1.25rem; // Keep thumb size relative to its track
+  //   min-width: 1.25rem;
+  // }
+
+// End of @media (max-width: 768px) block
 }
 
 // For very small screens (e.g., iPhone SE - 320px, and up to ~425px)
@@ -239,48 +294,40 @@ video {
     height: 1.125rem;
   }
 
-  :global(input.pl-11.pr-4.py-2\.5),
-  :global(textarea.pl-11.pr-4.py-2\.5) {
-    padding-top: 0.375rem;    // py-1.5
-    padding-bottom: 0.375rem; // py-1.5
-    padding-left: 1.75rem;   // pl-7 (further reduction for icon space)
-    padding-right: 0.5rem;   // pr-2
-    // font-size: 0.875rem; // text-sm (already set above)
-  }
+  // :global(input.pl-11.pr-4.py-2\.5), // Commented out as 768px rules should handle this now
+  // :global(textarea.pl-11.pr-4.py-2\.5) {
+  //   padding-top: 0.375rem;    // py-1.5
+  //   padding-bottom: 0.375rem; // py-1.5
+  //   padding-left: 1.75rem;   // pl-7 (further reduction for icon space)
+  //   padding-right: 0.5rem;   // pr-2
+  //   // font-size: 0.875rem; // text-sm (already set above)
+  // }
 
-  :global(textarea.pl-11.pr-4.py-2\.5.h-32) {
-    height: 5rem; // h-20
-  }
+  // :global(textarea.pl-11.pr-4.py-2\.5.h-32) { // Commented out as 768px rules should handle this now
+  //   height: 5rem; // h-20
+  // }
 
   // Switch component scaling (original: h-6 w-11, thumb: h-5 w-5)
   // Targeting Radix UI structure if direct classes are not stable
-  :global([role="switch"][class*="h-6"][class*="w-11"]) {
-    width: 2.5rem;  // w-10
-    height: 1.25rem; // h-5
-  }
-  :global([role="switch"][class*="h-6"][class*="w-11"] > span[class*="h-5"][class*="w-5"]) { // Thumb
-    width: 1rem;     // w-4
-    height: 1rem;    // h-4
-    // Adjust transform for new size: data-[state=checked]:translate-x-[1.25rem] approx
-    // This transform is complex to override precisely without knowing exact CVA output
-    // or modifying the component. For now, we scale the container and thumb.
-    // The data-state-checked transform might need JS adjustment or more complex CSS if this isn't enough.
-  }
-   // For Switch Primitive Thumb's data-[state=checked]:translate-x-[1.375rem]
-   // Original: h-6 w-11 (thumb h-5 w-5, moves 1.375rem which is 22px from initial 0.5 translate)
-   // New: h-5 w-10 (thumb h-4 w-4, moves ??)
-   // If switch is w-10 (2.5rem = 40px), thumb is w-4 (1rem = 16px)
-   // Max translate: 40px - 16px - (initial_offset * 2)
-   // Initial offset is 0.5 * new_thumb_size? Or related to new_switch_padding?
-   // The original translate-x-0.5 means 2px. New switch is 20px height.
-   // Let's assume new initial offset is small (e.g., 1px or 2px).
-   // Translate needed: 40px (w-10) - 16px (w-4) - (2px*2) = 20px = 1.25rem
-  :global([role="switch"][class*="h-6"][class*="w-11"] > span[class*="h-5"][class*="w-5"][data-state="checked"]) {
-    transform: translateX(1.125rem); // Approx for w-10, thumb w-4. (2.5rem - 1rem - 0.125rem*2 = 1.25rem). Original was 1.375rem
-  }
-   :global([role="switch"][class*="h-6"][class*="w-11"] > span[class**="h-5"][class*="w-5"][data-state="unchecked"]) {
-    transform: translateX(0.125rem); // Approx for new thumb initial pos. Original was 0.5 (2px for h-6)
-  }
+  // These rules for 425px were making switch smaller (h-5).
+  // The 768px rules now aim to keep switch at h-6.
+  // So, these specific 425px overrides for switch size are removed to let 768px rules apply,
+  // unless a *further different* scaling is needed for very small screens.
+  // For now, assume 768px switch styling is adequate for <425px too.
+  // :global([role="switch"][class*="h-6"][class*="w-11"]) {
+  //   width: 2.5rem;  // w-10
+  //   height: 1.25rem; // h-5
+  // }
+  // :global([role="switch"][class*="h-6"][class*="w-11"] > span[class*="h-5"][class*="w-5"]) { // Thumb
+  //   width: 1rem;     // w-4
+  //   height: 1rem;    // h-4
+  // }
+  // :global([role="switch"][class*="h-6"][class*="w-11"] > span[class*="h-5"][class*="w-5"][data-state="checked"]) {
+  //   transform: translateX(1.125rem);
+  // }
+  //  :global([role="switch"][class*="h-6"][class*="w-11"] > span[class**="h-5"][class*="w-5"][data-state="unchecked"]) {
+  //   transform: translateX(0.125rem);
+  // }
 
   // Application Header Title
   :global(header.p-5.border-b div.flex.items-center.gap-2 a span) {
@@ -289,7 +336,7 @@ video {
 
   // Dialog Titles
   :global(h2[class*="text-lg"][class*="font-medium"][class*="text-bolt-elements-textPrimary"]) {
-    font-size: 0.875rem; // text-sm equivalent
+    // font-size: 0.875rem; // Removed to allow root font scaling for text-lg
     line-height: 1.3; // Example
   }
 
@@ -298,11 +345,14 @@ video {
   :global(textarea.pl-11.pr-4),
   :global(select[class*="px-3"][class*="py-2"][class*="text-sm"]) {
     // font-size: 0.875rem; // text-sm
-    // padding-top: 0.625rem; // py-2.5 already set above
-    // padding-bottom: 0.625rem; // py-2.5 already set above
+    // padding-top: 0.625rem; // py-2.5 already set by 768px rules
+    // padding-bottom: 0.625rem; // py-2.5 already set by 768px rules
   }
 
   // If small buttons (h-8 / 32px default) are still too small, increase their padding more.
+  // The 768px rule already sets min-height: 2.8rem and py: 0.9rem.
+  // This rule for 425px re-asserts min-height: 2.5rem. If 2.8rem is desired, this can be removed.
+  // For consistency with prompt, keeping this specific 425px rule.
   :global(button[class*="h-8"][class*="px-3"]) {
     min-height: 2.5rem; // h-10 (40px)
     // padding-top: 0.75rem; // py-3 (if h-10 means 2.5rem total height)
