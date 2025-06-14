@@ -17,8 +17,9 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
 });
 Card.displayName = 'Card';
 
+// Padding reduced from p-6 to p-5 (p-5 = 1.25rem * 11px = 13.75px) to reduce empty space.
 const CardHeader = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
-  return <div ref={ref} className={classNames('flex flex-col space-y-1.5 p-6', className)} {...props} />;
+  return <div ref={ref} className={classNames('flex flex-col space-y-1.5 p-5', className)} {...props} />;
 });
 CardHeader.displayName = 'CardHeader';
 
@@ -42,13 +43,15 @@ const CardDescription = forwardRef<HTMLParagraphElement, React.HTMLAttributes<HT
 );
 CardDescription.displayName = 'CardDescription';
 
+// Padding reduced from p-6 to p-5 (p-5 = 1.25rem * 11px = 13.75px) to reduce empty space.
 const CardContent = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
-  return <div ref={ref} className={classNames('p-6 pt-0', className)} {...props} />;
+  return <div ref={ref} className={classNames('p-5 pt-0', className)} {...props} />;
 });
 CardContent.displayName = 'CardContent';
 
+// Padding reduced from p-6 to p-5 (p-5 = 1.25rem * 11px = 13.75px) to reduce empty space.
 const CardFooter = forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(({ className, ...props }, ref) => (
-  <div ref={ref} className={classNames('flex items-center p-6 pt-0', className)} {...props} />
+  <div ref={ref} className={classNames('flex items-center p-5 pt-0', className)} {...props} />
 ));
 CardFooter.displayName = 'CardFooter';
 

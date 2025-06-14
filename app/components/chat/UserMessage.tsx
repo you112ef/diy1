@@ -25,7 +25,7 @@ export function UserMessage({ content }: UserMessageProps) {
               src={item.image}
               alt={`Image ${index + 1}`}
               className="max-w-full h-auto rounded-lg"
-              style={{ maxHeight: '39.38rem', /* original: 512px */ objectFit: 'contain' }}
+              style={{ maxHeight: '46.55rem', /* original: 512px */ objectFit: 'contain' }}
               loading="lazy"
             />
           ))}

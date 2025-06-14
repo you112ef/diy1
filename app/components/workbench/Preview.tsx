@@ -196,8 +196,8 @@ export const Preview = memo(() => {
         style={{
           position: 'absolute',
           top: 0,
-          ...(side === 'left' ? { left: 0, marginLeft: '-0.54rem' /* original: -7px */ } : { right: 0, marginRight: '-0.54rem' /* original: -7px */ }),
-          width: '1.15rem', /* original: 15px */
+          ...(side === 'left' ? { left: 0, marginLeft: '-0.64rem' /* original: -7px */ } : { right: 0, marginRight: '-0.64rem' /* original: -7px */ }),
+          width: '1.36rem', /* original: 15px */
           height: '100%',
           cursor: 'ew-resize',
           background: 'var(--bolt-elements-background-depth-4, rgba(0,0,0,.3))',
@@ -380,8 +380,8 @@ export const Preview = memo(() => {
       <div
         style={{
           color: 'var(--bolt-elements-textSecondary, rgba(0,0,0,0.5))',
-          fontSize: '0.77rem', /* original: 10px */
-          lineHeight: '0.38rem', /* original: 5px */
+          fontSize: '0.91rem', /* original: 10px */
+          lineHeight: '0.45rem', /* original: 5px */
           userSelect: 'none',
           marginLeft: '1px',
         }}
@@ -478,11 +478,11 @@ export const Preview = memo(() => {
                 
                 .device-name {
                   position: absolute;
-                  top: -2.31rem; /* original: -30px */
+                  top: -2.73rem; /* original: -30px */
                   left: 0;
                   right: 0;
                   text-align: center;
-                  font-size: 1.08rem; /* original: 14px */
+                  font-size: 1.27rem; /* original: 14px */
                   color: #333;
                 }
                 
@@ -491,7 +491,7 @@ export const Preview = memo(() => {
                   border-radius: ${frameRadius};
                   background: ${frameColor};
                   padding: ${framePadding};
-                  box-shadow: 0 0.77rem 2.31rem rgba(0,0,0,0.2); /* original: 0 10px 30px */
+                  box-shadow: 0 0.91rem 2.73rem rgba(0,0,0,0.2); /* original: 0 10px 30px */
                   overflow: hidden;
                 }
                 
@@ -505,7 +505,7 @@ export const Preview = memo(() => {
                   width: ${notchWidth};
                   height: ${notchHeight};
                   background: #333;
-                  border-radius: 0.31rem; /* original: 4px */
+                  border-radius: 0.36rem; /* original: 4px */
                   z-index: 2;
                 }
                 
@@ -833,8 +833,8 @@ export const Preview = memo(() => {
                         <div className="text-[#6D28D9] dark:text-[#6D28D9]">
                           <svg
                             xmlns="http://www.w3.org/2000/svg"
-                            width="16"
-                            height="16"
+                            width="1.45rem" /* original: 16px */
+                            height="1.45rem" /* original: 16px */
                             viewBox="0 0 24 24"
                             fill="none"
                             stroke="currentColor"
@@ -980,14 +980,14 @@ export const Preview = memo(() => {
               <div
                 style={{
                   position: 'absolute',
-                  top: '-1.92rem', /* original: -25px */
+                  top: '-2.27rem', /* original: -25px */
                   left: '50%',
                   transform: 'translateX(-50%)',
                   background: 'var(--bolt-elements-background-depth-3, rgba(0,0,0,0.7))',
                   color: 'var(--bolt-elements-textPrimary, white)',
-                  padding: '0.15rem 0.62rem', /* original: 2px 8px */
-                  borderRadius: '0.31rem', /* original: 4px */
-                  fontSize: '0.92rem', /* original: 12px */
+                  padding: '0.18rem 0.73rem', /* original: 2px 8px */
+                  borderRadius: '0.36rem', /* original: 4px */
+                  fontSize: '1.09rem', /* original: 12px */
                   pointerEvents: 'none',
                   opacity: resizingState.current.isResizing ? 1 : 0,
                   transition: 'opacity 0.3s',

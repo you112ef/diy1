@@ -19,7 +19,7 @@ const menuVariants = {
   closed: {
     opacity: 0,
     visibility: 'hidden',
-    left: '-26.15rem', /* original: -340px */
+    left: '-30.91rem', /* original: -340px */
     transition: {
       duration: 0.2,
       ease: cubicEasingFn,
@@ -329,7 +329,7 @@ export const Menu = () => {
         initial="closed"
         animate={open ? 'open' : 'closed'}
         variants={menuVariants}
-        style={{ width: '26.15rem' /* original: 340px */ }}
+        style={{ width: '30.91rem' /* original: 340px */ }}
         className={classNames(
           'flex selection-accent flex-col side-menu fixed top-0 h-full',
           'bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-800/50',

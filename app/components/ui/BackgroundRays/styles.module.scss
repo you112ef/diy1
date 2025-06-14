@@ -41,95 +41,95 @@
 }
 
 .ray1 {
-  width: 46.15rem; /* original: 600px */
-  height: 61.54rem; /* original: 800px */
+  width: 54.55rem; /* original: 600px */
+  height: 72.73rem; /* original: 800px */
   background: var(--ray-gradient-primary);
   transform: rotate(65deg);
-  top: -38.46rem; /* original: -500px */
-  left: -7.69rem; /* original: -100px */
-  filter: blur(6.15rem); /* original: 80px */
+  top: -45.45rem; /* original: -500px */
+  left: -9.09rem; /* original: -100px */
+  filter: blur(7.27rem); /* original: 80px */
   opacity: 0.6;
   animation: float1 15s infinite ease-in-out;
 }
 
 .ray2 {
-  width: 30.77rem; /* original: 400px */
-  height: 46.15rem; /* original: 600px */
+  width: 36.36rem; /* original: 400px */
+  height: 54.55rem; /* original: 600px */
   background: var(--ray-gradient-secondary);
   transform: rotate(-30deg);
-  top: -23.08rem; /* original: -300px */
-  left: 15.38rem; /* original: 200px */
-  filter: blur(4.62rem); /* original: 60px */
+  top: -27.27rem; /* original: -300px */
+  left: 18.18rem; /* original: 200px */
+  filter: blur(5.45rem); /* original: 60px */
   opacity: 0.6;
   animation: float2 18s infinite ease-in-out;
 }
 
 .ray3 {
-  width: 38.46rem; /* original: 500px */
-  height: 30.77rem; /* original: 400px */
+  width: 45.45rem; /* original: 500px */
+  height: 36.36rem; /* original: 400px */
   background: var(--ray-gradient-accent);
-  top: -24.62rem; /* original: -320px */
-  left: 38.46rem; /* original: 500px */
-  filter: blur(5rem); /* original: 65px */
+  top: -29.09rem; /* original: -320px */
+  left: 45.45rem; /* original: 500px */
+  filter: blur(5.91rem); /* original: 65px */
   opacity: 0.5;
   animation: float3 20s infinite ease-in-out;
 }
 
 .ray4 {
-  width: 30.77rem; /* original: 400px */
-  height: 34.62rem; /* original: 450px */
+  width: 36.36rem; /* original: 400px */
+  height: 40.91rem; /* original: 450px */
   background: var(--ray-gradient-secondary);
-  top: -26.92rem; /* original: -350px */
-  left: 61.54rem; /* original: 800px */
-  filter: blur(4.23rem); /* original: 55px */
+  top: -31.82rem; /* original: -350px */
+  left: 72.73rem; /* original: 800px */
+  filter: blur(5rem); /* original: 55px */
   opacity: 0.55;
   animation: float4 17s infinite ease-in-out;
 }
 
 .ray5 {
-  width: 26.92rem; /* original: 350px */
-  height: 38.46rem; /* original: 500px */
+  width: 31.82rem; /* original: 350px */
+  height: 45.45rem; /* original: 500px */
   background: var(--ray-gradient-primary);
   transform: rotate(-45deg);
-  top: -19.23rem; /* original: -250px */
-  left: 76.92rem; /* original: 1000px */
-  filter: blur(3.46rem); /* original: 45px */
+  top: -22.73rem; /* original: -250px */
+  left: 90.91rem; /* original: 1000px */
+  filter: blur(4.09rem); /* original: 45px */
   opacity: 0.6;
   animation: float5 16s infinite ease-in-out;
 }
 
 .ray6 {
-  width: 23.08rem; /* original: 300px */
-  height: 53.85rem; /* original: 700px */
+  width: 27.27rem; /* original: 300px */
+  height: 63.64rem; /* original: 700px */
   background: var(--ray-gradient-accent);
   transform: rotate(75deg);
-  top: -30.77rem; /* original: -400px */
-  left: 46.15rem; /* original: 600px */
-  filter: blur(5.77rem); /* original: 75px */
+  top: -36.36rem; /* original: -400px */
+  left: 54.55rem; /* original: 600px */
+  filter: blur(6.82rem); /* original: 75px */
   opacity: 0.45;
   animation: float6 19s infinite ease-in-out;
 }
 
 .ray7 {
-  width: 34.62rem; /* original: 450px */
-  height: 46.15rem; /* original: 600px */
+  width: 40.91rem; /* original: 450px */
+  height: 54.55rem; /* original: 600px */
   background: var(--ray-gradient-primary);
   transform: rotate(45deg);
-  top: -34.62rem; /* original: -450px */
-  left: 26.92rem; /* original: 350px */
-  filter: blur(5rem); /* original: 65px */
+  top: -40.91rem; /* original: -450px */
+  left: 31.82rem; /* original: 350px */
+  filter: blur(5.91rem); /* original: 65px */
   opacity: 0.55;
   animation: float7 21s infinite ease-in-out;
 }
 
 .ray8 {
-  width: 29.23rem; /* original: 380px */
-  height: 42.31rem; /* original: 550px */
+  width: 34.55rem; /* original: 380px */
+  height: 50rem; /* original: 550px */
   background: var(--ray-gradient-secondary);
   transform: rotate(-60deg);
-  top: -29.23rem; /* original: -380px */
-  left: 57.69rem; /* original: 750px */
-  filter: blur(4.46rem); /* original: 58px */
+  top: -34.55rem; /* original: -380px */
+  left: 68.18rem; /* original: 750px */
+  filter: blur(5.27rem); /* original: 58px */
   opacity: 0.6;
   animation: float8 14s infinite ease-in-out;
 }
@@ -140,13 +140,13 @@
     transform: rotate(65deg) translate(0, 0);
   }
   25% {
-    transform: rotate(70deg) translate(2.31rem, 1.54rem); /* original: 30px, 20px */
+    transform: rotate(70deg) translate(2.73rem, 1.82rem); /* original: 30px, 20px */
   }
   50% {
-    transform: rotate(60deg) translate(-1.54rem, 3.08rem); /* original: -20px, 40px */
+    transform: rotate(60deg) translate(-1.82rem, 3.64rem); /* original: -20px, 40px */
   }
   75% {
-    transform: rotate(68deg) translate(-3.08rem, 0.77rem); /* original: -40px, 10px */
+    transform: rotate(68deg) translate(-3.64rem, 0.91rem); /* original: -40px, 10px */
   }
 }
 
@@ -169,10 +169,10 @@
     transform: translate(0, 0) rotate(0deg);
   }
   25% {
-    transform: translate(3.08rem, 1.54rem) rotate(5deg); /* original: 40px, 20px */
+    transform: translate(3.64rem, 1.82rem) rotate(5deg); /* original: 40px, 20px */
   }
   75% {
-    transform: translate(-2.31rem, 3.08rem) rotate(-5deg); /* original: -30px, 40px */
+    transform: translate(-2.73rem, 3.64rem) rotate(-5deg); /* original: -30px, 40px */
   }
 }
 
@@ -192,10 +192,10 @@
     transform: rotate(-45deg) translate(0, 0);
   }
   33% {
-    transform: rotate(-40deg) translate(1.92rem, -1.54rem); /* original: 25px, -20px */
+    transform: rotate(-40deg) translate(2.27rem, -1.82rem); /* original: 25px, -20px */
   }
   66% {
-    transform: rotate(-50deg) translate(-1.92rem, 1.54rem); /* original: -25px, 20px */
+    transform: rotate(-50deg) translate(-2.27rem, 1.82rem); /* original: -25px, 20px */
   }
 }
 
@@ -203,11 +203,11 @@
   0%,
   100% {
     transform: rotate(75deg) scale(1);
-    filter: blur(5.77rem); /* original: 75px */
+    filter: blur(6.82rem); /* original: 75px */
   }
   50% {
     transform: rotate(85deg) scale(1.1);
-    filter: blur(5rem); /* original: 65px */
+    filter: blur(5.91rem); /* original: 65px */
   }
 }
 
@@ -218,7 +218,7 @@
     opacity: 0.55;
   }
   50% {
-    transform: rotate(40deg) translate(-2.31rem, 2.31rem); /* original: -30px, 30px */
+    transform: rotate(40deg) translate(-2.73rem, 2.73rem); /* original: -30px, 30px */
     opacity: 0.65;
   }
 }

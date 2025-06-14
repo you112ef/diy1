@@ -66,6 +66,8 @@ export const Head = createHead(() => (
     <meta httpEquiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://*.supabase.co wss://*.supabase.co; frame-src 'self' https://*.youtube.com https://*.vimeo.com; object-src 'none'; base-uri 'self';" />
     <meta httpEquiv="X-Frame-Options" content="DENY" />
     <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains" />
+    {/* Prevents browsers from MIME-sniffing a response away from the declared content-type */}
+    <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
     <Meta />
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
