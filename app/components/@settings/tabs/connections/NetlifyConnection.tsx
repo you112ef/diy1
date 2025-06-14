@@ -169,13 +169,35 @@ export default function NetlifyConnection() {
     setIsConnecting(true);
 
     try {
-      const response = await fetch('https://api.netlify.com/api/v1/user', {
-        headers: {
-          Authorization: `Bearer ${tokenInput}`,
-        },
+      const targetURL = 'https://api.netlify.com/api/v1/user';
+      const requestHeaders = {
+        Authorization: `Bearer ${tokenInput}`,
+      };
+      console.log('[NetlifyConnection handleConnect] Requesting User:');
+      console.log('[NetlifyConnection handleConnect]   Token Input (first 5 chars):', tokenInput ? tokenInput.substring(0, 5) + '...' : 'undefined');
+      console.log('[NetlifyConnection handleConnect]   Target URL:', targetURL);
+      console.log('[NetlifyConnection handleConnect]   Request Headers:', JSON.stringify(requestHeaders, null, 2));
+
+      const response = await fetch(targetURL, { headers: requestHeaders });
+
+      console.log('[NetlifyConnection handleConnect] Response User:');
+      console.log(`[NetlifyConnection handleConnect]   Status: ${response.status}`);
+      console.log(`[NetlifyConnection handleConnect]   Status Text: ${response.statusText}`);
+      const responseHeadersObj: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        responseHeadersObj[key] = value;
       });
+      console.log('[NetlifyConnection handleConnect]   Response Headers:', JSON.stringify(responseHeadersObj, null, 2));
 
       if (!response.ok) {
+        const errorBody = await response.clone().text(); // Try text first
+        console.log('[NetlifyConnection handleConnect]   Error Body (Text):', errorBody);
+        try {
+          const errorJson = JSON.parse(errorBody); // Then try JSON
+          console.log('[NetlifyConnection handleConnect]   Error Body (Parsed JSON):', JSON.stringify(errorJson, null, 2));
+        } catch (e) {
+          // Not a JSON response
+        }
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
@@ -217,13 +239,32 @@ export default function NetlifyConnection() {
 
     try {
       // Fetch sites
-      const sitesResponse = await fetch('https://api.netlify.com/api/v1/sites', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const sitesTargetURL = 'https://api.netlify.com/api/v1/sites';
+      const sitesRequestHeaders = { Authorization: `Bearer ${token}` };
+      console.log('[NetlifyConnection fetchNetlifyStats] Requesting Sites:');
+      console.log('[NetlifyConnection fetchNetlifyStats]   Target URL:', sitesTargetURL);
+      console.log('[NetlifyConnection fetchNetlifyStats]   Request Headers:', JSON.stringify(sitesRequestHeaders, null, 2));
+
+      const sitesResponse = await fetch(sitesTargetURL, { headers: sitesRequestHeaders });
+
+      console.log('[NetlifyConnection fetchNetlifyStats] Response Sites:');
+      console.log(`[NetlifyConnection fetchNetlifyStats]   Status: ${sitesResponse.status}`);
+      console.log(`[NetlifyConnection fetchNetlifyStats]   Status Text: ${sitesResponse.statusText}`);
+      const sitesResponseHeadersObj: Record<string, string> = {};
+      sitesResponse.headers.forEach((value, key) => {
+        sitesResponseHeadersObj[key] = value;
       });
+      console.log('[NetlifyConnection fetchNetlifyStats]   Response Headers:', JSON.stringify(sitesResponseHeadersObj, null, 2));
 
       if (!sitesResponse.ok) {
+        const errorBody = await sitesResponse.clone().text();
+        console.log('[NetlifyConnection fetchNetlifyStats]   Sites Error Body (Text):', errorBody);
+        try {
+          const errorJson = JSON.parse(errorBody);
+          console.log('[NetlifyConnection fetchNetlifyStats]   Sites Error Body (Parsed JSON):', JSON.stringify(errorJson, null, 2));
+        } catch (e) {
+          // Not JSON
+        }
         throw new Error(`Failed to fetch sites: ${sitesResponse.statusText}`);
       }
 
@@ -239,11 +280,23 @@ export default function NetlifyConnection() {
         const firstSite = sitesData[0];
 
         // Fetch deploys
-        const deploysResponse = await fetch(`https://api.netlify.com/api/v1/sites/${firstSite.id}/deploys`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+        const deploysTargetURL = `https://api.netlify.com/api/v1/sites/${firstSite.id}/deploys`;
+        const deploysRequestHeaders = { Authorization: `Bearer ${token}` };
+        console.log('[NetlifyConnection fetchNetlifyStats] Requesting Deploys:');
+        console.log('[NetlifyConnection fetchNetlifyStats]   Target URL:', deploysTargetURL);
+        console.log('[NetlifyConnection fetchNetlifyStats]   Request Headers:', JSON.stringify(deploysRequestHeaders, null, 2));
+
+        const deploysResponse = await fetch(deploysTargetURL, { headers: deploysRequestHeaders });
+
+        console.log('[NetlifyConnection fetchNetlifyStats] Response Deploys:');
+        console.log(`[NetlifyConnection fetchNetlifyStats]   Status: ${deploysResponse.status}`);
+        console.log(`[NetlifyConnection fetchNetlifyStats]   Status Text: ${deploysResponse.statusText}`);
+        const deploysResponseHeadersObj: Record<string, string> = {};
+        deploysResponse.headers.forEach((value, key) => {
+          deploysResponseHeadersObj[key] = value;
         });
+        console.log('[NetlifyConnection fetchNetlifyStats]   Response Headers:', JSON.stringify(deploysResponseHeadersObj, null, 2));
+
 
         if (deploysResponse.ok) {
           deploysData = (await deploysResponse.json()) as NetlifyDeploy[];
@@ -256,17 +309,36 @@ export default function NetlifyConnection() {
             setLastUpdated(lastDeployTime);
 
             // Fetch builds for the site
-            const buildsResponse = await fetch(`https://api.netlify.com/api/v1/sites/${firstSite.id}/builds`, {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
+            const buildsTargetURL = `https://api.netlify.com/api/v1/sites/${firstSite.id}/builds`;
+            const buildsRequestHeaders = { Authorization: `Bearer ${token}` };
+            console.log('[NetlifyConnection fetchNetlifyStats] Requesting Builds:');
+            console.log('[NetlifyConnection fetchNetlifyStats]   Target URL:', buildsTargetURL);
+            console.log('[NetlifyConnection fetchNetlifyStats]   Request Headers:', JSON.stringify(buildsRequestHeaders, null, 2));
+
+            const buildsResponse = await fetch(buildsTargetURL, { headers: buildsRequestHeaders });
+
+            console.log('[NetlifyConnection fetchNetlifyStats] Response Builds:');
+            console.log(`[NetlifyConnection fetchNetlifyStats]   Status: ${buildsResponse.status}`);
+            console.log(`[NetlifyConnection fetchNetlifyStats]   Status Text: ${buildsResponse.statusText}`);
+            const buildsResponseHeadersObj: Record<string, string> = {};
+            buildsResponse.headers.forEach((value, key) => {
+              buildsResponseHeadersObj[key] = value;
             });
+            console.log('[NetlifyConnection fetchNetlifyStats]   Response Headers:', JSON.stringify(buildsResponseHeadersObj, null, 2));
 
             if (buildsResponse.ok) {
               buildsData = (await buildsResponse.json()) as NetlifyBuild[];
               setBuilds(buildsData);
+            } else {
+              const errorBody = await buildsResponse.clone().text();
+              console.log('[NetlifyConnection fetchNetlifyStats]   Builds Error Body (Text):', errorBody);
+               try { const errorJson = JSON.parse(errorBody); console.log('[NetlifyConnection fetchNetlifyStats]   Builds Error Body (Parsed JSON):', JSON.stringify(errorJson, null, 2)); } catch (e) { /* Not JSON */ }
             }
           }
+        } else {
+            const errorBody = await deploysResponse.clone().text();
+            console.log('[NetlifyConnection fetchNetlifyStats]   Deploys Error Body (Text):', errorBody);
+            try { const errorJson = JSON.parse(errorBody); console.log('[NetlifyConnection fetchNetlifyStats]   Deploys Error Body (Parsed JSON):', JSON.stringify(errorJson, null, 2)); } catch (e) { /* Not JSON */ }
         }
       }
 

@@ -32,14 +32,36 @@ export default function VercelConnection() {
     isConnecting.set(true);
 
     try {
-      const response = await fetch('https://api.vercel.com/v2/user', {
-        headers: {
-          Authorization: `Bearer ${connection.token}`,
-          'Content-Type': 'application/json',
-        },
+      const targetURL = 'https://api.vercel.com/v2/user';
+      const requestHeaders = {
+        Authorization: `Bearer ${connection.token}`,
+        'Content-Type': 'application/json',
+      };
+      console.log('[VercelConnection handleConnect] Requesting User:');
+      console.log('[VercelConnection handleConnect]   Token (first 5 chars):', connection.token ? connection.token.substring(0, 5) + '...' : 'undefined');
+      console.log('[VercelConnection handleConnect]   Target URL:', targetURL);
+      console.log('[VercelConnection handleConnect]   Request Headers:', JSON.stringify(requestHeaders, null, 2));
+
+      const response = await fetch(targetURL, { headers: requestHeaders });
+
+      console.log('[VercelConnection handleConnect] Response User:');
+      console.log(`[VercelConnection handleConnect]   Status: ${response.status}`);
+      console.log(`[VercelConnection handleConnect]   Status Text: ${response.statusText}`);
+      const responseHeadersObj: Record<string, string> = {};
+      response.headers.forEach((value, key) => {
+        responseHeadersObj[key] = value;
       });
+      console.log('[VercelConnection handleConnect]   Response Headers:', JSON.stringify(responseHeadersObj, null, 2));
 
       if (!response.ok) {
+        const errorBody = await response.clone().text(); // Try text first
+        console.log('[VercelConnection handleConnect]   Error Body (Text):', errorBody);
+        try {
+          const errorJson = JSON.parse(errorBody); // Then try JSON
+          console.log('[VercelConnection handleConnect]   Error Body (Parsed JSON):', JSON.stringify(errorJson, null, 2));
+        } catch (e) {
+          // Not a JSON response
+        }
         throw new Error('Invalid token or unauthorized');
       }
 

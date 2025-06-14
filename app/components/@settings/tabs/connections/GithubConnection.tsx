@@ -108,9 +108,11 @@ export default function GitHubConnection() {
   const fetchGithubUser = async (token: string) => {
     try {
       console.log('Fetching GitHub user with token:', token.substring(0, 5) + '...');
+      const apiUrl = `/api/system/git-info?action=getUser`;
+      console.log('[GitHubConnection] Calling API URL:', apiUrl);
 
       // Use server-side API endpoint instead of direct GitHub API call
-      const response = await fetch(`/api/system/git-info?action=getUser`, {
+      const response = await fetch(apiUrl, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',

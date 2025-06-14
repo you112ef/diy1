@@ -85,7 +85,11 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
     const url = new URL(request.url);
     const targetURL = `https://${domain}/${remainingPath}${url.search}`;
 
-    console.log('Target URL:', targetURL);
+    // --- Debug Logging Start ---
+    console.log('[Git Proxy] Request Details:');
+    console.log(`[Git Proxy]   Target URL: ${targetURL}`);
+    console.log(`[Git Proxy]   Method: ${request.method}`);
+    // --- Debug Logging End ---
 
     // Filter and prepare headers
     const headers = new Headers();
@@ -105,7 +109,13 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       headers.set('User-Agent', 'git/@isomorphic-git/cors-proxy');
     }
 
-    console.log('Request headers:', Object.fromEntries(headers.entries()));
+    // --- Debug Logging Start ---
+    const outgoingHeaders: Record<string, string> = {};
+    headers.forEach((value, key) => {
+      outgoingHeaders[key] = value;
+    });
+    console.log('[Git Proxy]   Outgoing Headers:', JSON.stringify(outgoingHeaders, null, 2));
+    // --- Debug Logging End ---
 
     // Prepare fetch options
     const fetchOptions: RequestInit = {
@@ -128,7 +138,27 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
     // Forward the request to the target URL
     const response = await fetch(targetURL, fetchOptions);
 
-    console.log('Response status:', response.status);
+    // --- Debug Logging Start ---
+    console.log('[Git Proxy] Response Details:');
+    console.log(`[Git Proxy]   Status: ${response.status}`);
+    console.log(`[Git Proxy]   Status Text: ${response.statusText}`);
+
+    const receivedHeaders: Record<string, string> = {};
+    response.headers.forEach((value, key) => {
+      receivedHeaders[key] = value;
+    });
+    console.log('[Git Proxy]   Received Headers:', JSON.stringify(receivedHeaders, null, 2));
+
+    if (!response.ok && response.headers.get('content-type')?.includes('application/json')) {
+      try {
+        const clonedResponse = response.clone();
+        const errorBody = await clonedResponse.json();
+        console.log('[Git Proxy]   Error Body (JSON):', JSON.stringify(errorBody, null, 2));
+      } catch (e) {
+        console.log('[Git Proxy]   Error Body: Could not parse JSON or clone response for error body logging.', e);
+      }
+    }
+    // --- Debug Logging End ---
 
     // Create response headers
     const responseHeaders = new Headers();
@@ -156,7 +186,7 @@ async function handleProxyRequest(request: Request, path: string | undefined) {
       responseHeaders.set('x-redirected-url', response.url);
     }
 
-    console.log('Response headers:', Object.fromEntries(responseHeaders.entries()));
+    // console.log('Response headers:', Object.fromEntries(responseHeaders.entries())); // Original log, can be removed or kept
 
     // Return the response with the target's body stream piped directly
     return new Response(response.body, {
