@@ -324,20 +324,20 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
         data-chat-visible={showChat}
       >
         <ClientOnly>{() => <Menu />}</ClientOnly>
-        <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
+        <div ref={scrollRef} className="flex flex-col lg:flex-row w-full h-full"> {/* MODIFIED */}
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
-              <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-4 lg:px-0">
-                <h1 className="text-2xl sm:text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-2 sm:mb-3 md:mb-4 animate-fade-in"> {/* MODIFIED */}
+              <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-2 sm:px-3 md:px-4 lg:px-0"> {/* MODIFIED */}
+                <h1 className="text-2xl sm:text-3xl lg:text-6xl font-bold text-bolt-elements-textPrimary mb-2 sm:mb-3 md:mb-4 animate-fade-in">
                   Where ideas begin
                 </h1>
-                <p className="text-sm sm:text-base md:text-md lg:text-xl mb-4 sm:mb-6 md:mb-8 text-bolt-elements-textSecondary animate-fade-in animation-delay-200"> {/* MODIFIED */}
+                <p className="text-sm sm:text-base md:text-md lg:text-xl mb-3 sm:mb-4 md:mb-6 text-bolt-elements-textSecondary animate-fade-in animation-delay-200"> {/* CORRECTED */}
                   Bring ideas to life in seconds or get help on existing projects.
                 </p>
               </div>
             )}
             <div
-              className={classNames('pt-6 px-2 sm:px-6', {
+              className={classNames('pt-3 sm:pt-4 px-2 sm:px-6', { // MODIFIED
                 'h-full flex flex-col': chatStarted,
               })}
               ref={scrollRef}
@@ -485,7 +485,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     <textarea
                       ref={textareaRef}
                       className={classNames(
-                        'w-full pl-3 pt-3 sm:pl-4 sm:pt-4 pr-12 sm:pr-14 md:pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm', // MODIFIED
+                        'w-full pt-2 pb-2 pl-2 sm:pt-3 sm:pb-3 sm:pl-3 md:pt-4 md:pb-4 md:pl-4 pr-18 sm:pr-20 md:pr-20 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm', // MODIFIED
                         'transition-all duration-200',
                         'hover:border-bolt-elements-focus',
                       )}
@@ -572,10 +572,10 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         />
                       )}
                     </ClientOnly>
-                    <div className="flex justify-between items-center text-sm p-4 pt-2">
+                    <div className="flex justify-between items-center text-sm px-3 py-2 sm:px-4 sm:py-2">
                       <div className="flex gap-1 items-center">
                         <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
-                          <div className="i-ph:paperclip text-lg sm:text-xl"></div> {/* MODIFIED */}
+                          <div className="i-ph:paperclip text-base sm:text-lg md:text-xl"></div> {/* MODIFIED */}
                         </IconButton>
                         <IconButton
                           title="Enhance prompt"
@@ -587,9 +587,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           }}
                         >
                           {enhancingPrompt ? (
-                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-lg sm:text-xl animate-spin"></div> /* MODIFIED */
+                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-base sm:text-lg md:text-xl animate-spin"></div> {/* MODIFIED */}
                           ) : (
-                            <div className="i-bolt:stars text-lg sm:text-xl"></div> /* MODIFIED */
+                            <div className="i-bolt:stars text-base sm:text-lg md:text-xl"></div> {/* MODIFIED */}
                           )}
                         </IconButton>
 

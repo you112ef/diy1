@@ -156,8 +156,11 @@ $code-font-size: 13px;
 
   table {
     border-collapse: collapse;
-    width: 100%;
-    margin-block-end: 16px;
+    width: 100%; // Keep this
+    margin-block-end: 16px; // Keep this (or make responsive)
+    display: block; // Required for table to respect max-width and overflow
+    max-width: 100%; // Ensure it doesn't exceed parent
+    overflow-x: auto; // Allow horizontal scroll for table itself
 
     :is(th, td) {
       padding: 6px 13px;

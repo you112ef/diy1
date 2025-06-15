@@ -13,6 +13,10 @@ video {
     font-size: 87.5%; // Scales 1rem from 16px to 14px, achieving ~85-87.5% reduction
   }
 
+  :root {
+    --header-height: 3.2rem;
+  }
+
   // --- Max-Width Constraint for Main Content ---
 
   // 1. Adjust --chat-max-width for the main chat interface content
@@ -228,7 +232,7 @@ video {
   // Using a more stable part of its class or an added ID would be better.
   // For now, assuming it's the primary textarea in its context.
   :global(textarea[aria-label*="Chat input"]) { // Targeting via its ARIA label
-    min-height: 60px !important; // Override JS variable if possible
+    min-height: 56px !important; // MODIFIED
   }
 // End of @media (max-width: 768px) block
 }
@@ -366,6 +370,6 @@ video {
   }
 
   :global(textarea[aria-label*="Chat input"]) {
-    min-height: 50px !important;
+    min-height: 48px !important; // MODIFIED
   }
 }

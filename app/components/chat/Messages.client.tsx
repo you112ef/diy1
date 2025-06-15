@@ -66,11 +66,11 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
               return (
                 <div
                   key={index}
-                  className={classNames('flex gap-4 p-6 w-full rounded-[calc(0.75rem-1px)]', {
+                  className={classNames('flex gap-4 p-3 sm:p-4 md:p-6 w-full rounded-[calc(0.75rem-1px)]', { // MODIFIED
                     'bg-bolt-elements-messages-background': isUserMessage || !isStreaming || (isStreaming && !isLast),
                     'bg-gradient-to-b from-bolt-elements-messages-background from-30% to-transparent':
                       isStreaming && isLast,
-                    'mt-4': !isFirst,
+                    'mt-2 sm:mt-3 md:mt-4': !isFirst, // MODIFIED
                   })}
                 >
                   {isUserMessage && (
