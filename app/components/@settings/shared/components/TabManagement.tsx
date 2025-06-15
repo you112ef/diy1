@@ -50,7 +50,8 @@ const BETA_TABS = new Set<TabType>(['task-manager', 'service-status', 'update', 
 
 // Beta label component
 const BetaLabel = () => (
-  <span className="px-1.5 py-0.5 text-[0.588rem] rounded-full bg-purple-500/10 text-purple-500 font-medium">BETA</span> {/* 10px -> 0.588rem */}
+  // 10px -> 0.588rem
+  <span className="px-1.5 py-0.5 text-[0.588rem] rounded-full bg-purple-500/10 text-purple-500 font-medium">BETA</span>
 );
 
 export const TabManagement = () => {
