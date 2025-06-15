@@ -1,0 +1,7 @@
+[build]
+  command = "pnpm run build"
+  publish = "public/build"  # More typical for Remix on Netlify
+
+[build.environment]
+  PYTHON_VERSION = "3.10"
+  NODE_VERSION = "18.18.0" # From package.json engines
