@@ -78,6 +78,7 @@ export function HistoryItem({
         <div className="flex items-center mr-2" onClick={(e) => e.stopPropagation()}>
           <Checkbox
             id={`select-${item.id}`}
+            aria-label={`Select chat: ${item.description}`}
             checked={isSelected}
             onCheckedChange={handleCheckboxChange}
             className="h-4 w-4"
@@ -89,6 +90,7 @@ export function HistoryItem({
         <form onSubmit={handleSubmit} className="flex-1 flex items-center gap-2">
           <input
             type="text"
+            aria-label="Edit chat description"
             className="flex-1 bg-white dark:bg-gray-900 text-gray-900 dark:text-white rounded-md px-3 py-1.5 text-sm border border-gray-200 dark:border-gray-800 focus:outline-none focus:ring-1 focus:ring-purple-500/50"
             autoFocus
             value={currentDescription}
@@ -98,6 +100,7 @@ export function HistoryItem({
           />
           <button
             type="submit"
+            aria-label="Save chat description"
             className="i-ph:check h-4 w-4 text-gray-500 hover:text-purple-500 transition-colors"
             onMouseDown={handleSubmit}
           />
@@ -178,6 +181,7 @@ const ChatActionButton = forwardRef(
         <button
           ref={ref}
           type="button"
+          aria-label={toolTipContent}
           className={`text-gray-400 dark:text-gray-500 hover:text-purple-500 dark:hover:text-purple-400 transition-colors ${icon} ${className ? className : ''}`}
           onClick={onClick}
         />

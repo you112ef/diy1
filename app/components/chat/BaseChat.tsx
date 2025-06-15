@@ -432,7 +432,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <div>
                     <ClientOnly>
                       {() => (
-                        <div className={isModelSettingsCollapsed ? 'hidden' : ''}>
+                        <div id="model-settings-container" className={isModelSettingsCollapsed ? 'hidden' : ''}>
                           <ModelSelector
                             key={provider?.name + ':' + modelList.length}
                             model={model}
@@ -484,6 +484,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   >
                     <textarea
                       ref={textareaRef}
+                      aria-label="Chat input"
                       className={classNames(
                         'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
                         'transition-all duration-200',
@@ -573,11 +574,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     </ClientOnly>
                     <div className="flex justify-between items-center text-sm p-4 pt-2">
                       <div className="flex gap-1 items-center">
-                        <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
-                          <div className="i-ph:paperclip text-xl"></div>
+                        <IconButton aria-label="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
+                          <div className="i-ph:paperclip text-xl" aria-hidden="true"></div>
                         </IconButton>
                         <IconButton
-                          title="Enhance prompt"
+                          aria-label="Enhance prompt"
                           disabled={input.length === 0 || enhancingPrompt}
                           className={classNames('transition-all', enhancingPrompt ? 'opacity-100' : '')}
                           onClick={() => {
@@ -586,9 +587,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           }}
                         >
                           {enhancingPrompt ? (
-                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin"></div>
+                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-xl animate-spin" aria-hidden="true"></div>
                           ) : (
-                            <div className="i-bolt:stars text-xl"></div>
+                            <div className="i-bolt:stars text-xl" aria-hidden="true"></div>
                           )}
                         </IconButton>
 
@@ -600,7 +601,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                         />
                         {chatStarted && <ClientOnly>{() => <ExportChatButton exportChat={exportChat} />}</ClientOnly>}
                         <IconButton
-                          title="Model Settings"
+                          aria-label={isModelSettingsCollapsed ? `Show model settings (current: ${model})` : 'Hide model settings'}
+                          aria-expanded={!isModelSettingsCollapsed}
+                          aria-controls="model-settings-container" // Ensure this ID is on the container
                           className={classNames('transition-all flex items-center gap-1', {
                             'bg-bolt-elements-item-backgroundAccent text-bolt-elements-item-contentAccent':
                               isModelSettingsCollapsed,
@@ -610,7 +613,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           onClick={() => setIsModelSettingsCollapsed(!isModelSettingsCollapsed)}
                           disabled={!providerList || providerList.length === 0}
                         >
-                          <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} />
+                          <div className={`i-ph:caret-${isModelSettingsCollapsed ? 'right' : 'down'} text-lg`} aria-hidden="true" />
                           {isModelSettingsCollapsed ? <span className="text-xs">{model}</span> : <span />}
                         </IconButton>
                       </div>

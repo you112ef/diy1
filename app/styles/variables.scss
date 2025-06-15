@@ -216,7 +216,7 @@
  * Hierarchy: Element Token -> (Element Token | Color Tokens) -> Primitives
  */
 :root {
-  --header-height: 3.375rem; /* 54px / 16px = 3.375rem */
+  --header-height: 2.7rem; /* Reduced from 3.375rem (54px), approx 20% reduction (43.2px) */
   --chat-max-width: 100%; /* Max width will be constrained by .responsive-container */
   --chat-min-width: 100%; /* Min width to fill the container if needed */
   /* Workbench might be hidden or stacked on small screens, adjust as needed. */

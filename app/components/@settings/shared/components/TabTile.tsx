@@ -33,9 +33,12 @@ export const TabTile: React.FC<TabTileProps> = ({
         <Tooltip.Trigger asChild>
           <motion.div
             onClick={onClick}
+            role={onClick ? 'button' : undefined}
+            tabIndex={onClick ? 0 : undefined}
+            onKeyDown={onClick ? (e) => { if (e.key === 'Enter' || e.key === ' ') onClick(); } : undefined}
             className={classNames(
               'relative flex flex-col items-center p-6 rounded-xl',
-              'w-full h-full min-h-[160px]',
+              'w-full h-full min-h-[9.412rem]', /* 160px -> 9.412rem */
               'bg-white dark:bg-[#141414]',
               'border border-[#E5E5E5] dark:border-[#333333]',
               'group',
@@ -70,6 +73,7 @@ export const TabTile: React.FC<TabTileProps> = ({
                     'group-hover:text-purple-500 dark:group-hover:text-purple-400/80',
                     isActive ? 'text-purple-500 dark:text-purple-400/90' : '',
                   )}
+                  aria-hidden="true"
                 />
               </motion.div>
 
@@ -77,7 +81,7 @@ export const TabTile: React.FC<TabTileProps> = ({
               <div className="flex flex-col items-center mt-5 w-full">
                 <h3
                   className={classNames(
-                    'text-[15px] font-medium leading-snug mb-2',
+                    'text-[0.882rem] font-medium leading-snug mb-2', /* 15px -> 0.882rem */
                     'text-gray-700 dark:text-gray-200',
                     'group-hover:text-purple-600 dark:group-hover:text-purple-300/90',
                     isActive ? 'text-purple-500 dark:text-purple-400/90' : '',
@@ -88,7 +92,7 @@ export const TabTile: React.FC<TabTileProps> = ({
                 {description && (
                   <p
                     className={classNames(
-                      'text-[13px] leading-relaxed',
+                      'text-[0.765rem] leading-relaxed', /* 13px -> 0.765rem */
                       'text-gray-500 dark:text-gray-400',
                       'max-w-[85%]',
                       'text-center',

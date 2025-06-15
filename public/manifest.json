@@ -1,6 +1,6 @@
 {
-  "name": "My PWA",
-  "short_name": "PWA",
+  "name": "Bolt.DIY",
+  "short_name": "BoltDIY",
   "icons": [
     {
       "src": "/icons/icon-192x192.png",
@@ -14,7 +14,7 @@
     }
   ],
   "start_url": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "theme_color": "#000000",
   "background_color": "#000000"

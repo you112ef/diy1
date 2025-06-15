@@ -6,7 +6,7 @@ import { profileStore } from '~/lib/stores/profile';
 import type { TabType, Profile } from './types';
 
 const BetaLabel = () => (
-  <span className="px-1.5 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-[10px] font-medium text-purple-600 dark:text-purple-400 ml-2">
+  <span className="px-1.5 py-0.5 rounded-full bg-purple-500/10 dark:bg-purple-500/20 text-[0.588rem] font-medium text-purple-600 dark:text-purple-400 ml-2"> {/* 10px -> 0.588rem */}
     BETA
   </span>
 );
@@ -45,7 +45,7 @@ export const AvatarDropdown = ({ onSelectTab }: AvatarDropdownProps) => {
       <DropdownMenu.Portal>
         <DropdownMenu.Content
           className={classNames(
-            'min-w-[240px] z-[250]',
+            'min-w-[14.118rem] z-[250]', /* 240px -> 14.118rem */
             'bg-white dark:bg-[#141414]',
             'rounded-lg shadow-lg',
             'border border-gray-200/50 dark:border-gray-800/50',

@@ -107,6 +107,7 @@ export default function VercelConnection() {
               crossOrigin="anonymous"
               src={`https://cdn.simpleicons.org/vercel/black`}
               loading="lazy"
+              alt="Vercel logo"
             />
             <h3 className="text-base font-medium text-bolt-elements-textPrimary">Vercel Connection</h3>
           </div>
@@ -198,7 +199,7 @@ export default function VercelConnection() {
                 src={`https://vercel.com/api/www/avatar?u=${connection.user?.username || connection.user?.user?.username}`}
                 referrerPolicy="no-referrer"
                 crossOrigin="anonymous"
-                alt="User Avatar"
+                alt={connection.user?.username || connection.user?.user?.username || 'Vercel User Avatar'}
                 className="w-12 h-12 rounded-full border-2 border-bolt-elements-borderColorActive"
                 loading="lazy"
               />

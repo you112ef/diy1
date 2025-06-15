@@ -2,6 +2,10 @@
  * @ts-nocheck
  * Preventing TS checks with files presented in the video for a better presentation.
  */
+
+// For future image optimizations, consider using WebP format for new images where appropriate
+// to reduce file sizes while maintaining quality. Image compression tools can also be beneficial.
+
 import { MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 import { Markdown } from './Markdown';
 
@@ -25,7 +29,7 @@ export function UserMessage({ content }: UserMessageProps) {
               src={item.image}
               alt={`Image ${index + 1}`}
               className="max-w-full h-auto rounded-lg"
-              style={{ maxHeight: '512px', objectFit: 'contain' }}
+              style={{ maxHeight: '30.118rem', objectFit: 'contain' }} /* 512px -> 30.118rem (20% reduction) */
               loading="lazy"
             />
           ))}

@@ -8,7 +8,8 @@ interface BaseIconButtonProps {
   className?: string;
   iconClassName?: string;
   disabledClassName?: string;
-  title?: string;
+  title?: string; // Will be used as aria-label if aria-label prop is not provided
+  'aria-label'?: string; // Explicit aria-label
   disabled?: boolean;
   onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
 }
@@ -39,12 +40,15 @@ export const IconButton = memo(
         title,
         onClick,
         children,
+        ...props // Capture other props like aria-label
       }: IconButtonProps,
       ref: ForwardedRef<HTMLButtonElement>,
     ) => {
+      const ariaLabel = props['aria-label'] || title;
       return (
         <button
           ref={ref}
+          type="button" // Good practice for non-submit buttons
           className={classNames(
             'flex items-center text-bolt-elements-item-contentDefault bg-transparent enabled:hover:text-bolt-elements-item-contentActive rounded-md p-1 enabled:hover:bg-bolt-elements-item-backgroundActive disabled:cursor-not-allowed',
             {
@@ -52,7 +56,8 @@ export const IconButton = memo(
             },
             className,
           )}
-          title={title}
+          title={title} // Keep title for tooltip on hover
+          aria-label={ariaLabel} // Use explicit aria-label or fallback to title
           disabled={disabled}
           onClick={(event) => {
             if (disabled) {
@@ -61,8 +66,9 @@ export const IconButton = memo(
 
             onClick?.(event);
           }}
+          {...props} // Spread other props
         >
-          {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)}></div>}
+          {children ? children : <div className={classNames(icon, getIconSize(size), iconClassName)} aria-hidden="true"></div>}
         </button>
       );
     },

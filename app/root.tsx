@@ -57,11 +57,16 @@ const inlineThemeCode = stripIndents`
 `;
 
 export const Head = createHead(() => (
+  // SEO Enhancement: For optimal SEO, ensure each route provides unique and relevant
+  // <title> and <meta name="description"> tags via its meta function.
+  // These defaults serve as fallbacks.
   <>
     <meta charSet="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <title>Bolt.DIY - Your Project Assistant</title> {/* SEO Enhancement: Default Title */}
+    <meta name="description" content="Bolt.DIY helps you manage and build your projects with AI assistance." /> {/* SEO Enhancement: Default Description */}
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <Meta />
+    <Meta /> {/* Remix's Meta component will override default title/description if route provides them */}
     <Links />
     <script dangerouslySetInnerHTML={{ __html: inlineThemeCode }} />
   </>

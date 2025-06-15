@@ -11,7 +11,8 @@ import { path } from '~/utils/path';
 
 const logger = createScopedLogger('FileTree');
 
-const NODE_PADDING_LEFT = 8;
+const BASE_PADDING_REM = 0.353; // Approx (6px * 0.8) / 13.6
+const NODE_PADDING_LEFT_REM = 0.471; // Approx (8px * 0.8) / 13.6
 const DEFAULT_HIDDEN_FILES = [/\/node_modules\//, /\/\.next/, /\/\.astro/];
 
 interface Props {
@@ -257,7 +258,7 @@ function InlineInput({ depth, placeholder, initialValue = '', onSubmit, onCancel
   return (
     <div
       className="flex items-center w-full px-2 bg-bolt-elements-background-depth-4 border border-bolt-elements-item-contentAccent py-0.5 text-bolt-elements-textPrimary"
-      style={{ paddingLeft: `${6 + depth * NODE_PADDING_LEFT}px` }}
+      style={{ paddingLeft: `${BASE_PADDING_REM + depth * NODE_PADDING_LEFT_REM}rem` }}
     >
       <div className="scale-120 shrink-0 i-ph:file-plus text-bolt-elements-textTertiary" />
       <input
@@ -488,6 +489,7 @@ function Folder({ folder, collapsed, selected = false, onCopyPath, onCopyRelativ
           'i-ph:caret-down scale-98': !collapsed,
         })}
         onClick={onClick}
+        aria-expanded={!collapsed}
       >
         {folder.name}
       </NodeButton>
@@ -598,17 +600,19 @@ interface ButtonProps {
   onClick?: () => void;
 }
 
-function NodeButton({ depth, iconClasses, onClick, className, children }: ButtonProps) {
+function NodeButton({ depth, iconClasses, onClick, className, children, 'aria-expanded': ariaExpanded }: ButtonProps & { 'aria-expanded'?: boolean }) {
   return (
     <button
+      type="button"
       className={classNames(
         'flex items-center gap-1.5 w-full pr-2 border-2 border-transparent text-faded py-0.5',
         className,
       )}
-      style={{ paddingLeft: `${6 + depth * NODE_PADDING_LEFT}px` }}
+      style={{ paddingLeft: `${BASE_PADDING_REM + depth * NODE_PADDING_LEFT_REM}rem` }}
       onClick={() => onClick?.()}
+      aria-expanded={ariaExpanded}
     >
-      <div className={classNames('scale-120 shrink-0', iconClasses)}></div>
+      <div className={classNames('scale-120 shrink-0', iconClasses)} aria-hidden="true"></div>
       <div className="truncate w-full text-left">{children}</div>
     </button>
   );

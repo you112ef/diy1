@@ -3,6 +3,8 @@ import * as CheckboxPrimitive from '@radix-ui/react-checkbox';
 import { Check } from 'lucide-react';
 import { classNames } from '~/utils/classNames';
 
+// For accessibility, ensure this Checkbox is associated with a <label>
+// or has an aria-label or aria-labelledby attribute when used.
 const Checkbox = React.forwardRef<
   React.ElementRef<typeof CheckboxPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof CheckboxPrimitive.Root>

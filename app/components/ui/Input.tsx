@@ -1,7 +1,10 @@
 import { forwardRef } from 'react';
 import { classNames } from '~/utils/classNames';
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  // For accessibility, ensure this input is associated with a <label>
+  // or has an aria-label or aria-labelledby attribute.
+}
 
 const Input = forwardRef<HTMLInputElement, InputProps>(({ className, type, ...props }, ref) => {
   return (

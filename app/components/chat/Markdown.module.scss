@@ -10,6 +10,8 @@ $code-font-size: 0.8125rem; /* 13px */
 .MarkdownContent {
   line-height: 1.6;
   color: var(--bolt-elements-textPrimary);
+  word-break: break-word;
+  overflow-wrap: break-word;
 
   > *:not(:last-child) {
     margin-block-end: 1rem; /* 16px */

@@ -6,7 +6,7 @@ export const ExportChatButton = ({ exportChat }: { exportChat?: () => void }) =>
   return (
     <WithTooltip tooltip="Export Chat">
       <IconButton title="Export Chat" onClick={() => exportChat?.()}>
-        <div className="i-ph:download-simple text-xl"></div>
+        <div className="i-ph:download-simple text-xl" aria-hidden="true"></div>
       </IconButton>
     </WithTooltip>
   );

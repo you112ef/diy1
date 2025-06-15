@@ -21,6 +21,7 @@ export const SendButton = ({ show, isStreaming, disabled, onClick }: SendButtonP
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 10 }}
           disabled={disabled}
+          aria-label={isStreaming ? "Stop generating" : "Send message"}
           onClick={(event) => {
             event.preventDefault();
 
@@ -29,7 +30,7 @@ export const SendButton = ({ show, isStreaming, disabled, onClick }: SendButtonP
             }
           }}
         >
-          <div className="text-lg">
+          <div className="text-lg" aria-hidden="true">
             {!isStreaming ? <div className="i-ph:arrow-right"></div> : <div className="i-ph:stop-circle-bold"></div>}
           </div>
         </motion.button>

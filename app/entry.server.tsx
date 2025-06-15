@@ -30,7 +30,8 @@ export default async function handleRequest(
       controller.enqueue(
         new Uint8Array(
           new TextEncoder().encode(
-            `<!DOCTYPE html><html lang="en" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
+            // SEO Enhancement: Set default language to Arabic
+            `<!DOCTYPE html><html lang="ar" data-theme="${themeStore.value}"><head>${head}</head><body><div id="root" class="w-full h-full">`,
           ),
         ),
       );
@@ -70,8 +71,16 @@ export default async function handleRequest(
 
   responseHeaders.set('Content-Type', 'text/html');
 
-  responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp');
-  responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin');
+  // Security Headers
+  responseHeaders.set('X-Content-Type-Options', 'nosniff');
+  responseHeaders.set('X-Frame-Options', 'DENY'); // Or 'SAMEORIGIN' if needed
+  responseHeaders.set('Strict-Transport-Security', 'max-age=31536000'); // Add 'includeSubDomains' if all subdomains are HTTPS
+  responseHeaders.set('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Placeholder for Content-Security-Policy - uncomment and configure carefully
+  // responseHeaders.set('Content-Security-Policy', "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self' https://vitals.vercel-insights.com;");
+
+  responseHeaders.set('Cross-Origin-Embedder-Policy', 'require-corp'); // Existing
+  responseHeaders.set('Cross-Origin-Opener-Policy', 'same-origin'); // Existing
 
   return new Response(body, {
     headers: responseHeaders,
