@@ -68,7 +68,7 @@ export const TabTile: React.FC<TabTileProps> = ({
                 <motion.div
                   className={classNames(
                     TAB_ICONS[tab.id],
-                    'w-8 h-8',
+                    'w-6 h-6', // Reduced from w-8 h-8
                     'text-gray-600 dark:text-gray-300',
                     'group-hover:text-purple-500 dark:group-hover:text-purple-400/80',
                     isActive ? 'text-purple-500 dark:text-purple-400/90' : '',

@@ -50,3 +50,56 @@ body {
   word-break: break-word;
   overflow-wrap: break-word;
 }
+
+/* Styles for screens 390px and narrower */
+@media (max-width: 390px) {
+  // General fine-tuning styles for very small screens will go here
+
+  // Reduce top margin for the intro section in chat
+  // This targets the #intro div specifically if BaseChat is used within .responsive-container
+  .responsive-container #intro {
+    margin-top: 8vh; /* Reduced from 16vh */
+  }
+
+  // Reduce bottom margin for the chat input area
+  .responsive-container .chat-input-area-wrapper {
+    margin-bottom: 0.75rem; /* Reduced from mb-6 (1.5rem) */
+  }
+
+  // Reduce margins within settings tabs like ProfileTab
+  .profile-tab-content .mb-8 { /* Targets elements with mb-8 inside profile-tab-content */
+    margin-bottom: 1rem !important; /* Was 2rem, !important might be needed to override utility */
+  }
+  .profile-tab-content .mb-6 { /* Targets elements with mb-6 inside profile-tab-content */
+    margin-bottom: 0.75rem !important; /* Was 1.5rem */
+  }
+
+  // Reduce padding for the main content area of settings tabs
+  .settings-tab-outer-padding {
+    padding: 0.75rem !important; /* Reduced from p-6 (1.5rem) */
+  }
+
+  // General reduction for space-y utilities if needed, e.g.
+  // .profile-tab-content.space-y-6 > :not([hidden]) ~ :not([hidden]) {
+  //  --un-space-y-reverse: 0;
+  //  margin-top: calc(0.75rem * calc(1 - var(--un-space-y-reverse))); /* Reduced from 1.5rem */
+  //  margin-bottom: calc(0.75rem * var(--un-space-y-reverse));
+  // }
+
+  // Further refine very large headings on small screens
+  // Chat intro heading:
+  .responsive-container #intro h1 {
+    // text-3xl is 1.875rem. Original at 16px base: 30px. Current at 13.6px base: 25.5px.
+    // Using clamp for fluid scaling: min 17px (1.25rem), preferred 6vw, max ~23.8px (1.75rem)
+    // Values based on 13.6px root font size:
+    // 1.25rem = 17px
+    // 1.75rem = 23.8px
+    font-size: clamp(1.25rem, 6vw, 1.75rem);
+  }
+
+  .dialog-panel-content {
+    max-width: 80vw !important;
+    // Example: Further reduce padding if needed, current is likely p-6 (1.5rem effective = 20.4px)
+    // padding: 0.75rem !important; // New padding ~10.2px
+  }
+}

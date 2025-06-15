@@ -60,8 +60,8 @@ export default function ProfileTab() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto">
-      <div className="space-y-6">
+    <div className="max-w-2xl mx-auto profile-tab-container"> {/* Added profile-tab-container for potential targeting */}
+      <div className="space-y-6 profile-tab-content"> {/* Added profile-tab-content for targeting margins */}
         {/* Personal Information Section */}
         <div>
           {/* Avatar Upload */}

@@ -512,7 +512,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="p-6"
+                    className="p-6 settings-tab-outer-padding" // Added settings-tab-outer-padding
                   >
                     {showTabManagement ? (
                       <TabManagement />

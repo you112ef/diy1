@@ -375,7 +375,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                 />
               )}
               <div
-                className={classNames('flex flex-col gap-4 w-full max-w-chat mx-auto z-prompt mb-6', {
+                className={classNames('chat-input-area-wrapper flex flex-col gap-4 w-full max-w-chat mx-auto z-prompt mb-6', { // Added chat-input-area-wrapper
                   'sticky bottom-2': chatStarted,
                 })}
               >

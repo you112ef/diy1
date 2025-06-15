@@ -15,3 +15,13 @@
     color: var(--bolt-elements-item-contentActive);
   }
 }
+
+/* Styles for screens 390px and narrower */
+@media (max-width: 390px) {
+  // Toast-specific fine-tuning for very small screens
+  .Toastify__toast {
+    // Example: Make toasts take up more width or reduce padding
+    // width: 90vw;
+    // padding: 0.75rem; // Original is likely larger via utility classes
+  }
+}

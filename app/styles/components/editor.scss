@@ -133,3 +133,8 @@ html[data-theme='dark'] {
   --bolt-elements-editor-search-button-backgroundColor: theme('colors.gray.800');
   --bolt-elements-editor-search-button-backgroundColorHover: theme('colors.alpha.white.10');
 }
+
+/* Styles for screens 390px and narrower */
+@media (max-width: 390px) {
+  // Editor-specific fine-tuning for very small screens
+}

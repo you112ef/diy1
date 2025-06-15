@@ -190,7 +190,7 @@ export const TabManagement = () => {
           {/* Default Section Header */}
           {filteredTabs.some((tab) => DEFAULT_USER_TABS.includes(tab.id)) && (
             <div className="col-span-full flex items-center gap-2 mt-4 mb-2">
-              <div className="i-ph:star-fill w-4 h-4 text-purple-500" />
+              <div className="i-ph:star-fill w-[0.882rem] h-[0.882rem] text-purple-500" /> {/* Target 12px equivalent */}
               <span className="text-sm font-medium text-bolt-elements-textPrimary">Default Tabs</span>
             </div>
           )}
