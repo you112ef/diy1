@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useMemo, lazy, Suspense } from 'react'; // MODIFIED
+import React, { useState, useEffect, useMemo } from 'react'; // REVERTED
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@nanostores/react';
 import { Switch } from '@radix-ui/react-switch';
 import * as RadixDialog from '@radix-ui/react-dialog';
 import { classNames } from '~/utils/classNames';
-// import { TabManagement } from '~/components/@settings/shared/components/TabManagement'; // MODIFIED (commented out)
-const TabManagement = lazy(() => import('~/components/@settings/shared/components/TabManagement')); // MODIFIED
+import { TabManagement } from '~/components/@settings/shared/components/TabManagement'; // REVERTED
 import { TabTile } from '~/components/@settings/shared/components/TabTile';
 import { useUpdateCheck } from '~/lib/hooks/useUpdateCheck';
 import { useFeatures } from '~/lib/hooks/useFeatures';
@@ -25,20 +24,20 @@ import { DialogTitle } from '~/components/ui/Dialog';
 import { AvatarDropdown } from './AvatarDropdown';
 import BackgroundRays from '~/components/ui/BackgroundRays';
 
-// Import all tab components using React.lazy
-const ProfileTab = lazy(() => import('~/components/@settings/tabs/profile/ProfileTab'));
-const SettingsTab = lazy(() => import('~/components/@settings/tabs/settings/SettingsTab'));
-const NotificationsTab = lazy(() => import('~/components/@settings/tabs/notifications/NotificationsTab'));
-const FeaturesTab = lazy(() => import('~/components/@settings/tabs/features/FeaturesTab'));
-const DataTab = lazy(() => import('~/components/@settings/tabs/data/DataTab'));
-const DebugTab = lazy(() => import('~/components/@settings/tabs/debug/DebugTab'));
-const EventLogsTab = lazy(() => import('~/components/@settings/tabs/event-logs/EventLogsTab'));
-const UpdateTab = lazy(() => import('~/components/@settings/tabs/update/UpdateTab'));
-const ConnectionsTab = lazy(() => import('~/components/@settings/tabs/connections/ConnectionsTab'));
-const CloudProvidersTab = lazy(() => import('~/components/@settings/tabs/providers/cloud/CloudProvidersTab'));
-const ServiceStatusTab = lazy(() => import('~/components/@settings/tabs/providers/status/ServiceStatusTab'));
-const LocalProvidersTab = lazy(() => import('~/components/@settings/tabs/providers/local/LocalProvidersTab'));
-const TaskManagerTab = lazy(() => import('~/components/@settings/tabs/task-manager/TaskManagerTab'));
+// Import all tab components
+import ProfileTab from '~/components/@settings/tabs/profile/ProfileTab'; // REVERTED
+import SettingsTab from '~/components/@settings/tabs/settings/SettingsTab'; // REVERTED
+import NotificationsTab from '~/components/@settings/tabs/notifications/NotificationsTab'; // REVERTED
+import FeaturesTab from '~/components/@settings/tabs/features/FeaturesTab'; // REVERTED
+import { DataTab } from '~/components/@settings/tabs/data/DataTab'; // REVERTED (assuming named export was original for this one)
+import DebugTab from '~/components/@settings/tabs/debug/DebugTab'; // REVERTED
+import { EventLogsTab } from '~/components/@settings/tabs/event-logs/EventLogsTab'; // REVERTED (assuming named export was original for this one)
+import UpdateTab from '~/components/@settings/tabs/update/UpdateTab'; // REVERTED
+import ConnectionsTab from '~/components/@settings/tabs/connections/ConnectionsTab'; // REVERTED
+import CloudProvidersTab from '~/components/@settings/tabs/providers/cloud/CloudProvidersTab'; // REVERTED
+import ServiceStatusTab from '~/components/@settings/tabs/providers/status/ServiceStatusTab'; // REVERTED
+import LocalProvidersTab from '~/components/@settings/tabs/providers/local/LocalProvidersTab'; // REVERTED
+import TaskManagerTab from '~/components/@settings/tabs/task-manager/TaskManagerTab'; // REVERTED
 
 interface ControlPanelProps {
   open: boolean;
@@ -513,7 +512,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                     transition={{ duration: 0.2 }}
                     className="p-3 sm:p-4 md:p-6"
                   >
-                    <Suspense fallback={<div className="text-center p-10">Loading tab...</div>}> {/* MODIFIED */}
+                    {/* <Suspense fallback={<div className="text-center p-10">Loading tab...</div>}> */ } {/* REVERTED */}
                       {showTabManagement ? (
                         <TabManagement />
                       ) : activeTab ? (
@@ -545,7 +544,7 @@ export const ControlPanel = ({ open, onClose }: ControlPanelProps) => {
                         </AnimatePresence>
                       </motion.div>
                     )}
-                    </Suspense> {/* MODIFIED */}
+                    {/* </Suspense> */ } {/* REVERTED */}
                   </motion.div>
                 </div>
               </div>
