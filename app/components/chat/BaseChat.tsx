@@ -575,7 +575,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     <div className="flex justify-between items-center text-sm px-3 py-2 sm:px-4 sm:py-2">
                       <div className="flex gap-1 items-center">
                         <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
-                          <div className="i-ph:paperclip text-base sm:text-lg md:text-xl"></div> {/* MODIFIED */}
+                          <div className="i-ph:paperclip text-base sm:text-lg md:text-xl"></div>
                         </IconButton>
                         <IconButton
                           title="Enhance prompt"
@@ -587,9 +587,9 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                           }}
                         >
                           {enhancingPrompt ? (
-                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-base sm:text-lg md:text-xl animate-spin"></div> {/* MODIFIED */}
+                            <div className="i-svg-spinners:90-ring-with-bg text-bolt-elements-loader-progress text-base sm:text-lg md:text-xl animate-spin"></div>
                           ) : (
-                            <div className="i-bolt:stars text-base sm:text-lg md:text-xl"></div> {/* MODIFIED */}
+                            <div className="i-bolt:stars text-base sm:text-lg md:text-xl"></div>
                           )}
                         </IconButton>
 
