@@ -224,6 +224,12 @@ video {
   //   min-width: 1.25rem;
   // }
 
+  // BaseChat.tsx textarea (has class .w-full .pl-3 .pt-3 etc.)
+  // Using a more stable part of its class or an added ID would be better.
+  // For now, assuming it's the primary textarea in its context.
+  :global(textarea[aria-label*="Chat input"]) { // Targeting via its ARIA label
+    min-height: 60px !important; // Override JS variable if possible
+  }
 // End of @media (max-width: 768px) block
 }
 
@@ -247,17 +253,17 @@ video {
     line-height: 1.45;
 
     > *:not(:last-child) {
-      margin-block-end: 10px;
+      margin-block-end: 8px; // MODIFIED
     }
 
     :is(h1, h2, h3, h4, h5, h6) {
-      margin-block-start: 16px;
-      margin-block-end: 10px;
+      margin-block-start: 12px; // MODIFIED
+      margin-block-end: 8px; // MODIFIED
       line-height: 1.15;
     }
 
     p:not(:last-of-type) {
-      margin-block-end: 10px;
+      margin-block-end: 8px; // MODIFIED
     }
 
     :is(ul, ol) {
@@ -270,7 +276,7 @@ video {
     }
 
     hr {
-      margin: 12px 0;
+      margin: 10px 0; // MODIFIED
     }
   }
 
@@ -357,5 +363,9 @@ video {
     min-height: 2.5rem; // h-10 (40px)
     // padding-top: 0.75rem; // py-3 (if h-10 means 2.5rem total height)
     // padding-bottom: 0.75rem; // py-3
+  }
+
+  :global(textarea[aria-label*="Chat input"]) {
+    min-height: 50px !important;
   }
 }

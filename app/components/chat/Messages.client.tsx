@@ -47,7 +47,10 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
     };
 
     return (
-      <div id={id} className={props.className} ref={ref}>
+      <div id={id} className={classNames(
+        props.className,
+        'overflow-y-auto min-h-0' // Added classes
+      )} ref={ref}>
         {messages.length > 0
           ? messages.map((message, index) => {
               const { role, content, id: messageId, annotations } = message;

@@ -10,8 +10,17 @@
 
 html,
 body {
-  height: 100%;
+  height: 100%; // Or 100vh for html, 100% for body
   width: 100%;
+  overflow: hidden; // Prevent page scroll
+}
+
+// If there's a known root div ID like #root for the React app
+#root { // Or the actual selector for where the Remix app mounts
+  height: 100%;
+  display: flex; // Assuming it should be a flex container for overall layout
+  flex-direction: column;
+  overflow: hidden; // It might also need this if it's not the direct body child
 }
 
 :root {
