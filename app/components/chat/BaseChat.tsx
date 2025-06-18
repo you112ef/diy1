@@ -31,6 +31,7 @@ import { toast } from 'react-toastify';
 import StarterTemplates from './StarterTemplates';
 import type { ActionAlert, SupabaseAlert, DeployAlert } from '~/types/actions';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
+import { ProjectTemplateList } from '~/components/templates/ProjectTemplateList'; // Added import
 import ChatAlert from './ChatAlert';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import ProgressCompilation from './ProgressCompilation';
@@ -635,6 +636,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <GitCloneButton importChat={importChat} />
                 </div>
               )}
+              {/* Add ProjectTemplateList here */}
+              {!chatStarted && <ProjectTemplateList />}
               {!chatStarted &&
                 ExamplePrompts((event, messageInput) => {
                   if (isStreaming) {
