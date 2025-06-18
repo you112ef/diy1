@@ -4,6 +4,7 @@ import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';
 import { webcontainer } from '~/lib/webcontainer';
 import type { ITerminal } from '~/types/terminal';
+import type { BoltAction } from '~/types/actions'; // Added for onConfirmationRequired
 import { unreachable } from '~/utils/unreachable';
 import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
@@ -20,6 +21,16 @@ import { createSampler } from '~/utils/sampler';
 import type { ActionAlert, DeployAlert, SupabaseAlert } from '~/types/actions';
 
 const { saveAs } = fileSaver;
+
+export interface ActionToConfirmDetails {
+  actionId: string;
+  artifactId: string; // This is the messageId
+  title: string;
+  description: string;
+  confirmButtonLabel?: string;
+  cancelButtonLabel?: string;
+  confirmButtonVariant?: 'default' | 'destructive';
+}
 
 export interface ArtifactState {
   id: string;
@@ -53,7 +64,9 @@ export class WorkbenchStore {
   supabaseAlert: WritableAtom<SupabaseAlert | undefined> =
     import.meta.hot?.data.unsavedFiles ?? atom<ActionAlert | undefined>(undefined);
   deployAlert: WritableAtom<DeployAlert | undefined> =
-    import.meta.hot?.data.unsavedFiles ?? atom<DeployAlert | undefined>(undefined);
+    import.meta.hot?.data.deployAlert ?? atom<DeployAlert | undefined>(undefined); // Corrected HMR key
+  actionToConfirm: WritableAtom<ActionToConfirmDetails | null> =
+    import.meta.hot?.data.actionToConfirm ?? atom<ActionToConfirmDetails | null>(null); // Added state
   modifiedFiles = new Set<string>();
   artifactIdList: string[] = [];
   #globalExecutionQueue = Promise.resolve();
@@ -66,6 +79,7 @@ export class WorkbenchStore {
       import.meta.hot.data.actionAlert = this.actionAlert;
       import.meta.hot.data.supabaseAlert = this.supabaseAlert;
       import.meta.hot.data.deployAlert = this.deployAlert;
+      import.meta.hot.data.actionToConfirm = this.actionToConfirm; // Added for HMR
 
       // Ensure binary files are properly preserved across hot reloads
       const filesMap = this.files.get();
@@ -420,28 +434,46 @@ export class WorkbenchStore {
       runner: new ActionRunner(
         webcontainer,
         () => this.boltTerminal,
-        this.#filesStore, // Added this.#filesStore instance
-        (alert) => {
-          if (this.#reloadedMessages.has(messageId)) {
-            return;
-          }
+        this.#filesStore,
+        (actionId, actionToConfirm) => { // New onConfirmationRequired callback
+          let title = 'Confirm Action';
+          let description = `Are you sure you want to proceed with: ${actionToConfirm.type}?`;
+          let confirmButtonVariant: 'default' | 'destructive' = 'default';
 
+          if (actionToConfirm.type === 'shell') {
+            description = `Are you sure you want to run the shell command: "${actionToConfirm.content}"?`;
+            if (actionToConfirm.content.includes('rm -rf') || actionToConfirm.content.includes('sudo')) {
+              title = 'Confirm Destructive Command';
+              confirmButtonVariant = 'destructive';
+            }
+          } else if (actionToConfirm.type === 'file' && actionToConfirm.filePath) {
+            title = 'Confirm File Operation';
+            description = `Are you sure you want to modify/create "${actionToConfirm.filePath}"?`;
+          }
+          // Add more specific cases here, e.g. for a future 'deleteFile' or 'createProject' type
+
+          this.actionToConfirm.set({
+            actionId,
+            artifactId: messageId, // messageId is from addArtifact's scope
+            title,
+            description,
+            confirmButtonLabel: 'Confirm',
+            cancelButtonLabel: 'Cancel',
+            confirmButtonVariant,
+          });
+        },
+        (alert) => { // onAlert
+          if (this.#reloadedMessages.has(messageId)) return;
           this.actionAlert.set(alert);
         },
-        (alert) => {
-          if (this.#reloadedMessages.has(messageId)) {
-            return;
-          }
-
+        (alert) => { // onSupabaseAlert
+          if (this.#reloadedMessages.has(messageId)) return;
           this.supabaseAlert.set(alert);
         },
-        (alert) => {
-          if (this.#reloadedMessages.has(messageId)) {
-            return;
-          }
-
+        (alert) => { // onDeployAlert
+          if (this.#reloadedMessages.has(messageId)) return;
           this.deployAlert.set(alert);
-        },
+        }
       ),
     });
   }
@@ -530,6 +562,28 @@ export class WorkbenchStore {
   #getArtifact(id: string) {
     const artifacts = this.artifacts.get();
     return artifacts[id];
+  }
+
+  async confirmCurrentAction() {
+    const request = this.actionToConfirm.get();
+    if (!request) return;
+
+    const artifact = this.#getArtifact(request.artifactId);
+    if (artifact) {
+      await artifact.runner.confirmAction(request.actionId);
+    }
+    this.actionToConfirm.set(null); // Clear the request
+  }
+
+  cancelCurrentAction() {
+    const request = this.actionToConfirm.get();
+    if (!request) return;
+
+    const artifact = this.#getArtifact(request.artifactId);
+    if (artifact) {
+      artifact.runner.cancelAction(request.actionId);
+    }
+    this.actionToConfirm.set(null); // Clear the request
   }
 
   async downloadZip() {

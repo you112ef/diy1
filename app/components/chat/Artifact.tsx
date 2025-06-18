@@ -196,9 +196,13 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   ) : status === 'pending' ? (
                     <div className="i-ph:circle-duotone"></div>
                   ) : status === 'complete' ? (
-                    <div className="i-ph:check"></div>
-                  ) : status === 'failed' || status === 'aborted' ? (
-                    <div className="i-ph:x"></div>
+                    <div className="i-ph:check-circle-duotone"></div> {/* Changed for more impact */}
+                  ) : status === 'failed' ? (
+                    <div className="i-ph:x-circle-duotone"></div> {/* Changed for more impact */}
+                  ) : status === 'aborted' ? (
+                    <div className="i-ph:stop-circle-duotone"></div> {/* Specific icon for aborted */}
+                  ) : status === 'awaiting-confirmation' ? (
+                    <div className="i-ph:question-duotone"></div>
                   ) : null}
                 </div>
                 {type === 'file' ? (
@@ -252,16 +256,18 @@ function getIconColor(status: ActionState['status']) {
       return 'text-bolt-elements-loader-progress';
     }
     case 'complete': {
-      return 'text-bolt-elements-icon-success';
+      return 'text-bolt-elements-icon-success'; // Keep as is (green)
     }
+    case 'awaiting-confirmation': // New case
+      return 'text-bolt-elements-item-contentAccent'; // Accent color (e.g., purple or blue)
     case 'aborted': {
-      return 'text-bolt-elements-textSecondary';
+      return 'text-gray-500 dark:text-gray-400'; // Changed for better visibility
     }
     case 'failed': {
-      return 'text-bolt-elements-icon-error';
+      return 'text-bolt-elements-icon-error'; // Keep as is (red)
     }
     default: {
-      return undefined;
+      return 'text-bolt-elements-textTertiary'; // Default fallback
     }
   }
 }

@@ -11,9 +11,10 @@ import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
-import { workbenchStore } from '~/lib/stores/workbench';
+import { workbenchStore, type ActionToConfirmDetails } from '~/lib/stores/workbench'; // Added ActionToConfirmDetails
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
+import { ConfirmationDialog } from '~/components/ui/Dialog'; // Added ConfirmationDialog
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
 import Cookies from 'js-cookie';
@@ -117,6 +118,7 @@ export const ChatImpl = memo(
   ({ description, initialMessages, storeMessageHistory, importChat, exportChat }: ChatProps) => {
     useShortcuts();
 
+    const actionToConfirmDetails = useStore(workbenchStore.actionToConfirm); // Added state subscription
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const [chatStarted, setChatStarted] = useState(initialMessages.length > 0);
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
@@ -504,9 +506,10 @@ export const ChatImpl = memo(
     };
 
     return (
-      <BaseChat
-        ref={animationScope}
-        textareaRef={textareaRef}
+      <> {/* Main fragment at top level of ChatImpl return */}
+        <BaseChat
+          ref={animationScope}
+          textareaRef={textareaRef}
         input={input}
         showChat={showChat}
         chatStarted={chatStarted}
@@ -566,6 +569,31 @@ export const ChatImpl = memo(
         clearDeployAlert={() => workbenchStore.clearDeployAlert()}
         data={chatData}
       />
+
+      {actionToConfirmDetails && (
+        <ConfirmationDialog
+          isOpen={!!actionToConfirmDetails}
+          title={actionToConfirmDetails.title}
+          description={actionToConfirmDetails.description}
+          confirmLabel={actionToConfirmDetails.confirmButtonLabel || 'Confirm'}
+          cancelLabel={actionToConfirmDetails.cancelButtonLabel || 'Cancel'}
+          variant={actionToConfirmDetails.confirmButtonVariant || 'default'}
+          onConfirm={() => {
+            workbenchStore.confirmCurrentAction();
+          }}
+          onClose={() => {
+            // This onClose is typically for closing via X button or escape key.
+            // For explicit cancel button, that button calls cancelCurrentAction.
+            // If this dialog's onClose is also meant for cancellation, then call cancelCurrentAction.
+            // The existing ConfirmationDialog has its own cancel button.
+            // So, this onClose should likely be for closing without explicit cancel,
+            // which can be treated as a cancel.
+            workbenchStore.cancelCurrentAction();
+          }}
+          // isLoading prop can be added if we want to show loading state on confirm button
+        />
+      )}
+    </>
     );
   },
 );

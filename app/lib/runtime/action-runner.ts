@@ -10,7 +10,7 @@ import type { BoltShell } from '~/utils/shell';
 
 const logger = createScopedLogger('ActionRunner');
 
-export type ActionStatus = 'pending' | 'running' | 'complete' | 'aborted' | 'failed';
+export type ActionStatus = 'pending' | 'running' | 'complete' | 'aborted' | 'failed' | 'awaiting-confirmation';
 
 export type BaseActionState = BoltAction & {
   status: Exclude<ActionStatus, 'failed'>;
@@ -74,22 +74,25 @@ export class ActionRunner {
   onAlert?: (alert: ActionAlert) => void;
   onSupabaseAlert?: (alert: SupabaseAlert) => void;
   onDeployAlert?: (alert: DeployAlert) => void;
+  public onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void; // Added
   buildOutput?: { path: string; exitCode: number; output: string };
 
   constructor(
     webcontainerPromise: Promise<WebContainer>,
     getShellTerminal: () => BoltShell,
-    filesStore: FilesStore, // Added
+    filesStore: FilesStore,
+    onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void, // Added
     onAlert?: (alert: ActionAlert) => void,
     onSupabaseAlert?: (alert: SupabaseAlert) => void,
     onDeployAlert?: (alert: DeployAlert) => void,
   ) {
     this.#webcontainer = webcontainerPromise;
     this.#shellTerminal = getShellTerminal;
-    this.#filesStoreInstance = filesStore; // Assigned
+    this.#filesStoreInstance = filesStore;
     this.onAlert = onAlert;
     this.onSupabaseAlert = onSupabaseAlert;
     this.onDeployAlert = onDeployAlert;
+    this.onConfirmationRequired = onConfirmationRequired; // Assigned
   }
 
   addAction(data: ActionCallbackData) {
@@ -153,9 +156,41 @@ export class ActionRunner {
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {
-    const action = this.actions.get()[actionId];
+    const currentActionState = this.actions.get()[actionId];
+    if (!currentActionState) {
+      logger.warn(`Action ${actionId} not found in #executeAction`);
+      return;
+    }
 
-    this.#updateAction(actionId, { status: 'running' });
+    // Check for requiresConfirmation before proceeding
+    // Assuming 'requiresConfirmation' is a boolean on BoltAction from app/types/actions.ts
+    if (currentActionState.requiresConfirmation && currentActionState.status === 'pending') {
+      this.#updateAction(actionId, { status: 'awaiting-confirmation' });
+      this.onConfirmationRequired?.(actionId, currentActionState as BoltAction);
+      return;
+    }
+
+    // If action is awaiting confirmation, do not proceed further until confirmed.
+    if (currentActionState.status === 'awaiting-confirmation') {
+      return;
+    }
+
+    // Prevent re-execution of already finalized or running (non-streaming file) actions
+    if (['complete', 'aborted', 'failed'].includes(currentActionState.status)) {
+        // Allow streaming to update a "complete" file action's content, but not other finalized states.
+        if(!(currentActionState.type === 'file' && isStreaming && currentActionState.status === 'complete')) {
+            return;
+        }
+    }
+
+    // Set to running if it was pending (and not awaiting confirmation)
+    // For streaming file actions that were 'complete', they might re-enter here to append content,
+    // their status would already be 'running' or 'complete' from previous chunks.
+    if (currentActionState.status === 'pending') {
+         this.#updateAction(actionId, { status: 'running' });
+    }
+    // It's important to use currentActionState for the switch, as 'action' might be stale if status changed.
+    const action = currentActionState;
 
     try {
       switch (action.type) {
@@ -352,6 +387,30 @@ export class ActionRunner {
 
   #getHistoryPath(filePath: string) {
     return nodePath.join('.history', filePath);
+  }
+
+  public async confirmAction(actionId: string) {
+    const action = this.actions.get()[actionId];
+    if (action && action.status === 'awaiting-confirmation') {
+      this.#updateAction(actionId, { status: 'running' });
+      // Ensure the execution is chained
+      this.#currentExecutionPromise = this.#currentExecutionPromise.then(async () => {
+        await this.#executeAction(actionId, false);
+      });
+      await this.#currentExecutionPromise;
+    }
+  }
+
+  public cancelAction(actionId: string) {
+    const action = this.actions.get()[actionId];
+    if (action && (action.status === 'awaiting-confirmation' || action.status === 'pending' || action.status === 'running')) {
+      // Prefer calling the action's own abort logic if available
+      if (typeof action.abort === 'function' && action.abortSignal && !action.abortSignal.aborted) {
+          action.abort(); // This should ideally also set status to 'aborted' via its own logic
+      } else {
+           this.#updateAction(actionId, { status: 'aborted' });
+      }
+    }
   }
 
   async #runBuildAction(action: ActionState) {
