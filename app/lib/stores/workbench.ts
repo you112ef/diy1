@@ -420,6 +420,7 @@ export class WorkbenchStore {
       runner: new ActionRunner(
         webcontainer,
         () => this.boltTerminal,
+        this.#filesStore, // Added this.#filesStore instance
         (alert) => {
           if (this.#reloadedMessages.has(messageId)) {
             return;

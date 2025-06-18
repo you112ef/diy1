@@ -4,6 +4,7 @@ import { atom, map, type MapStore } from 'nanostores';
 import type { ActionAlert, BoltAction, DeployAlert, FileHistory, SupabaseAction, SupabaseAlert } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
+import type { FilesStore } from '../stores/files'; // Added import
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
 
@@ -69,6 +70,7 @@ export class ActionRunner {
   #shellTerminal: () => BoltShell;
   runnerId = atom<string>(`${Date.now()}`);
   actions: ActionsMap = map({});
+  #filesStoreInstance: FilesStore; // Added private member
   onAlert?: (alert: ActionAlert) => void;
   onSupabaseAlert?: (alert: SupabaseAlert) => void;
   onDeployAlert?: (alert: DeployAlert) => void;
@@ -77,12 +79,14 @@ export class ActionRunner {
   constructor(
     webcontainerPromise: Promise<WebContainer>,
     getShellTerminal: () => BoltShell,
+    filesStore: FilesStore, // Added
     onAlert?: (alert: ActionAlert) => void,
     onSupabaseAlert?: (alert: SupabaseAlert) => void,
     onDeployAlert?: (alert: DeployAlert) => void,
   ) {
     this.#webcontainer = webcontainerPromise;
     this.#shellTerminal = getShellTerminal;
+    this.#filesStoreInstance = filesStore; // Assigned
     this.onAlert = onAlert;
     this.onSupabaseAlert = onSupabaseAlert;
     this.onDeployAlert = onDeployAlert;
@@ -304,28 +308,14 @@ export class ActionRunner {
       unreachable('Expected file action');
     }
 
-    const webcontainer = await this.#webcontainer;
-    const relativePath = nodePath.relative(webcontainer.workdir, action.filePath);
-
-    let folder = nodePath.dirname(relativePath);
-
-    // remove trailing slashes
-    folder = folder.replace(/\/+$/g, '');
-
-    if (folder !== '.') {
-      try {
-        await webcontainer.fs.mkdir(folder, { recursive: true });
-        logger.debug('Created folder', folder);
-      } catch (error) {
-        logger.error('Failed to create folder\n\n', error);
-      }
-    }
-
+    // Use FilesStore to create/update the file
     try {
-      await webcontainer.fs.writeFile(relativePath, action.content);
-      logger.debug(`File written ${relativePath}`);
+      await this.#filesStoreInstance.createFile(action.filePath, action.content);
+      logger.debug(`File action processed via FilesStore: ${action.filePath}`);
     } catch (error) {
-      logger.error('Failed to write file\n\n', error);
+      logger.error(`Failed to process file action for ${action.filePath} via FilesStore:`, error);
+      // Optionally, re-throw or handle the error to set action status to failed
+      throw error; // Re-throwing to allow the caller to handle the failed status
     }
   }
 
