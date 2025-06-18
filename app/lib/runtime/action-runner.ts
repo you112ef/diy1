@@ -74,14 +74,16 @@ export class ActionRunner {
   onAlert?: (alert: ActionAlert) => void;
   onSupabaseAlert?: (alert: SupabaseAlert) => void;
   onDeployAlert?: (alert: DeployAlert) => void;
-  public onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void; // Added
+  public onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void;
+  public onOpenFileRequested?: (filePath: string) => void; // Added
   buildOutput?: { path: string; exitCode: number; output: string };
 
   constructor(
     webcontainerPromise: Promise<WebContainer>,
     getShellTerminal: () => BoltShell,
     filesStore: FilesStore,
-    onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void, // Added
+    onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void,
+    onOpenFileRequested?: (filePath: string) => void, // Added
     onAlert?: (alert: ActionAlert) => void,
     onSupabaseAlert?: (alert: SupabaseAlert) => void,
     onDeployAlert?: (alert: DeployAlert) => void,
@@ -92,7 +94,8 @@ export class ActionRunner {
     this.onAlert = onAlert;
     this.onSupabaseAlert = onSupabaseAlert;
     this.onDeployAlert = onDeployAlert;
-    this.onConfirmationRequired = onConfirmationRequired; // Assigned
+    this.onConfirmationRequired = onConfirmationRequired;
+    this.onOpenFileRequested = onOpenFileRequested; // Assigned
   }
 
   addAction(data: ActionCallbackData) {
@@ -195,7 +198,20 @@ export class ActionRunner {
     try {
       switch (action.type) {
         case 'shell': {
-          await this.#runShellAction(action);
+          const shellResp = await this.#runShellAction(action as BaseActionState & { type: 'shell' }); // Ensure action is typed for ShellAction properties
+          this.#updateAction(actionId, {
+            capturedOutput: shellResp?.output || '',
+            exitCode: shellResp?.exitCode
+          });
+          break;
+        }
+        case 'openFile': { // Added case
+          if (action.type === 'openFile' && action.filePath) {
+            this.onOpenFileRequested?.(action.filePath);
+          } else {
+            logger.warn('OpenFileAction missing filePath or action type mismatch:', action);
+            this.#updateAction(actionId, { status: 'failed', error: 'Missing filePath for openFile action' });
+          }
           break;
         }
         case 'file': {
@@ -307,6 +323,7 @@ export class ActionRunner {
     if (resp?.exitCode != 0) {
       throw new ActionCommandError(`Failed To Execute Shell Command`, resp?.output || 'No Output Available');
     }
+    return resp; // Return the response object
   }
 
   async #runStartAction(action: ActionState) {

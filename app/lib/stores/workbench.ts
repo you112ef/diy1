@@ -462,6 +462,13 @@ export class WorkbenchStore {
             confirmButtonVariant,
           });
         },
+        (filePath) => { // onOpenFileRequested callback
+          // const wcWorkdir = webcontainer.workdir; // webcontainer is a promise here
+          // const fullPath = path.join(wcWorkdir, filePath); // This needs careful handling of path
+          this.setSelectedFile(filePath);
+          this.currentView.set('code');
+          this.showWorkbench.set(true); // Ensure workbench is visible
+        },
         (alert) => { // onAlert
           if (this.#reloadedMessages.has(messageId)) return;
           this.actionAlert.set(alert);

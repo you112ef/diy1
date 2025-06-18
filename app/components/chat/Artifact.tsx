@@ -4,6 +4,7 @@ import { computed } from 'nanostores';
 import { memo, useEffect, useRef, useState } from 'react';
 import { createHighlighter, type BundledLanguage, type BundledTheme, type HighlighterGeneric } from 'shiki';
 import type { ActionState } from '~/lib/runtime/action-runner';
+import type { ShellAction } from '~/types/actions'; // Added import
 import { workbenchStore } from '~/lib/stores/workbench';
 import { classNames } from '~/utils/classNames';
 import { cubicEasingFn } from '~/utils/easings';
@@ -232,12 +233,29 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                 ) : null}
               </div>
               {(type === 'shell' || type === 'start') && (
-                <ShellCodeBlock
-                  classsName={classNames('mt-1', {
-                    'mb-3.5': !isLast,
-                  })}
-                  code={content}
-                />
+                <>
+                  <ShellCodeBlock
+                    classsName={classNames('mt-1', {
+                      // Adjust margin if output is not present or it's the last item
+                      'mb-3.5': !isLast && !(action as ShellAction).capturedOutput,
+                    })}
+                    code={content} // This is the command
+                  />
+                  {(action as ShellAction).capturedOutput && (
+                    <div className="mt-1.5 pt-1.5 border-t border-bolt-elements-borderColor/50">
+                      <p className={classNames(
+                        "text-xs mb-0.5",
+                        (action as ShellAction).exitCode === 0 ? "text-bolt-elements-textTertiary" : "text-red-500"
+                      )}>
+                        Output (Exit Code: {(action as ShellAction).exitCode}):
+                      </p>
+                      <ShellCodeBlock
+                        classsName={classNames({ 'mb-3.5': !isLast })}
+                        code={(action as ShellAction).capturedOutput!}
+                      />
+                    </div>
+                  )}
+                </>
               )}
             </motion.li>
           );
