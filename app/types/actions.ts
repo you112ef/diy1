@@ -4,6 +4,8 @@ export type ActionType = 'file' | 'shell' | 'supabase';
 
 export interface BaseAction {
   content: string;
+  lang?: string; // Added
+  requiresConfirmation?: boolean; // Added
 }
 
 export interface FileAction extends BaseAction {

@@ -288,10 +288,21 @@ export class StreamingMessageParser {
 
     const actionType = this.#extractAttribute(actionTag, 'type') as ActionType;
 
-    const actionAttributes = {
+    // Use 'any' temporarily or define a proper intermediate type that includes all possible action fields
+    const actionAttributes: any = {
       type: actionType,
       content: '',
     };
+
+    const lang = this.#extractAttribute(actionTag, 'lang');
+    if (lang) {
+      actionAttributes.lang = lang;
+    }
+
+    const confirm = this.#extractAttribute(actionTag, 'requiresConfirmation');
+    if (confirm) {
+      actionAttributes.requiresConfirmation = (confirm === 'true');
+    }
 
     if (actionType === 'supabase') {
       const operation = this.#extractAttribute(actionTag, 'operation');
@@ -325,7 +336,9 @@ export class StreamingMessageParser {
       logger.warn(`Unknown action type '${actionType}'`);
     }
 
-    return actionAttributes as FileAction | ShellAction;
+    // The return type should be compatible with BoltAction which now includes lang and requiresConfirmation
+    // via BaseAction. The specific action types (FileAction, ShellAction, etc.) inherit these.
+    return actionAttributes as BoltAction;
   }
 
   #extractAttribute(tag: string, attributeName: string): string | undefined {
