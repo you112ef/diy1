@@ -197,9 +197,9 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   ) : status === 'pending' ? (
                     <div className="i-ph:circle-duotone"></div>
                   ) : status === 'complete' ? (
-                    <div className="i-ph:check-circle-duotone"></div> {/* Changed for more impact */}
+                    <div className="i-ph:check-circle-duotone"></div>
                   ) : status === 'failed' ? (
-                    <div className="i-ph:x-circle-duotone"></div> {/* Changed for more impact */}
+                    <div className="i-ph:x-circle-duotone"></div>
                   ) : status === 'aborted' ? (
                     <div className="i-ph:stop-circle-duotone"></div> {/* Specific icon for aborted */}
                   ) : status === 'awaiting-confirmation' ? (
