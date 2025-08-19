@@ -78,6 +78,9 @@ export default defineConfig((config) => {
         path: 'path-browserify',
       },
     },
+    optimizeDeps: {
+      include: ['path-browserify'],
+    },
     define: {
       __COMMIT_HASH: JSON.stringify(gitInfo.commitHash),
       __GIT_BRANCH: JSON.stringify(gitInfo.branch),

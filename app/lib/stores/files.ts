@@ -469,6 +469,7 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
 
   // Quick null byte heuristic on the first 512 bytes
   const sampleLength = Math.min(buffer.byteLength, 512);
+
   for (let i = 0; i < sampleLength; i++) {
     if (buffer[i] === 0x00) {
       return true;
@@ -484,12 +485,4 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
   }
 }
 
-/**
- * Converts a `Uint8Array` into a Node.js `Buffer` by copying the prototype.
- * The goal is to  avoid expensive copies. It does create a new typed array
- * but that's generally cheap as long as it uses the same underlying
- * array buffer.
- */
-function convertToBuffer(view: Uint8Array): Buffer {
-  return Buffer.from(view.buffer, view.byteOffset, view.byteLength);
-}
+/** Removed unused convertToBuffer helper (no longer needed). */
