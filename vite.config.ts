@@ -39,6 +39,6 @@ export default defineConfig({
     },
   },
   optimizeDeps: {
-    include: ['crypto-browserify', 'stream-browserify', 'buffer', 'util'],
+    include: ['crypto-browserify', 'stream-browserify', 'buffer', 'util', 'react-markdown'],
   },
 });
