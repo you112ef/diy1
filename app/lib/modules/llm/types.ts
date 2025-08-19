@@ -11,6 +11,7 @@ export interface ModelInfo {
 export interface ProviderInfo {
   name: string;
   staticModels: ModelInfo[];
+  requiresApiKey?: boolean; // Whether this provider requires an API key
   getDynamicModels?: (
     apiKeys?: Record<string, string>,
     settings?: IProviderSetting,

@@ -92,7 +92,12 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
           <span className="text-sm font-medium text-bolt-elements-textSecondary">{provider?.name} API Key:</span>
           {!isEditing && (
             <div className="flex items-center gap-2">
-              {apiKey ? (
+              {provider?.requiresApiKey === false ? (
+                <>
+                  <div className="i-ph:check-circle-fill text-green-500 w-4 h-4" />
+                  <span className="text-xs text-green-500">Not Required</span>
+                </>
+              ) : apiKey ? (
                 <>
                   <div className="i-ph:check-circle-fill text-green-500 w-4 h-4" />
                   <span className="text-xs text-green-500">Set via UI</span>
@@ -142,7 +147,7 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
           </div>
         ) : (
           <>
-            {
+            {provider?.requiresApiKey !== false && (
               <IconButton
                 onClick={() => setIsEditing(true)}
                 title="Edit API Key"
@@ -150,8 +155,8 @@ export const APIKeyManager: React.FC<APIKeyManagerProps> = ({ provider, apiKey, 
               >
                 <div className="i-ph:pencil-simple w-4 h-4" />
               </IconButton>
-            }
-            {provider?.getApiKeyLink && !apiKey && (
+            )}
+            {provider?.getApiKeyLink && !apiKey && provider?.requiresApiKey !== false && (
               <IconButton
                 onClick={() => window.open(provider?.getApiKeyLink)}
                 title="Get API Key"

@@ -97,7 +97,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
-import { setupOllamaComplete } from './lib/stores/ollama-auto-setup';
+import { checkOllamaStatus } from './lib/stores/ollama-auto-setup';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -110,12 +110,12 @@ export default function App() {
       timestamp: new Date().toISOString(),
     });
 
-    // إعداد Ollama تلقائياً
-    setupOllamaComplete().then((success) => {
-      if (success) {
-        logStore.logSystem('✅ Ollama setup completed successfully');
+    // التحقق من حالة Ollama الحقيقية
+    checkOllamaStatus().then((status) => {
+      if (status.connected) {
+        logStore.logSystem(`✅ Ollama connected with ${status.models} models`);
       } else {
-        logStore.logSystem('⚠️ Ollama setup partially completed - may need manual start');
+        logStore.logSystem(`⚠️ Ollama not available: ${status.error}`);
       }
     });
   }, []);

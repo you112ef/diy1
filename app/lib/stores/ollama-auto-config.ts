@@ -12,11 +12,7 @@ export const OLLAMA_AUTO_CONFIG = {
   },
 
   // النماذج المطلوبة للتحميل التلقائي
-  requiredModels: [
-    'stable-code:3b',
-    'llama3.2:1b',
-    'qwen2.5-coder:1.5b',
-  ],
+  requiredModels: ['stable-code:3b', 'llama3.2:1b', 'qwen2.5-coder:1.5b'],
 
   // إعدادات الأداء
   performance: {
@@ -37,18 +33,18 @@ export function applyOllamaAutoConfig() {
       baseUrl: OLLAMA_AUTO_CONFIG.connection.baseUrl,
       autoStart: OLLAMA_AUTO_CONFIG.connection.autoStart,
     };
-    
+
     localStorage.setItem('ollama-auto-settings', JSON.stringify(ollamaSettings));
-    
+
     // تطبيق إعدادات الأداء
     const performanceSettings = {
       contextLength: OLLAMA_AUTO_CONFIG.performance.contextLength,
       temperature: OLLAMA_AUTO_CONFIG.performance.temperature,
       numCtx: OLLAMA_AUTO_CONFIG.performance.numCtx,
     };
-    
+
     localStorage.setItem('ollama-performance', JSON.stringify(performanceSettings));
-    
+
     console.log('✅ تم تطبيق الإعدادات التلقائية لـ Ollama');
   }
 }
@@ -59,29 +55,29 @@ export function applyOllamaAutoConfig() {
 export async function ensureOllamaModels(): Promise<boolean> {
   try {
     const baseUrl = OLLAMA_AUTO_CONFIG.connection.baseUrl;
-    
+
     // التحقق من اتصال Ollama
     const healthResponse = await fetch(`${baseUrl}/api/tags`);
+
     if (!healthResponse.ok) {
       console.warn('⚠️ Ollama غير متصل. تأكد من تشغيله على:', baseUrl);
       return false;
     }
-    
-    const data = await healthResponse.json();
+
+    const data = (await healthResponse.json()) as { models: Array<{ name: string }> };
     const installedModels = data.models.map((model: any) => model.name);
-    
+
     // التحقق من النماذج المطلوبة
-    const missingModels = OLLAMA_AUTO_CONFIG.requiredModels.filter(
-      model => !installedModels.includes(model)
-    );
-    
+    const missingModels = OLLAMA_AUTO_CONFIG.requiredModels.filter((model) => !installedModels.includes(model));
+
     if (missingModels.length > 0) {
       console.log('📥 تحميل النماذج المفقودة:', missingModels);
-      
+
       // محاولة تحميل النماذج المفقودة
       for (const model of missingModels) {
         try {
           console.log(`📥 تحميل النموذج: ${model}`);
+
           const pullResponse = await fetch(`${baseUrl}/api/pull`, {
             method: 'POST',
             headers: {
@@ -89,7 +85,7 @@ export async function ensureOllamaModels(): Promise<boolean> {
             },
             body: JSON.stringify({ name: model }),
           });
-          
+
           if (pullResponse.ok) {
             console.log(`✅ تم تحميل النموذج بنجاح: ${model}`);
           } else {
@@ -100,8 +96,9 @@ export async function ensureOllamaModels(): Promise<boolean> {
         }
       }
     }
-    
+
     console.log('✅ جميع نماذج Ollama جاهزة');
+
     return true;
   } catch (error) {
     console.error('❌ خطأ في التحقق من نماذج Ollama:', error);
@@ -114,18 +111,18 @@ export async function ensureOllamaModels(): Promise<boolean> {
  */
 export async function initializeOllamaAuto() {
   console.log('🚀 بدء التهيئة التلقائية لـ Ollama...');
-  
+
   // تطبيق الإعدادات
   applyOllamaAutoConfig();
-  
+
   // التحقق من النماذج وتحميلها
   const modelsReady = await ensureOllamaModels();
-  
+
   if (modelsReady) {
     console.log('✅ تم إعداد Ollama بنجاح وجاهز للاستخدام');
   } else {
     console.log('⚠️ Ollama مُعدّ جزئياً، قد تحتاج لتشغيل Ollama يدوياً');
   }
-  
+
   return modelsReady;
 }

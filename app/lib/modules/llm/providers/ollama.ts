@@ -29,6 +29,7 @@ export interface OllamaApiResponse {
 
 export default class OllamaProvider extends BaseProvider {
   name = 'Ollama';
+  requiresApiKey = false; // Ollama doesn't require an API key
   getApiKeyLink = 'https://ollama.com/download';
   labelForGetApiKey = 'Download Ollama';
   icon = 'i-ph:cloud-arrow-down';
@@ -37,7 +38,32 @@ export default class OllamaProvider extends BaseProvider {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
   };
 
-  staticModels: ModelInfo[] = [];
+  staticModels: ModelInfo[] = [
+    {
+      name: 'llama3.2:1b',
+      label: 'Llama 3.2 1B (Fast, Small)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+    {
+      name: 'llama3.2:3b',
+      label: 'Llama 3.2 3B (Balanced)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+    {
+      name: 'qwen2.5-coder:1.5b',
+      label: 'Qwen2.5 Coder 1.5B (Code)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+    {
+      name: 'stable-code:3b',
+      label: 'Stable Code 3B (Coding)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+  ];
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
     if (!env) {
@@ -73,7 +99,11 @@ export default class OllamaProvider extends BaseProvider {
     });
 
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      // Use proxy URL for Cloudflare Pages
+      baseUrl =
+        typeof window !== 'undefined'
+          ? '/api/ollama/proxy' // Frontend: use proxy
+          : 'http://127.0.0.1:11434'; // Backend: direct connection
     }
 
     if (typeof window === 'undefined') {
@@ -87,17 +117,29 @@ export default class OllamaProvider extends BaseProvider {
       baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
     }
 
-    const response = await fetch(`${baseUrl}/api/tags`);
-    const data = (await response.json()) as OllamaApiResponse;
+    try {
+      const response = await fetch(`${baseUrl}/api/tags`);
 
-    // console.log({ ollamamodels: data.models });
+      if (!response.ok) {
+        throw new Error(`Ollama API returned ${response.status}: ${response.statusText}`);
+      }
 
-    return data.models.map((model: OllamaModel) => ({
-      name: model.name,
-      label: `${model.name} (${model.details.parameter_size})`,
-      provider: this.name,
-      maxTokenAllowed: 8000,
-    }));
+      const data = (await response.json()) as OllamaApiResponse;
+
+      if (!data.models || data.models.length === 0) {
+        throw new Error('No models found in Ollama. Please install models using: ollama pull <model-name>');
+      }
+
+      return data.models.map((model: OllamaModel) => ({
+        name: model.name,
+        label: `${model.name} (${model.details.parameter_size})`,
+        provider: this.name,
+        maxTokenAllowed: 8000,
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to connect to Ollama at ${baseUrl}: ${errorMessage}`);
+    }
   }
 
   getModelInstance: (options: {
@@ -119,7 +161,11 @@ export default class OllamaProvider extends BaseProvider {
 
     // Backend: Check if we're running in Docker
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      // Use proxy URL for Cloudflare Pages
+      baseUrl =
+        typeof window !== 'undefined'
+          ? '/api/ollama/proxy' // Frontend: use proxy
+          : 'http://127.0.0.1:11434'; // Backend: direct connection
     }
 
     const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || envRecord.RUNNING_IN_DOCKER === 'true';

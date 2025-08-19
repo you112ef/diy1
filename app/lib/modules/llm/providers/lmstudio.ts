@@ -7,6 +7,7 @@ import { logger } from '~/utils/logger';
 
 export default class LMStudioProvider extends BaseProvider {
   name = 'LMStudio';
+  requiresApiKey = false; // LMStudio doesn't require an API key
   getApiKeyLink = 'https://lmstudio.ai/';
   labelForGetApiKey = 'Get LMStudio';
   icon = 'i-ph:cloud-arrow-down';

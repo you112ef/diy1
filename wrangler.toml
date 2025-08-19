@@ -1,6 +1,14 @@
 #:schema node_modules/wrangler/config-schema.json
-name = "bolt"
+name = "bolt-diy-ai"
+compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
-compatibility_date = "2025-03-28"
-pages_build_output_dir = "./build/client"
-send_metrics = false
+
+# Pages configuration
+pages_build_output_dir = "build/client"
+
+# Ollama Integration
+[env.production.vars]
+OLLAMA_API_BASE_URL = "https://your-ollama-server.com"
+
+[env.preview.vars]
+OLLAMA_API_BASE_URL = "https://your-ollama-server.com"

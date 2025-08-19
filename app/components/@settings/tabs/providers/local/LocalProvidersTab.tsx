@@ -145,16 +145,25 @@ export default function LocalProvidersTab() {
     const ollamaProvider = filteredProviders.find((p) => p.name === 'Ollama');
 
     if (ollamaProvider?.settings.enabled) {
-      fetchOllamaModels();
+      fetchOllamaModels(ollamaProvider);
     }
   }, [filteredProviders]);
 
-  const fetchOllamaModels = async () => {
+  const fetchOllamaModels = async (provider: IProviderConfig) => {
     try {
       setIsLoadingModels(true);
 
-      const response = await fetch('http://127.0.0.1:11434/api/tags');
+      const response = await fetch(`${provider.settings.baseUrl || 'http://127.0.0.1:11434'}/api/tags`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+
       const data = (await response.json()) as { models: OllamaModel[] };
+
+      if (!data.models || data.models.length === 0) {
+        throw new Error('No models found. Install models using: ollama pull <model-name>');
+      }
 
       setOllamaModels(
         data.models.map((model) => ({
@@ -164,6 +173,7 @@ export default function LocalProvidersTab() {
       );
     } catch (error) {
       console.error('Error fetching Ollama models:', error);
+      setOllamaModels([]);
     } finally {
       setIsLoadingModels(false);
     }
@@ -533,16 +543,29 @@ export default function LocalProvidersTab() {
                       <div className="i-ph:cube-duotone text-purple-500" />
                       <h4 className="text-sm font-medium text-bolt-elements-textPrimary">Installed Models</h4>
                     </div>
-                    {isLoadingModels ? (
-                      <div className="flex items-center gap-2">
-                        <div className="i-ph:spinner-gap-bold animate-spin w-4 h-4" />
-                        <span className="text-sm text-bolt-elements-textSecondary">Loading models...</span>
-                      </div>
-                    ) : (
-                      <span className="text-sm text-bolt-elements-textSecondary">
-                        {ollamaModels.length} models available
-                      </span>
-                    )}
+                    <div className="flex items-center gap-3">
+                      {/* Ollama Status Indicator */}
+                      {provider.name === 'Ollama' && (
+                        <div className="flex items-center gap-2">
+                          <div
+                            className={`w-2 h-2 rounded-full ${isLoadingModels ? 'bg-yellow-500' : ollamaModels.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                          />
+                          <span className="text-xs text-bolt-elements-textSecondary">
+                            {isLoadingModels ? 'Checking...' : ollamaModels.length > 0 ? 'Connected' : 'Not Connected'}
+                          </span>
+                        </div>
+                      )}
+                      {isLoadingModels ? (
+                        <div className="flex items-center gap-2">
+                          <div className="i-ph:spinner-gap-bold animate-spin w-4 h-4" />
+                          <span className="text-sm text-bolt-elements-textSecondary">Loading models...</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm text-bolt-elements-textSecondary">
+                          {ollamaModels.length} models available
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <div className="space-y-3">
@@ -556,22 +579,26 @@ export default function LocalProvidersTab() {
                         ))}
                       </div>
                     ) : ollamaModels.length === 0 ? (
-                      <div className="text-center py-8 text-bolt-elements-textSecondary">
-                        <div className="i-ph:cube-transparent text-4xl mx-auto mb-2" />
-                        <p>No models installed yet</p>
-                        <p className="text-sm text-bolt-elements-textTertiary px-1">
-                          Browse models at{' '}
-                          <a
-                            href="https://ollama.com/library"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-purple-500 hover:underline inline-flex items-center gap-0.5 text-base font-medium"
-                          >
-                            ollama.com/library
-                            <div className="i-ph:arrow-square-out text-xs" />
-                          </a>{' '}
-                          and copy model names to install
-                        </p>
+                      <div className="text-center py-8 space-y-4">
+                        <div className="text-bolt-elements-textSecondary">
+                          <div className="i-ph:warning-circle text-4xl mx-auto mb-2 text-yellow-500" />
+                          <p className="text-sm">No models found</p>
+                          <p className="text-xs mt-1">Ollama might not be running or accessible</p>
+                        </div>
+                        {provider.name === 'Ollama' && (
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => fetchOllamaModels(provider)}
+                              className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-500 rounded-lg text-sm transition-colors"
+                            >
+                              <div className="i-ph:arrow-clockwise w-4 h-4 inline mr-2" />
+                              Retry Connection
+                            </button>
+                            <div className="text-xs text-bolt-elements-textTertiary">
+                              Make sure Ollama is running on {provider.settings.baseUrl || 'http://127.0.0.1:11434'}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     ) : (
                       ollamaModels.map((model) => (
@@ -621,7 +648,7 @@ export default function LocalProvidersTab() {
                   </div>
 
                   {/* Model Installation Section */}
-                  <OllamaModelInstaller onModelInstalled={fetchOllamaModels} />
+                  <OllamaModelInstaller onModelInstalled={() => fetchOllamaModels(provider)} />
                 </motion.div>
               )}
             </motion.div>
