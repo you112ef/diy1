@@ -42,7 +42,7 @@ export default defineConfig({
   },
 
   plugins: [
-    // Node polyfills for Cloudflare compatibility
+    // Node polyfills for Cloudflare compatibility (exclude crypto)
     nodePolyfills({
       include: ['buffer', 'process', 'util', 'stream'],
       globals: {
@@ -51,7 +51,7 @@ export default defineConfig({
         global: true,
       },
       protocolImports: true,
-      exclude: ['child_process', 'fs', 'path'],
+      exclude: ['child_process', 'fs', 'path', 'crypto'],
     }),
 
     // Remix plugin with Cloudflare optimizations
@@ -136,5 +136,10 @@ export default defineConfig({
       '@headlessui/react',
       '@heroicons/react',
     ],
+  },
+
+  // Cloudflare-specific optimizations
+  ssr: {
+    noExternal: ['@remix-run/cloudflare', '@remix-run/cloudflare-pages'],
   },
 });

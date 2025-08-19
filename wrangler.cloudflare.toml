@@ -1,0 +1,42 @@
+# Cloudflare Pages Configuration for Bolt.diy
+# This file is optimized for Cloudflare Pages deployment
+
+name = "bolt-diy-ai"
+compatibility_date = "2024-09-02"
+compatibility_flags = ["nodejs_compat"]
+
+# Build configuration
+[build]
+command = "npm install pnpm && pnpm install && pnpm run build"
+watch_dir = "app"
+
+# Site configuration
+[site]
+bucket = "./build/client"
+
+# Main entry point
+main = "build/server/index.js"
+
+# Environment variables (these should be set in Cloudflare dashboard)
+[env.production.vars]
+NODE_ENV = "production"
+
+[env.staging.vars]
+NODE_ENV = "staging"
+
+# Rules for ES modules
+[[env.production.rules]]
+type = "ESModule"
+globs = ["**/*.js"]
+
+[[env.staging.rules]]
+type = "ESModule"
+globs = ["**/*.js"]
+
+# Functions configuration
+[functions]
+directory = "functions"
+
+# Pages configuration
+[pages]
+# This section is automatically handled by Cloudflare Pages
