@@ -50,6 +50,7 @@ export default defineConfig({
       'react-router-dom',
       'react-markdown',
       '@remix-run/server-runtime',
+      '@remix-run/router',
       // Radix UI packages pre-bundle
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
