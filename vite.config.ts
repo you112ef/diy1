@@ -59,6 +59,9 @@ export default defineConfig({
       '@radix-ui/react-context-menu',
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-collapsible',
+      // AI SDK subpath
+      'ai',
+      'ai/react',
     ],
   },
 });
