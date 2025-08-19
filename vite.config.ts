@@ -36,6 +36,7 @@ export default defineConfig({
       stream: 'stream-browserify',
       buffer: 'buffer',
       util: 'util',
+      path: 'path-browserify',
     },
   },
   optimizeDeps: {
@@ -44,6 +45,7 @@ export default defineConfig({
       'stream-browserify',
       'buffer',
       'util',
+      'path-browserify',
       'react-markdown',
       // Radix UI packages pre-bundle
       '@radix-ui/react-dialog',
