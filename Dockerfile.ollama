@@ -1,0 +1,22 @@
+FROM ollama/ollama:latest
+
+# Expose Ollama port
+EXPOSE 11434
+
+# Set environment variables
+ENV OLLAMA_HOST=0.0.0.0
+ENV OLLAMA_ORIGINS="*"
+
+# Create a startup script
+RUN echo '#!/bin/bash\n\
+echo "🚀 Starting Ollama Server..."\n\
+echo "📦 Installing default models..."\n\
+ollama pull llama3.2:1b &\n\
+ollama pull deepseek-r1:14b &\n\
+echo "✅ Models installation started in background"\n\
+echo "🌐 Starting Ollama server on 0.0.0.0:11434"\n\
+ollama serve\n\
+' > /start.sh && chmod +x /start.sh
+
+# Use the startup script
+CMD ["/start.sh"]
