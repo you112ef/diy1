@@ -4,7 +4,7 @@ import { classNames } from '~/utils/classNames';
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import * as ContextMenu from '@radix-ui/react-context-menu';
 import type { FileHistory } from '~/types/actions';
-import { diffLines, type Change } from 'diff';
+import { diffLines, type Change } from '~/utils/jsdiff-lite';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { toast } from 'react-toastify';
 import { path } from '~/utils/path';

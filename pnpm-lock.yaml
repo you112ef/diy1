@@ -200,9 +200,6 @@ importers:
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
-      diff:
-        specifier: ^5.2.0
-        version: 5.2.0
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7
@@ -369,9 +366,6 @@ importers:
       '@testing-library/react':
         specifier: ^16.2.0
         version: 16.2.0(@testing-library/dom@10.4.0)(@types/react-dom@18.3.5(@types/react@18.3.20))(@types/react@18.3.20)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@types/diff':
-        specifier: ^5.2.3
-        version: 5.2.3
       '@types/dom-speech-recognition':
         specifier: ^0.0.4
         version: 0.0.4
@@ -3184,9 +3178,6 @@ packages:
 
   '@types/diff-match-patch@1.0.36':
     resolution: {integrity: sha512-xFdR6tkm0MWvBfO8xXCSsinYxHcqkQUlcHeSpMC2ukzOb6lwQAfDmW+Qt0AvlGd8HpsS28qKsB+oPeJn9I39jg==}
-
-  '@types/diff@5.2.3':
-    resolution: {integrity: sha512-K0Oqlrq3kQMaO2RhfrNQX5trmt+XLyom88zS0u84nnIcLvFnRUMRRHmrGny5GSM+kNO9IZLARsdQHDzkhAgmrQ==}
 
   '@types/dom-speech-recognition@0.0.4':
     resolution: {integrity: sha512-zf2GwV/G6TdaLwpLDcGTIkHnXf8JEf/viMux+khqKQKDa8/8BAUtXXZS563GnvJ4Fg0PBLGAaFf2GekEVSZ6GQ==}
@@ -11134,8 +11125,6 @@ snapshots:
       '@types/ms': 2.1.0
 
   '@types/diff-match-patch@1.0.36': {}
-
-  '@types/diff@5.2.3': {}
 
   '@types/dom-speech-recognition@0.0.4': {}
 
