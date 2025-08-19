@@ -1,5 +1,4 @@
 import type { PathWatcherEvent, WebContainer } from '@webcontainer/api';
-import { getEncoding } from 'istextorbinary';
 import { map, type MapStore } from 'nanostores';
 import { Buffer } from 'node:buffer';
 import { path } from '~/utils/path';
@@ -468,7 +467,21 @@ function isBinaryFile(buffer: Uint8Array | undefined) {
     return false;
   }
 
-  return getEncoding(convertToBuffer(buffer), { chunkLength: 100 }) === 'binary';
+  // Quick null byte heuristic on the first 512 bytes
+  const sampleLength = Math.min(buffer.byteLength, 512);
+  for (let i = 0; i < sampleLength; i++) {
+    if (buffer[i] === 0x00) {
+      return true;
+    }
+  }
+
+  // Attempt UTF-8 decode; if it fails, treat as binary
+  try {
+    utf8TextDecoder.decode(buffer);
+    return false;
+  } catch {
+    return true;
+  }
 }
 
 /**
