@@ -38,38 +38,7 @@ export default class OllamaProvider extends BaseProvider {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
   };
 
-  staticModels: ModelInfo[] = [
-    {
-      name: 'stable-code:3b',
-      label: 'stable-code:3b (3B)',
-      provider: 'Ollama',
-      maxTokenAllowed: 8000,
-    },
-    {
-      name: 'llama3.2:1b',
-      label: 'llama3.2:1b (1B)',
-      provider: 'Ollama',
-      maxTokenAllowed: 8000,
-    },
-    {
-      name: 'qwen2.5-coder:1.5b',
-      label: 'qwen2.5-coder:1.5b (1.5B)',
-      provider: 'Ollama',
-      maxTokenAllowed: 8000,
-    },
-    {
-      name: 'codellama:7b',
-      label: 'codellama:7b (7B)',
-      provider: 'Ollama',
-      maxTokenAllowed: 8000,
-    },
-    {
-      name: 'mistral:7b',
-      label: 'mistral:7b (7B)',
-      provider: 'Ollama',
-      maxTokenAllowed: 8000,
-    }
-  ];
+  staticModels: ModelInfo[] = []; // No fake models - only real ones from Ollama API
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
     if (!env) {
@@ -105,7 +74,7 @@ export default class OllamaProvider extends BaseProvider {
     });
 
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      throw new Error('Ollama base URL not configured. Please set OLLAMA_API_BASE_URL or configure in settings.');
     }
 
     if (typeof window === 'undefined') {
@@ -119,17 +88,29 @@ export default class OllamaProvider extends BaseProvider {
       baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
     }
 
-    const response = await fetch(`${baseUrl}/api/tags`);
-    const data = (await response.json()) as OllamaApiResponse;
+    try {
+      const response = await fetch(`${baseUrl}/api/tags`);
+      
+      if (!response.ok) {
+        throw new Error(`Ollama API returned ${response.status}: ${response.statusText}`);
+      }
+      
+      const data = (await response.json()) as OllamaApiResponse;
 
-    // console.log({ ollamamodels: data.models });
+      if (!data.models || data.models.length === 0) {
+        throw new Error('No models found in Ollama. Please install models using: ollama pull <model-name>');
+      }
 
-    return data.models.map((model: OllamaModel) => ({
-      name: model.name,
-      label: `${model.name} (${model.details.parameter_size})`,
-      provider: this.name,
-      maxTokenAllowed: 8000,
-    }));
+      return data.models.map((model: OllamaModel) => ({
+        name: model.name,
+        label: `${model.name} (${model.details.parameter_size})`,
+        provider: this.name,
+        maxTokenAllowed: 8000,
+      }));
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      throw new Error(`Failed to connect to Ollama at ${baseUrl}: ${errorMessage}`);
+    }
   }
 
   getModelInstance: (options: {
@@ -151,7 +132,7 @@ export default class OllamaProvider extends BaseProvider {
 
     // Backend: Check if we're running in Docker
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      throw new Error('Ollama base URL not configured. Please set OLLAMA_API_BASE_URL environment variable or configure in settings.');
     }
 
     const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || envRecord.RUNNING_IN_DOCKER === 'true';

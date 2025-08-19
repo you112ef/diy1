@@ -30,7 +30,6 @@
     "preview": "pnpm run build && pnpm run start",
     "prepare": "husky",
     "clean": "node scripts/clean.js",
-    "setup-ollama": "bash scripts/setup-ollama.sh",
     "electron:dev": "pnpm electron:dev:main",
     "electron:dev:renderer": "cross-env NODE_ENV=development pnpm exec electron electron/dev-server.mjs",
     "electron:dev:main": "cross-env NODE_ENV=development pnpm run electron:build:deps && electron build/electron/main/index.mjs",
