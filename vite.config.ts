@@ -38,6 +38,7 @@ export default defineConfig({
       util: 'util',
       path: 'path-browserify',
     },
+    preserveSymlinks: true,
   },
   optimizeDeps: {
     include: [
