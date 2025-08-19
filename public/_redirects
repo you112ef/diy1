@@ -1,0 +1,12 @@
+# Bolt.diy Cloudflare Pages Redirects
+# This file handles routing for the SPA
+
+# API routes
+/api/* /api/:splat 200
+
+# Static assets
+/assets/* /assets/:splat 200
+/build/* /build/:splat 200
+
+# All other routes go to index.html for SPA routing
+/* /index.html 200
