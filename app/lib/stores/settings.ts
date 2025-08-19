@@ -32,6 +32,14 @@ export interface Shortcuts {
 export const URL_CONFIGURABLE_PROVIDERS = ['Ollama', 'LMStudio', 'OpenAILike'];
 export const LOCAL_PROVIDERS = ['OpenAILike', 'LMStudio'];
 
+// Auto-apply optimized settings
+import { AUTO_SETTINGS, applyAutoSettings } from './auto-settings';
+
+// Apply auto settings on module load
+if (typeof window !== 'undefined') {
+  applyAutoSettings();
+}
+
 export type ProviderSetting = Record<string, IProviderConfig>;
 
 // Simplified shortcuts store with only theme toggle

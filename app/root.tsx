@@ -97,16 +97,28 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+import { autoInitialize, showSystemInfo } from './utils/auto-init';
 
 export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
+    // تسجيل تهيئة التطبيق
     logStore.logSystem('Application initialized', {
       theme,
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
+    });
+
+    // تطبيق الإعدادات التلقائية
+    autoInitialize().then((success) => {
+      if (success) {
+        logStore.logSystem('Auto-initialization completed successfully');
+        showSystemInfo();
+      } else {
+        logStore.logSystem('Auto-initialization failed', { level: 'error' });
+      }
     });
   }, []);
 

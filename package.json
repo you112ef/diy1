@@ -11,6 +11,9 @@
     "email": "maintainers@bolt.diy"
   },
   "scripts": {
+    "auto-setup": "node scripts/auto-setup.cjs",
+    "auto-dev": "node scripts/auto-setup.cjs",
+    "optimize": "node scripts/optimize-performance.cjs",
     "deploy": "npm run build && wrangler pages deploy",
     "build": "remix vite:build",
     "dev": "node pre-start.cjs  && remix vite:dev",
