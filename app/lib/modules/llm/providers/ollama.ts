@@ -29,6 +29,7 @@ export interface OllamaApiResponse {
 
 export default class OllamaProvider extends BaseProvider {
   name = 'Ollama';
+  requiresApiKey = false; // Ollama doesn't require an API key
   getApiKeyLink = 'https://ollama.com/download';
   labelForGetApiKey = 'Download Ollama';
   icon = 'i-ph:cloud-arrow-down';

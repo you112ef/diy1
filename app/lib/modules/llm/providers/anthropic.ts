@@ -6,6 +6,7 @@ import { createAnthropic } from '@ai-sdk/anthropic';
 
 export default class AnthropicProvider extends BaseProvider {
   name = 'Anthropic';
+  requiresApiKey = true; // Anthropic requires an API key
   getApiKeyLink = 'https://console.anthropic.com/settings/keys';
 
   config = {
