@@ -332,6 +332,9 @@ importers:
       tailwind-merge:
         specifier: ^2.2.1
         version: 2.6.0
+      turbo-stream:
+        specifier: ^2.4.1
+        version: 2.4.1
       unist-util-visit:
         specifier: ^5.0.0
         version: 5.0.0

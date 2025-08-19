@@ -52,6 +52,7 @@ export default defineConfig({
       'react-markdown',
       '@remix-run/server-runtime',
       '@remix-run/router',
+      'turbo-stream',
       // Radix UI packages pre-bundle
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
