@@ -97,6 +97,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+import { setupOllamaComplete } from './lib/stores/ollama-auto-setup';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -107,6 +108,15 @@ export default function App() {
       platform: navigator.platform,
       userAgent: navigator.userAgent,
       timestamp: new Date().toISOString(),
+    });
+
+    // إعداد Ollama تلقائياً
+    setupOllamaComplete().then((success) => {
+      if (success) {
+        logStore.logSystem('✅ Ollama setup completed successfully');
+      } else {
+        logStore.logSystem('⚠️ Ollama setup partially completed - may need manual start');
+      }
     });
   }, []);
 
