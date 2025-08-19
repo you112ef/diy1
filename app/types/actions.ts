@@ -1,4 +1,4 @@
-import type { Change } from 'diff';
+import type { Change } from '~/utils/jsdiff-lite';
 
 export type ActionType =
   | 'file'

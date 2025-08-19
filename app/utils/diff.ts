@@ -1,4 +1,4 @@
-import { createTwoFilesPatch } from 'diff';
+import { createTwoFilesPatch } from './jsdiff-lite';
 import type { FileMap } from '~/lib/stores/files';
 import { MODIFICATIONS_TAG_NAME, WORK_DIR } from './constants';
 
