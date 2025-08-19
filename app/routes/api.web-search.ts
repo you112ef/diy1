@@ -1,8 +1,8 @@
 // app/routes/api.web-search.ts
 import { json, type LoaderFunctionArgs } from '@remix-run/cloudflare';
-import type { WebSearchResponse, SearchResultItem } from '~/types/search-result'; // Assuming path alias
+import type { WebSearchResponse, SearchResultItem } from '~/types/search-result';
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({ request, context }: LoaderFunctionArgs) {
   const url = new URL(request.url);
   const query = url.searchParams.get('q');
   const numResultsParam = url.searchParams.get('num_results');
@@ -12,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
 
   const headers = {
-    'Access-Control-Allow-Origin': '*', // Adjust for specific origins in production
+    'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
   };
 
@@ -20,35 +20,90 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json({ error: 'Search query (q) is required' }, { status: 400, headers });
   }
 
-  /*
-   * Placeholder / Mocked Data
-   * In a real implementation, this section would:
-   * 1. Get API key from server environment variables.
-   * 2. Call the chosen external search provider's API with the query and other params.
-   * 3. Transform the provider's response into our SearchResultItem[] structure.
-   * 4. Handle errors from the external API.
-   */
+  // Resolve API key from Cloudflare context or process.env (dev)
+  const tavilyApiKey = (context as any)?.cloudflare?.env?.TAVILY_API_KEY || (context as any)?.env?.TAVILY_API_KEY || process.env.TAVILY_API_KEY;
 
-  const mockResults: SearchResultItem[] = [];
-
-  for (let i = 1; i <= numResults; i++) {
-    mockResults.push({
-      id: `mock-${i}`,
-      title: `Mock Search Result ${i} for "${query}"`,
-      link: `https://example.com/search?q=${encodeURIComponent(query)}&page=${currentPage}&item=${i}`,
-      snippet: `This is a mock snippet for search result ${i} related to the query "${query}". More details would appear here.`,
-      displayLink: 'example.com',
-      source: 'MockSearchEngine',
-      favicon: 'https://example.com/favicon.ico',
-    });
+  if (!tavilyApiKey) {
+    return json(
+      {
+        error: 'TAVILY_API_KEY is not set on the server. Please configure it to enable real web search.',
+      },
+      { status: 501, headers },
+    );
   }
 
-  const responseData: WebSearchResponse = {
-    query,
-    results: mockResults,
-    estimatedTotalResults: 100, // Mocked
-    currentPage,
-  };
+  try {
+    const tavilyEndpoint = 'https://api.tavily.com/search';
 
-  return json(responseData, { headers });
+    const body = {
+      api_key: tavilyApiKey,
+      query,
+      search_depth: 'basic',
+      include_answer: false,
+      max_results: Math.max(1, Math.min(numResults, 20)),
+      page: currentPage,
+    } as const;
+
+    const response = await fetch(tavilyEndpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+      // Reasonable timeout to avoid hanging requests
+      signal: AbortSignal.timeout(10000),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text().catch(() => response.statusText);
+      return json(
+        {
+          error: 'Web search provider error',
+          status: response.status,
+          details: errText,
+        },
+        { status: 502, headers },
+      );
+    }
+
+    const data = (await response.json()) as any;
+
+    const results: SearchResultItem[] = Array.isArray(data?.results)
+      ? (data.results as any[]).map((item, idx) => ({
+          id: item.url || item.id || `result-${idx + 1}`,
+          title: item.title || item.name || 'Untitled',
+          link: item.url || item.link || '#',
+          snippet: item.content || item.snippet || '',
+          displayLink: item.url ? safeDisplayLink(item.url) : undefined,
+          source: 'tavily',
+          favicon: undefined,
+        }))
+      : [];
+
+    const responseData: WebSearchResponse = {
+      query,
+      results,
+      estimatedTotalResults: typeof data?.total_results === 'number' ? data.total_results : undefined,
+      currentPage,
+    };
+
+    return json(responseData, { headers });
+  } catch (error) {
+    return json(
+      {
+        error: 'Unexpected error during web search',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500, headers },
+    );
+  }
+}
+
+function safeDisplayLink(href: string): string | undefined {
+  try {
+    const u = new URL(href);
+    return u.host;
+  } catch {
+    return undefined;
+  }
 }
