@@ -99,7 +99,10 @@ export default class OllamaProvider extends BaseProvider {
     });
 
     if (!baseUrl) {
-      throw new Error('Ollama base URL not configured. Please set OLLAMA_API_BASE_URL or configure in settings.');
+      // Use proxy URL for Cloudflare Pages
+      baseUrl = typeof window !== 'undefined' 
+        ? '/api/ollama/proxy'  // Frontend: use proxy
+        : 'http://127.0.0.1:11434'; // Backend: direct connection
     }
 
     if (typeof window === 'undefined') {
@@ -157,7 +160,10 @@ export default class OllamaProvider extends BaseProvider {
 
     // Backend: Check if we're running in Docker
     if (!baseUrl) {
-      throw new Error('Ollama base URL not configured. Please set OLLAMA_API_BASE_URL environment variable or configure in settings.');
+      // Use proxy URL for Cloudflare Pages
+      baseUrl = typeof window !== 'undefined' 
+        ? '/api/ollama/proxy'  // Frontend: use proxy
+        : 'http://127.0.0.1:11434'; // Backend: direct connection
     }
 
     const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || envRecord.RUNNING_IN_DOCKER === 'true';

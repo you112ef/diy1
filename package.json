@@ -11,8 +11,8 @@
     "email": "maintainers@bolt.diy"
   },
   "scripts": {
-    "deploy": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai",
-    "deploy:staging": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai-staging",
+    "deploy": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai --env production",
+    "deploy:staging": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai-staging --env staging",
     "build": "remix vite:build",
     "dev": "node pre-start.cjs  && remix vite:dev",
     "test": "vitest --run",

@@ -3,6 +3,13 @@ name = "bolt-diy-ai"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Ollama Integration
+[env.production.vars]
+OLLAMA_API_BASE_URL = "https://your-ollama-server.com"
+
+[env.staging.vars]
+OLLAMA_API_BASE_URL = "https://your-ollama-server.com"
+
 [env.production]
 name = "bolt-diy-ai"
 
@@ -13,9 +20,10 @@ name = "bolt-diy-ai-staging"
 command = "npm run build"
 watch_dir = "app"
 
+main = "build/server/index.js"
+
 [site]
 bucket = "./build/client"
-entry-point = "./build/server"
 
 [[env.production.rules]]
 type = "ESModule"
