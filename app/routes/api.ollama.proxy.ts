@@ -1,12 +1,12 @@
 import { json } from '@remix-run/cloudflare';
-import type { ActionFunctionArgs } from '@remix-run/cloudflare';
+import type { ActionFunctionArgs, LoaderFunctionArgs } from '@remix-run/cloudflare';
 
 /**
  * Ollama Proxy API
  * يعمل كوسيط بين Cloudflare Pages و Ollama server
  */
 
-export async function action({ request }: ActionFunctionArgs) {
+async function forwardToOllama(request: Request) {
   try {
     const { method, url, headers, body } = request;
 
@@ -53,6 +53,10 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 }
 
-export async function loader({ request }: ActionFunctionArgs) {
-  return action({ request });
+export async function action({ request }: ActionFunctionArgs) {
+  return forwardToOllama(request);
+}
+
+export async function loader({ request }: LoaderFunctionArgs) {
+  return forwardToOllama(request);
 }

@@ -39,7 +39,18 @@ export async function streamText(props: {
   summary?: string;
   messageSliceId?: number;
 }) {
-  const { messages, env: serverEnv, options, apiKeys, files, providerSettings, promptId, contextOptimization, contextFiles, summary } = props;
+  const {
+    messages,
+    env: serverEnv,
+    options,
+    apiKeys,
+    files,
+    providerSettings,
+    promptId,
+    contextOptimization,
+    contextFiles,
+    summary,
+  } = props;
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   let processedMessages = messages.map((message) => {
@@ -47,28 +58,40 @@ export async function streamText(props: {
       const { model, provider, content } = extractPropertiesFromMessage(message);
       currentModel = model;
       currentProvider = provider;
+
       return { ...message, content };
     } else if (message.role == 'assistant') {
       let content = message.content;
       content = content.replace(/<div class=\"__boltThought__\">.*?<\/div>/s, '');
       content = content.replace(/<think>.*?<\/think>/s, '');
+
       return { ...message, content };
     }
+
     return message;
   });
 
   // Optional backend web search injection based on last user message
   const lastUser = [...processedMessages].reverse().find((m) => m.role === 'user');
   let webSearchContext = '';
+
   if (lastUser && typeof lastUser.content === 'string') {
     const directive = parseWebSearchDirective(lastUser.content);
+
     if (directive) {
       try {
         const envLike: any = (serverEnv as any) || (globalThis as any).process?.env || {};
         const keys = extractSearchKeys(envLike);
         const provider: Provider | null = selectProvider(directive.provider || '', keys);
+
         if (provider) {
-          const result = await performSearch({ provider, query: directive.query, currentPage: 1, numResults: directive.numResults, keys });
+          const result = await performSearch({
+            provider,
+            query: directive.query,
+            currentPage: 1,
+            numResults: directive.numResults,
+            keys,
+          });
           const lines = result.items.map((r, i) => `#${i + 1} ${r.title}\n${r.link}\n${r.snippet}`);
           webSearchContext = `\nWEB SEARCH RESULTS (provider=${provider}):\n---\n${lines.join('\n\n')}\n---\n`;
         }
@@ -101,7 +124,9 @@ export async function streamText(props: {
     modelDetails = modelsList.find((m) => m.name === currentModel);
 
     if (!modelDetails) {
-      logger.warn(`MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`);
+      logger.warn(
+        `MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`,
+      );
       modelDetails = modelsList[0];
     }
   }
@@ -135,6 +160,7 @@ CONTEXT BUFFER:
 ${codeContext}
 ---
 `;
+
     if (summary) {
       systemPrompt = `${systemPrompt}
       below is the chat history till now
@@ -143,10 +169,12 @@ CHAT SUMMARY:
 ${props.summary}
 ---
 `;
+
       if (props.messageSliceId) {
         processedMessages = processedMessages.slice(props.messageSliceId);
       } else {
         const lastMessage = processedMessages.pop();
+
         if (lastMessage) {
           processedMessages = [lastMessage];
         }
@@ -168,14 +196,17 @@ ${props.summary}
               if (typeof item === 'string') {
                 return { type: 'text', text: item };
               }
+
               if (item && typeof item === 'object') {
                 if (item.type === 'image' && item.image) {
                   return { type: 'image', image: item.image };
                 }
+
                 if (item.type === 'text') {
                   return { type: 'text', text: item.text || '' };
                 }
               }
+
               return { type: 'text', text: String(item || '') };
             })
           : [{ type: 'text', text: typeof msg.content === 'string' ? msg.content : String(msg.content || '') }],
@@ -206,17 +237,26 @@ ${props.summary}
     if (error.message && error.message.includes('messages must be an array of CoreMessage or UIMessage')) {
       const fallbackMessages = processedMessages.map((msg) => {
         let textContent = '';
+
         if (typeof msg.content === 'string') {
           textContent = msg.content;
         } else if (Array.isArray(msg.content)) {
           const contentArray = msg.content as any[];
           textContent = contentArray
-            .map((contentItem) => (typeof contentItem === 'string' ? contentItem : contentItem?.text || contentItem?.image || String(contentItem || '')))
+            .map((contentItem) =>
+              typeof contentItem === 'string'
+                ? contentItem
+                : contentItem?.text || contentItem?.image || String(contentItem || ''),
+            )
             .join(' ');
         } else {
           textContent = String(msg.content || '');
         }
-        return { role: msg.role === 'system' || msg.role === 'user' || msg.role === 'assistant' ? msg.role : 'user', content: [{ type: 'text', text: textContent }] } as any;
+
+        return {
+          role: msg.role === 'system' || msg.role === 'user' || msg.role === 'assistant' ? msg.role : 'user',
+          content: [{ type: 'text', text: textContent }],
+        } as any;
       });
 
       return await _streamText({
@@ -233,10 +273,17 @@ ${props.summary}
 }
 
 function parseWebSearchDirective(content: string): { query: string; provider?: Provider; numResults: number } | null {
-  const match = content.match(/<web-search\s+query=\"([^\"]+)\"(?:\s+provider=\"([^\"]+)\")?(?:\s+num=\"(\d+)\")?\s*\/>/i);
-  if (!match) return null;
+  const match = content.match(
+    /<web-search\s+query=\"([^\"]+)\"(?:\s+provider=\"([^\"]+)\")?(?:\s+num=\"(\d+)\")?\s*\/>/i,
+  );
+
+  if (!match) {
+    return null;
+  }
+
   const query = match[1];
   const provider = (match[2] as Provider | undefined) || undefined;
   const num = match[3] ? parseInt(match[3], 10) : 5;
+
   return { query, provider, numResults: isFinite(num) ? num : 5 };
 }

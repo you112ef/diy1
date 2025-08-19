@@ -21,11 +21,26 @@ export function extractSearchKeys(envLike: Record<string, any>): SearchKeys {
 }
 
 export function selectProvider(preferred: Provider | '', keys: SearchKeys): Provider | null {
-  if (preferred) return preferred;
-  if (keys.tavily) return 'tavily';
-  if (keys.bing) return 'bing';
-  if (keys.serper) return 'serper';
-  if (keys.googleCseKey && keys.googleCseCx) return 'google_cse';
+  if (preferred) {
+    return preferred;
+  }
+
+  if (keys.tavily) {
+    return 'tavily';
+  }
+
+  if (keys.bing) {
+    return 'bing';
+  }
+
+  if (keys.serper) {
+    return 'serper';
+  }
+
+  if (keys.googleCseKey && keys.googleCseCx) {
+    return 'google_cse';
+  }
+
   return null;
 }
 
@@ -52,7 +67,17 @@ export async function performSearch(args: {
   }
 }
 
-async function searchTavily({ apiKey, query, currentPage, numResults }: { apiKey: string; query: string; currentPage: number; numResults: number }) {
+async function searchTavily({
+  apiKey,
+  query,
+  currentPage,
+  numResults,
+}: {
+  apiKey: string;
+  query: string;
+  currentPage: number;
+  numResults: number;
+}) {
   const endpoint = 'https://api.tavily.com/search';
   const body = {
     api_key: apiKey,
@@ -69,7 +94,11 @@ async function searchTavily({ apiKey, query, currentPage, numResults }: { apiKey
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(10000),
   });
-  if (!res.ok) throw new Error(`Tavily error: ${res.status} ${await safeText(res)}`);
+
+  if (!res.ok) {
+    throw new Error(`Tavily error: ${res.status} ${await safeText(res)}`);
+  }
+
   const data: any = await res.json();
   const items: SearchResultItem[] = Array.isArray(data?.results)
     ? data.results.map((item: any, idx: number) => ({
@@ -81,13 +110,31 @@ async function searchTavily({ apiKey, query, currentPage, numResults }: { apiKey
         source: 'tavily',
       }))
     : [];
+
   return { items, total: typeof data?.total_results === 'number' ? data.total_results : undefined };
 }
 
-async function searchBing({ apiKey, query, currentPage, numResults }: { apiKey: string; query: string; currentPage: number; numResults: number }) {
+async function searchBing({
+  apiKey,
+  query,
+  currentPage,
+  numResults,
+}: {
+  apiKey: string;
+  query: string;
+  currentPage: number;
+  numResults: number;
+}) {
   const endpoint = `https://api.bing.microsoft.com/v7.0/search?q=${encodeURIComponent(query)}&count=${Math.max(1, Math.min(numResults, 50))}&offset=${(currentPage - 1) * numResults}`;
-  const res = await fetch(endpoint, { headers: { 'Ocp-Apim-Subscription-Key': apiKey }, signal: AbortSignal.timeout(10000) });
-  if (!res.ok) throw new Error(`Bing error: ${res.status} ${await safeText(res)}`);
+  const res = await fetch(endpoint, {
+    headers: { 'Ocp-Apim-Subscription-Key': apiKey },
+    signal: AbortSignal.timeout(10000),
+  });
+
+  if (!res.ok) {
+    throw new Error(`Bing error: ${res.status} ${await safeText(res)}`);
+  }
+
   const data: any = await res.json();
   const webPages = data.webPages?.value || [];
   const items: SearchResultItem[] = webPages.map((item: any) => ({
@@ -98,11 +145,23 @@ async function searchBing({ apiKey, query, currentPage, numResults }: { apiKey: 
     displayLink: safeDisplayLink(item.url),
     source: 'bing',
   }));
-  const total = typeof data.webPages?.totalEstimatedMatches === 'number' ? data.webPages.totalEstimatedMatches : undefined;
+  const total =
+    typeof data.webPages?.totalEstimatedMatches === 'number' ? data.webPages.totalEstimatedMatches : undefined;
+
   return { items, total };
 }
 
-async function searchSerper({ apiKey, query, currentPage, numResults }: { apiKey: string; query: string; currentPage: number; numResults: number }) {
+async function searchSerper({
+  apiKey,
+  query,
+  currentPage,
+  numResults,
+}: {
+  apiKey: string;
+  query: string;
+  currentPage: number;
+  numResults: number;
+}) {
   const endpoint = 'https://google.serper.dev/search';
   const body = { q: query, num: Math.max(1, Math.min(numResults, 20)), page: currentPage, gl: 'us', hl: 'en' } as const;
   const res = await fetch(endpoint, {
@@ -111,7 +170,11 @@ async function searchSerper({ apiKey, query, currentPage, numResults }: { apiKey
     body: JSON.stringify(body),
     signal: AbortSignal.timeout(10000),
   });
-  if (!res.ok) throw new Error(`Serper error: ${res.status} ${await safeText(res)}`);
+
+  if (!res.ok) {
+    throw new Error(`Serper error: ${res.status} ${await safeText(res)}`);
+  }
+
   const data: any = await res.json();
   const organic = data?.organic || [];
   const items: SearchResultItem[] = organic.map((item: any) => ({
@@ -123,14 +186,31 @@ async function searchSerper({ apiKey, query, currentPage, numResults }: { apiKey
     source: 'serper',
   }));
   const total = undefined;
+
   return { items, total };
 }
 
-async function searchGoogleCse({ apiKey, cx, query, currentPage, numResults }: { apiKey: string; cx: string; query: string; currentPage: number; numResults: number }) {
+async function searchGoogleCse({
+  apiKey,
+  cx,
+  query,
+  currentPage,
+  numResults,
+}: {
+  apiKey: string;
+  cx: string;
+  query: string;
+  currentPage: number;
+  numResults: number;
+}) {
   const start = (currentPage - 1) * numResults + 1;
   const endpoint = `https://www.googleapis.com/customsearch/v1?q=${encodeURIComponent(query)}&key=${encodeURIComponent(apiKey)}&cx=${encodeURIComponent(cx)}&num=${Math.max(1, Math.min(numResults, 10))}&start=${start}`;
   const res = await fetch(endpoint, { signal: AbortSignal.timeout(10000) });
-  if (!res.ok) throw new Error(`Google CSE error: ${res.status} ${await safeText(res)}`);
+
+  if (!res.ok) {
+    throw new Error(`Google CSE error: ${res.status} ${await safeText(res)}`);
+  }
+
   const data: any = await res.json();
   const items: SearchResultItem[] = (data.items || []).map((item: any) => ({
     id: item.cacheId || item.link,
@@ -140,7 +220,9 @@ async function searchGoogleCse({ apiKey, cx, query, currentPage, numResults }: {
     displayLink: item.displayLink,
     source: 'google_cse',
   }));
-  const total = typeof data.searchInformation?.totalResults === 'string' ? Number(data.searchInformation.totalResults) : undefined;
+  const total =
+    typeof data.searchInformation?.totalResults === 'string' ? Number(data.searchInformation.totalResults) : undefined;
+
   return { items, total };
 }
 
