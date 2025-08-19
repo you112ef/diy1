@@ -47,6 +47,7 @@ export default defineConfig({
       'buffer',
       'util',
       'path-browserify',
+      'react-router-dom',
       'react-markdown',
       // Radix UI packages pre-bundle
       '@radix-ui/react-dialog',
