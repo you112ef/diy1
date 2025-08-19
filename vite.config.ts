@@ -99,7 +99,24 @@ export default defineConfig((config) => {
     build: {
       target: 'esnext',
       sourcemap: false,
-      chunkSizeWarningLimit: 4096,
+      chunkSizeWarningLimit: 1024,
+      rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (id.includes('node_modules')) {
+              if (id.includes('/react/') || id.includes('react-dom')) return 'react';
+              if (id.includes('@remix-run')) return 'remix';
+              if (id.includes('codemirror') || id.includes('@codemirror')) return 'codemirror';
+              if (id.includes('xterm')) return 'xterm';
+              if (id.includes('shiki')) return 'shiki';
+              if (id.includes('unocss')) return 'unocss';
+              if (id.includes('chart.js')) return 'chartjs';
+              if (id.includes('lucide-react') || id.includes('@phosphor-icons') || id.includes('@heroicons')) return 'icons';
+              return 'vendor';
+            }
+          },
+        },
+      },
     },
     plugins: [
       nodePolyfills({
@@ -132,6 +149,7 @@ export default defineConfig((config) => {
           v3_relativeSplatPath: true,
           v3_throwAbortReason: true,
           v3_lazyRouteDiscovery: true,
+          v3_singleFetch: true,
         },
       }),
       UnoCSS(),
