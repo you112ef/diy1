@@ -18,7 +18,8 @@
     "lint": "eslint app/ --ext .ts,.tsx,.js,.jsx",
     "lint:fix": "eslint app/ --ext .ts,.tsx,.js,.jsx --fix",
     "deploy": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai",
-    "deploy:preview": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai --branch=preview"
+    "deploy:preview": "npm run build && wrangler pages deploy build/client --project-name=bolt-diy-ai --branch=preview",
+    "ollama:tunnel": "./run-ollama-quick-tunnel.sh"
   },
   "engines": {
     "node": ">=18.18.0"
