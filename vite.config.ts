@@ -48,6 +48,7 @@ export default defineConfig({
       'util',
       'path-browserify',
       'react-router-dom',
+      'react-router',
       'react-markdown',
       '@remix-run/server-runtime',
       '@remix-run/router',
