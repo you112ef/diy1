@@ -530,22 +530,12 @@ const TaskManagerTab: React.FC = () => {
           return latency;
         } catch (retryError) {
           console.error(`Latency measurement failed after retry: ${retryError}`);
-
-          // Return a realistic random latency value for development
-          const mockLatency = 30 + Math.floor(Math.random() * 120); // 30-150ms
-          console.log(`Using mock latency: ${mockLatency}ms`);
-
-          return mockLatency;
+          return 0;
         }
       }
     } catch (error) {
       console.error(`Error in latency measurement: ${error}`);
-
-      // Return a realistic random latency value
-      const mockLatency = 30 + Math.floor(Math.random() * 120); // 30-150ms
-      console.log(`Using mock latency due to error: ${mockLatency}ms`);
-
-      return mockLatency;
+      return 0;
     }
   };
 
@@ -626,21 +616,10 @@ const TaskManagerTab: React.FC = () => {
             timeRemaining: battery.charging ? battery.chargingTime : battery.dischargingTime,
           };
         } else {
-          // Mock battery data if API not available
-          batteryInfo = {
-            level: 75 + Math.floor(Math.random() * 20),
-            charging: Math.random() > 0.3,
-            timeRemaining: 7200 + Math.floor(Math.random() * 3600),
-          };
-          console.log('Battery API not available, using mock data');
+          batteryInfo = undefined;
         }
-      } catch (error) {
-        console.log('Battery API error, using mock data:', error);
-        batteryInfo = {
-          level: 75 + Math.floor(Math.random() * 20),
-          charging: Math.random() > 0.3,
-          timeRemaining: 7200 + Math.floor(Math.random() * 3600),
-        };
+      } catch {
+        batteryInfo = undefined;
       }
 
       // Enhanced network metrics
@@ -652,12 +631,12 @@ const TaskManagerTab: React.FC = () => {
       const connectionRtt = connection?.rtt || 0;
 
       // Use measured latency if available, fall back to connection.rtt
-      const currentLatency = measuredLatency || connectionRtt || Math.floor(Math.random() * 100);
+      const currentLatency = measuredLatency || connectionRtt || 0;
 
       // Update network metrics with historical data
       const networkInfo = {
-        downlink: connection?.downlink || 1.5 + Math.random(),
-        uplink: connection?.uplink || 0.5 + Math.random(),
+        downlink: connection?.downlink || 0,
+        uplink: connection?.uplink || 0,
         latency: {
           current: currentLatency,
           average:
@@ -717,8 +696,8 @@ const TaskManagerTab: React.FC = () => {
           // Use the higher of the two values, but cap at 100%
           cpuUsage = Math.min(Math.max(topCpuUsage, (totalCpuUsage / processInfo.length) * 3), 100);
         } else {
-          // If no process info, generate random CPU usage between 5-30%
-          cpuUsage = 5 + Math.floor(Math.random() * 25);
+          // If no process info, leave CPU usage as 0 (unknown)
+          cpuUsage = 0;
         }
 
         // Calculate disk usage (average of all disks)
@@ -727,8 +706,8 @@ const TaskManagerTab: React.FC = () => {
         if (diskInfo && diskInfo.length > 0) {
           diskUsage = diskInfo.reduce((total, disk) => total + disk.percentage, 0) / diskInfo.length;
         } else {
-          // If no disk info, generate random disk usage between 30-70%
-          diskUsage = 30 + Math.floor(Math.random() * 40);
+          // If no disk info, leave disk usage as 0 (unknown)
+          diskUsage = 0;
         }
 
         // Create new arrays with the latest data

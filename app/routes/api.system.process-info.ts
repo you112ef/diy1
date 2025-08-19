@@ -1,23 +1,8 @@
 import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/cloudflare';
 import { json } from '@remix-run/cloudflare';
 
-// Only import child_process if we're not in a Cloudflare environment
-let execSync: any;
-
-try {
-  // Check if we're in a Node.js environment
-  if (typeof process !== 'undefined' && process.platform) {
-    // Using dynamic import to avoid require()
-    const childProcess = { execSync: null };
-    execSync = childProcess.execSync;
-  }
-} catch {
-  // In Cloudflare environment, this will fail, which is expected
-  console.log('Running in Cloudflare environment, child_process not available');
-}
-
-// For development environments, we'll always provide mock data if real data isn't available
-const isDevelopment = process.env.NODE_ENV === 'development';
+// Exec not available in edge/runtime; keep null to avoid mocks
+const execSync: any = null;
 
 interface ProcessInfo {
   pid: number;
@@ -31,8 +16,8 @@ interface ProcessInfo {
 
 const getProcessInfo = (): ProcessInfo[] => {
   try {
-    // If we're in a Cloudflare environment and not in development, return error
-    if (!execSync && !isDevelopment) {
+    // If execution is not available in this environment, return explicit not-available error
+    if (!execSync) {
       return [
         {
           pid: 0,
@@ -43,11 +28,6 @@ const getProcessInfo = (): ProcessInfo[] => {
           error: 'Process information is not available in this environment',
         },
       ];
-    }
-
-    // If we're in development but not in Node environment, return mock data
-    if (!execSync && isDevelopment) {
-      return getMockProcessInfo();
     }
 
     // Different commands for different operating systems
@@ -292,10 +272,6 @@ const getProcessInfo = (): ProcessInfo[] => {
   } catch (error) {
     console.error('Failed to get process info:', error);
 
-    if (isDevelopment) {
-      return getMockProcessInfo();
-    }
-
     return [
       {
         pid: 0,
@@ -309,108 +285,24 @@ const getProcessInfo = (): ProcessInfo[] => {
   }
 };
 
-// Generate mock process information with realistic values
-const getMockProcessInfo = (): ProcessInfo[] => {
-  const timestamp = new Date().toISOString();
-
-  // Create some random variation in CPU usage
-  const randomCPU = () => Math.floor(Math.random() * 15);
-  const randomHighCPU = () => 15 + Math.floor(Math.random() * 25);
-
-  // Create some random variation in memory usage
-  const randomMem = () => Math.floor(Math.random() * 5);
-  const randomHighMem = () => 5 + Math.floor(Math.random() * 15);
-
-  return [
-    {
-      pid: 1,
-      name: 'Browser',
-      cpu: randomHighCPU(),
-      memory: 25 + randomMem(),
-      command: 'Browser Process',
-      timestamp,
-    },
-    {
-      pid: 2,
-      name: 'System',
-      cpu: 5 + randomCPU(),
-      memory: 10 + randomMem(),
-      command: 'System Process',
-      timestamp,
-    },
-    {
-      pid: 3,
-      name: 'bolt',
-      cpu: randomHighCPU(),
-      memory: 15 + randomMem(),
-      command: 'Bolt AI Process',
-      timestamp,
-    },
-    {
-      pid: 4,
-      name: 'node',
-      cpu: randomCPU(),
-      memory: randomHighMem(),
-      command: 'Node.js Process',
-      timestamp,
-    },
-    {
-      pid: 5,
-      name: 'wrangler',
-      cpu: randomCPU(),
-      memory: randomMem(),
-      command: 'Wrangler Process',
-      timestamp,
-    },
-    {
-      pid: 6,
-      name: 'vscode',
-      cpu: randomCPU(),
-      memory: 12 + randomMem(),
-      command: 'VS Code Process',
-      timestamp,
-    },
-    {
-      pid: 7,
-      name: 'chrome',
-      cpu: randomHighCPU(),
-      memory: 20 + randomMem(),
-      command: 'Chrome Browser',
-      timestamp,
-    },
-    {
-      pid: 8,
-      name: 'finder',
-      cpu: 1 + randomCPU(),
-      memory: 3 + randomMem(),
-      command: 'Finder Process',
-      timestamp,
-    },
-    {
-      pid: 9,
-      name: 'terminal',
-      cpu: 2 + randomCPU(),
-      memory: 5 + randomMem(),
-      command: 'Terminal Process',
-      timestamp,
-    },
-    {
-      pid: 10,
-      name: 'cloudflared',
-      cpu: randomCPU(),
-      memory: randomMem(),
-      command: 'Cloudflare Tunnel',
-      timestamp,
-    },
-  ];
-};
-
 export const loader: LoaderFunction = async ({ request: _request }) => {
   try {
     return json(getProcessInfo());
   } catch (error) {
     console.error('Failed to get process info:', error);
-    return json(getMockProcessInfo(), { status: 500 });
+    return json(
+      [
+        {
+          pid: 0,
+          name: 'N/A',
+          cpu: 0,
+          memory: 0,
+          timestamp: new Date().toISOString(),
+          error: 'Process information is not available in this environment',
+        },
+      ],
+      { status: 500 },
+    );
   }
 };
 
@@ -419,6 +311,18 @@ export const action = async ({ request: _request }: ActionFunctionArgs) => {
     return json(getProcessInfo());
   } catch (error) {
     console.error('Failed to get process info:', error);
-    return json(getMockProcessInfo(), { status: 500 });
+    return json(
+      [
+        {
+          pid: 0,
+          name: 'N/A',
+          cpu: 0,
+          memory: 0,
+          timestamp: new Date().toISOString(),
+          error: 'Process information is not available in this environment',
+        },
+      ],
+      { status: 500 },
+    );
   }
 };

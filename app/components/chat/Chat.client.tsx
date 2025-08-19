@@ -5,7 +5,6 @@
 import { useStore } from '@nanostores/react';
 import type { Message } from 'ai';
 import { useChat } from 'ai/react';
-import { useAnimate } from 'framer-motion';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
@@ -13,7 +12,8 @@ import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
-import { cubicEasingFn } from '~/utils/easings';
+
+// import { cubicEasingFn } from '~/utils/easings';
 import { ConfirmationDialog } from '~/components/ui/Dialog'; // Added ConfirmationDialog
 import { createScopedLogger, renderLogger } from '~/utils/logger';
 import { BaseChat } from './BaseChat';
@@ -146,7 +146,7 @@ export const ChatImpl = memo(
 
     const { showChat } = useStore(chatStore);
 
-    const [animationScope, animate] = useAnimate();
+    // Lightweight DOM-based animation to avoid framer-motion dependency in CI
 
     const [apiKeys, setApiKeys] = useState<Record<string, string>>({});
 
@@ -290,10 +290,25 @@ export const ChatImpl = memo(
         return;
       }
 
-      await Promise.all([
-        animate('#examples', { opacity: 0, display: 'none' }, { duration: 0.1 }),
-        animate('#intro', { opacity: 0, flex: 1 }, { duration: 0.2, ease: cubicEasingFn }),
-      ]);
+      try {
+        const examples = document.querySelector('#examples') as HTMLElement | null;
+        const intro = document.querySelector('#intro') as HTMLElement | null;
+
+        if (examples) {
+          examples.style.transition = 'opacity 100ms ease';
+          examples.style.opacity = '0';
+          setTimeout(() => {
+            examples.style.display = 'none';
+          }, 120);
+        }
+
+        if (intro) {
+          intro.style.transition = 'opacity 200ms ease';
+          intro.style.opacity = '0';
+        }
+      } catch {
+        // no-op
+      }
 
       chatStore.setKey('started', true);
 
@@ -510,7 +525,6 @@ export const ChatImpl = memo(
         {' '}
         {/* Main fragment at top level of ChatImpl return */}
         <BaseChat
-          ref={animationScope}
           textareaRef={textareaRef}
           input={input}
           showChat={showChat}

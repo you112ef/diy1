@@ -20,11 +20,14 @@ export async function loader({}: LoaderFunctionArgs) {
     });
 
     if (response.ok) {
-      const data = await response.json();
+      const data: unknown = await response.json();
+      const modelsCount =
+        data && typeof data === 'object' && Array.isArray((data as any).models) ? (data as any).models.length : 0;
+
       return json({
         status: 'healthy',
         ollamaUrl,
-        models: data.models?.length || 0,
+        models: modelsCount,
         timestamp: new Date().toISOString(),
       });
     } else {

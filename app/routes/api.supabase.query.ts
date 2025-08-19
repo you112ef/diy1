@@ -1,9 +1,8 @@
-import { type ActionFunctionArgs } from '@remix-run/cloudflare';
 import { createScopedLogger } from '~/utils/logger';
 
 const logger = createScopedLogger('api.supabase.query');
 
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request }: { request: Request }) {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }

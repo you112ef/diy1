@@ -244,9 +244,9 @@ export default defineConfig({
     presetIcons({
       warn: false,
       collections: {
-        ph,
-        si: simpleIcons,
-        'svg-spinners': svgSpinners,
+        ph: () => ph as any,
+        si: () => simpleIcons as any,
+        'svg-spinners': () => svgSpinners as any,
         ...customIconCollection,
       },
       unit: 'em',
