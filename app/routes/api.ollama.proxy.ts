@@ -1,59 +1,57 @@
 import { json } from '@remix-run/cloudflare';
 import type { ActionFunctionArgs } from '@remix-run/cloudflare';
 
-/**
- * Ollama Proxy API
- * يعمل كوسيط بين Cloudflare Pages و Ollama server
- */
-
-export async function action({ request }: ActionFunctionArgs) {
+export async function action({ request, params: _params, context: _context }: ActionFunctionArgs) {
   try {
-    const { method, url, headers, body } = request;
-    
-    // Get Ollama server URL from environment or use default
-    const ollamaUrl = process.env.OLLAMA_API_BASE_URL || 'http://127.0.0.1:11434';
-    
-    // Parse the request path to forward to Ollama
-    const urlObj = new URL(url);
-    const ollamaPath = urlObj.pathname.replace('/api/ollama/proxy', '');
-    const targetUrl = `${ollamaUrl}${ollamaPath}`;
-    
+    const url = new URL(request.url);
+    const ollamaUrl = url.searchParams.get('url') || 'http://127.0.0.1:11434';
+    const path = url.searchParams.get('path') || '/api/generate';
+
+    console.log(`🔄 Proxying request to: ${ollamaUrl}${path}`);
+
+    // Get the request body
+    const body = await request.text();
+
     // Forward the request to Ollama
-    const response = await fetch(targetUrl, {
-      method,
+    const response = await fetch(`${ollamaUrl}${path}`, {
+      method: request.method,
       headers: {
         'Content-Type': 'application/json',
-        // Remove Cloudflare-specific headers
-        ...Object.fromEntries(
-          Array.from(headers.entries()).filter(([key]) => 
-            !key.startsWith('cf-') && 
-            !key.startsWith('x-forwarded-') &&
-            key !== 'host'
-          )
-        )
+        ...Object.fromEntries(request.headers.entries()),
       },
-      body: method !== 'GET' ? body : undefined,
+      body: body || undefined,
     });
-    
-    if (!response.ok) {
-      throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+
+    if (response.ok) {
+      const data = await response.json();
+      return json(data);
+    } else {
+      const errorText = await response.text();
+      console.error(`❌ Ollama proxy error: ${response.status} - ${errorText}`);
+
+      return json(
+        {
+          error: `HTTP ${response.status}: ${errorText}`,
+          status: 'error',
+        },
+        { status: response.status },
+      );
     }
-    
-    const data = await response.json();
-    return json(data);
-    
   } catch (error) {
-    console.error('Ollama proxy error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error(`❌ Ollama proxy error: ${errorMessage}`);
+
     return json(
-      { 
-        error: 'Failed to connect to Ollama server',
-        details: error instanceof Error ? error.message : String(error)
+      {
+        error: errorMessage,
+        status: 'error',
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
 
-export async function loader({ request }: ActionFunctionArgs) {
-  return action({ request });
+// Handle GET requests for health checks
+export async function loader({ request, params: _params, context: _context }: ActionFunctionArgs) {
+  return action({ request, params: _params, context: _context });
 }
