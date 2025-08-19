@@ -38,7 +38,32 @@ export default class OllamaProvider extends BaseProvider {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
   };
 
-  staticModels: ModelInfo[] = []; // No fake models - only real ones from Ollama API
+  staticModels: ModelInfo[] = [
+    {
+      name: 'llama3.2:1b',
+      label: 'Llama 3.2 1B (Fast, Small)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+    {
+      name: 'llama3.2:3b',
+      label: 'Llama 3.2 3B (Balanced)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+    {
+      name: 'qwen2.5-coder:1.5b',
+      label: 'Qwen2.5 Coder 1.5B (Code)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    },
+    {
+      name: 'stable-code:3b',
+      label: 'Stable Code 3B (Coding)',
+      provider: 'Ollama',
+      maxTokenAllowed: 8000,
+    }
+  ];
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
     if (!env) {
