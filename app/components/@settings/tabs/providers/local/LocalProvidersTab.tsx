@@ -154,11 +154,11 @@ export default function LocalProvidersTab() {
       setIsLoadingModels(true);
 
       const response = await fetch(`${provider.settings.baseUrl || 'http://127.0.0.1:11434'}/api/tags`);
-      
+
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = (await response.json()) as { models: OllamaModel[] };
 
       if (!data.models || data.models.length === 0) {
@@ -547,7 +547,9 @@ export default function LocalProvidersTab() {
                       {/* Ollama Status Indicator */}
                       {provider.name === 'Ollama' && (
                         <div className="flex items-center gap-2">
-                          <div className={`w-2 h-2 rounded-full ${isLoadingModels ? 'bg-yellow-500' : ollamaModels.length > 0 ? 'bg-green-500' : 'bg-red-500'}`} />
+                          <div
+                            className={`w-2 h-2 rounded-full ${isLoadingModels ? 'bg-yellow-500' : ollamaModels.length > 0 ? 'bg-green-500' : 'bg-red-500'}`}
+                          />
                           <span className="text-xs text-bolt-elements-textSecondary">
                             {isLoadingModels ? 'Checking...' : ollamaModels.length > 0 ? 'Connected' : 'Not Connected'}
                           </span>

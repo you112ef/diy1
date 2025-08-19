@@ -12,20 +12,25 @@ export const PROMPT_COOKIE_KEY = 'cachedPrompt';
 const llmManager = LLMManager.getInstance(import.meta.env);
 
 export const PROVIDER_LIST = llmManager.getAllProviders();
+
 // Get Ollama as default provider if available, otherwise fallback to first provider
 export const DEFAULT_PROVIDER = (() => {
   try {
     const ollamaProvider = llmManager.getProvider('Ollama');
+
     if (ollamaProvider) {
       return ollamaProvider;
     }
+
     return llmManager.getDefaultProvider();
-  } catch (error) {
+  } catch {
     // Fallback to first available provider
     const providers = llmManager.getAllProviders();
+
     if (providers.length > 0) {
       return providers[0];
     }
+
     throw new Error('No providers available');
   }
 })();

@@ -62,7 +62,7 @@ export default class OllamaProvider extends BaseProvider {
       label: 'Stable Code 3B (Coding)',
       provider: 'Ollama',
       maxTokenAllowed: 8000,
-    }
+    },
   ];
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
@@ -100,9 +100,10 @@ export default class OllamaProvider extends BaseProvider {
 
     if (!baseUrl) {
       // Use proxy URL for Cloudflare Pages
-      baseUrl = typeof window !== 'undefined' 
-        ? '/api/ollama/proxy'  // Frontend: use proxy
-        : 'http://127.0.0.1:11434'; // Backend: direct connection
+      baseUrl =
+        typeof window !== 'undefined'
+          ? '/api/ollama/proxy' // Frontend: use proxy
+          : 'http://127.0.0.1:11434'; // Backend: direct connection
     }
 
     if (typeof window === 'undefined') {
@@ -118,11 +119,11 @@ export default class OllamaProvider extends BaseProvider {
 
     try {
       const response = await fetch(`${baseUrl}/api/tags`);
-      
+
       if (!response.ok) {
         throw new Error(`Ollama API returned ${response.status}: ${response.statusText}`);
       }
-      
+
       const data = (await response.json()) as OllamaApiResponse;
 
       if (!data.models || data.models.length === 0) {
@@ -161,9 +162,10 @@ export default class OllamaProvider extends BaseProvider {
     // Backend: Check if we're running in Docker
     if (!baseUrl) {
       // Use proxy URL for Cloudflare Pages
-      baseUrl = typeof window !== 'undefined' 
-        ? '/api/ollama/proxy'  // Frontend: use proxy
-        : 'http://127.0.0.1:11434'; // Backend: direct connection
+      baseUrl =
+        typeof window !== 'undefined'
+          ? '/api/ollama/proxy' // Frontend: use proxy
+          : 'http://127.0.0.1:11434'; // Backend: direct connection
     }
 
     const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || envRecord.RUNNING_IN_DOCKER === 'true';

@@ -6,10 +6,10 @@ import type { LoaderFunctionArgs } from '@remix-run/cloudflare';
  * للتحقق من حالة Ollama server
  */
 
-export async function loader({ request }: LoaderFunctionArgs) {
+export async function loader({}: LoaderFunctionArgs) {
   try {
     const ollamaUrl = process.env.OLLAMA_API_BASE_URL || 'http://127.0.0.1:11434';
-    
+
     // Check if Ollama is running
     const response = await fetch(`${ollamaUrl}/api/tags`, {
       method: 'GET',
@@ -18,7 +18,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
       },
       signal: AbortSignal.timeout(5000), // 5 second timeout
     });
-    
+
     if (response.ok) {
       const data = await response.json();
       return json({
@@ -28,19 +28,24 @@ export async function loader({ request }: LoaderFunctionArgs) {
         timestamp: new Date().toISOString(),
       });
     } else {
-      return json({
-        status: 'unhealthy',
-        ollamaUrl,
-        error: `HTTP ${response.status}: ${response.statusText}`,
-        timestamp: new Date().toISOString(),
-      }, { status: 503 });
+      return json(
+        {
+          status: 'unhealthy',
+          ollamaUrl,
+          error: `HTTP ${response.status}: ${response.statusText}`,
+          timestamp: new Date().toISOString(),
+        },
+        { status: 503 },
+      );
     }
-    
   } catch (error) {
-    return json({
-      status: 'error',
-      error: error instanceof Error ? error.message : String(error),
-      timestamp: new Date().toISOString(),
-    }, { status: 500 });
+    return json(
+      {
+        status: 'error',
+        error: error instanceof Error ? error.message : String(error),
+        timestamp: new Date().toISOString(),
+      },
+      { status: 500 },
+    );
   }
 }

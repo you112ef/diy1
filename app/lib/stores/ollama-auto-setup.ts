@@ -5,11 +5,7 @@
 
 export const OLLAMA_CONFIG = {
   baseUrl: 'http://127.0.0.1:11434',
-  defaultModels: [
-    'stable-code:3b',
-    'llama3.2:1b', 
-    'qwen2.5-coder:1.5b'
-  ]
+  defaultModels: ['stable-code:3b', 'llama3.2:1b', 'qwen2.5-coder:1.5b'],
 };
 
 /**
@@ -18,9 +14,11 @@ export const OLLAMA_CONFIG = {
 export async function checkOllamaStatus(): Promise<{ connected: boolean; models: number; error?: string }> {
   try {
     const response = await fetch(`${OLLAMA_CONFIG.baseUrl}/api/tags`);
+
     if (response.ok) {
-      const data = await response.json() as { models?: Array<{ name: string }> };
+      const data = (await response.json()) as { models?: Array<{ name: string }> };
       const modelCount = data.models?.length || 0;
+
       return { connected: true, models: modelCount };
     } else {
       const errorText = await response.text();
@@ -37,21 +35,24 @@ export async function checkOllamaStatus(): Promise<{ connected: boolean; models:
  */
 export async function startOllama(): Promise<{ success: boolean; error?: string }> {
   try {
-    // في المتصفح، لا يمكننا تشغيل Ollama مباشرة
-    // يجب على المستخدم تشغيله يدوياً
+    /*
+     * في المتصفح، لا يمكننا تشغيل Ollama مباشرة
+     * يجب على المستخدم تشغيله يدوياً
+     */
     const status = await checkOllamaStatus();
+
     if (status.connected) {
       return { success: true };
     } else {
-      return { 
-        success: false, 
-        error: 'Ollama is not running. Please start it manually using: ollama serve' 
+      return {
+        success: false,
+        error: 'Ollama is not running. Please start it manually using: ollama serve',
       };
     }
-  } catch (error) {
-    return { 
-      success: false, 
-      error: 'Failed to check Ollama status. Make sure Ollama is installed and running.' 
+  } catch {
+    return {
+      success: false,
+      error: 'Failed to check Ollama status. Make sure Ollama is installed and running.',
     };
   }
 }
@@ -105,7 +106,9 @@ export async function removeOllamaModel(modelName: string): Promise<{ success: b
 /**
  * الحصول على معلومات النموذج
  */
-export async function getOllamaModelInfo(modelName: string): Promise<{ success: boolean; model?: any; error?: string }> {
+export async function getOllamaModelInfo(
+  modelName: string,
+): Promise<{ success: boolean; model?: any; error?: string }> {
   try {
     const response = await fetch(`${OLLAMA_CONFIG.baseUrl}/api/show`, {
       method: 'POST',
