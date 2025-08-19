@@ -49,6 +49,7 @@ export default defineConfig({
       'path-browserify',
       'react-router-dom',
       'react-markdown',
+      '@remix-run/server-runtime',
       // Radix UI packages pre-bundle
       '@radix-ui/react-dialog',
       '@radix-ui/react-checkbox',
