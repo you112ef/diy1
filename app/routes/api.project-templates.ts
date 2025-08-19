@@ -1,8 +1,11 @@
 import { json, type LoaderFunctionArgs } from '@remix-run/cloudflare';
-// Attempt to import the JSON data directly.
-// The path assumes '~/lib/' is aliased to 'app/lib/' in tsconfig.json or vite.config.ts
-// If this direct import doesn't work in the Cloudflare Pages environment,
-// it would need to be read as a text asset and then parsed.
+
+/*
+ * Attempt to import the JSON data directly.
+ * The path assumes '~/lib/' is aliased to 'app/lib/' in tsconfig.json or vite.config.ts
+ * If this direct import doesn't work in the Cloudflare Pages environment,
+ * it would need to be read as a text asset and then parsed.
+ */
 import allTemplates from '~/lib/templates/project-templates.json';
 
 interface ProjectTemplate {
@@ -30,7 +33,8 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const templates = allTemplates as ProjectTemplate[];
 
   if (templateId) {
-    const template = templates.find(t => t.id === templateId);
+    const template = templates.find((t) => t.id === templateId);
+
     if (template) {
       return json(template, { headers });
     } else {

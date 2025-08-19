@@ -1,4 +1,15 @@
-import type { ActionType, BoltAction, BoltActionData, FileAction, ShellAction, SupabaseAction, OpenFileAction } from '~/types/actions'; // Added OpenFileAction
+import type {
+  ActionType,
+  BoltAction,
+  BoltActionData,
+  FileAction,
+
+  /*
+   * ShellAction,
+   */
+  SupabaseAction,
+  OpenFileAction,
+} from '~/types/actions'; // Added OpenFileAction
 import type { BoltArtifactData } from '~/types/artifact';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
@@ -295,13 +306,15 @@ export class StreamingMessageParser {
     };
 
     const lang = this.#extractAttribute(actionTag, 'lang');
+
     if (lang) {
       actionAttributes.lang = lang;
     }
 
     const confirm = this.#extractAttribute(actionTag, 'requiresConfirmation');
+
     if (confirm) {
-      actionAttributes.requiresConfirmation = (confirm === 'true');
+      actionAttributes.requiresConfirmation = confirm === 'true';
     }
 
     if (actionType === 'supabase') {
@@ -334,17 +347,23 @@ export class StreamingMessageParser {
       (actionAttributes as FileAction).filePath = filePath;
     } else if (actionType === 'openFile') {
       const filePath = this.#extractAttribute(actionTag, 'filePath');
+
       if (!filePath) {
         logger.warn('OpenFileAction requires a filePath attribute.');
+
         // Potentially throw, but for now, allow it to proceed and be handled by ActionRunner if path is critical
       }
+
       (actionAttributes as OpenFileAction).filePath = filePath || ''; // Handle missing filePath for typing
-    } else if (!['shell', 'start', 'build'].includes(actionType)) { // Added 'build'
+    } else if (!['shell', 'start', 'build'].includes(actionType)) {
+      // Added 'build'
       logger.warn(`Unknown action type '${actionType}'`);
     }
 
-    // The return type should be compatible with BoltAction which now includes lang and requiresConfirmation
-    // via BaseAction. The specific action types (FileAction, ShellAction, etc.) inherit these.
+    /*
+     * The return type should be compatible with BoltAction which now includes lang and requiresConfirmation
+     * via BaseAction. The specific action types (FileAction, ShellAction, etc.) inherit these.
+     */
     return actionAttributes as BoltAction;
   }
 

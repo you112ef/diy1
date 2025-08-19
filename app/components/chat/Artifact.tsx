@@ -37,7 +37,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
   const actions = useStore(
     computed(artifact.runner.actions, (actions) => {
       // Filter out Supabase actions except for migrations
-      return Object.values(actions).filter((action) => {
+      return Object.values(actions).filter((action: any) => {
         // Exclude actions with type 'supabase' or actions that contain 'supabase' in their content
         return action.type !== 'supabase' && !(action.type === 'shell' && action.content?.includes('supabase'));
       });
@@ -55,7 +55,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
     }
 
     if (actions.length !== 0 && artifact.type === 'bundled') {
-      const finished = !actions.find((action) => action.status !== 'complete');
+      const finished = !actions.find((action: any) => action.status !== 'complete');
 
       if (allActionFinished !== finished) {
         setAllActionFinished(finished);
@@ -120,7 +120,7 @@ export const Artifact = memo(({ messageId }: ArtifactProps) => {
             <div className="bg-bolt-elements-artifacts-borderColor h-[1px]" />
 
             <div className="p-5 text-left bg-bolt-elements-actions-background">
-              <ActionList actions={actions} />
+              <ActionList actions={actions as any} />
             </div>
           </motion.div>
         )}
@@ -243,10 +243,12 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   />
                   {(action as ShellAction).capturedOutput && (
                     <div className="mt-1.5 pt-1.5 border-t border-bolt-elements-borderColor/50">
-                      <p className={classNames(
-                        "text-xs mb-0.5",
-                        (action as ShellAction).exitCode === 0 ? "text-bolt-elements-textTertiary" : "text-red-500"
-                      )}>
+                      <p
+                        className={classNames(
+                          'text-xs mb-0.5',
+                          (action as ShellAction).exitCode === 0 ? 'text-bolt-elements-textTertiary' : 'text-red-500',
+                        )}
+                      >
                         Output (Exit Code: {(action as ShellAction).exitCode}):
                       </p>
                       <ShellCodeBlock

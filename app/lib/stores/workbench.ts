@@ -4,7 +4,10 @@ import { ActionRunner } from '~/lib/runtime/action-runner';
 import type { ActionCallbackData, ArtifactCallbackData } from '~/lib/runtime/message-parser';
 import { webcontainer } from '~/lib/webcontainer';
 import type { ITerminal } from '~/types/terminal';
-import type { BoltAction } from '~/types/actions'; // Added for onConfirmationRequired
+
+/*
+ * import type { BoltAction } from '~/types/actions'; // Added for onConfirmationRequired
+ */
 import { unreachable } from '~/utils/unreachable';
 import { EditorStore } from './editor';
 import { FilesStore, type FileMap } from './files';
@@ -435,13 +438,15 @@ export class WorkbenchStore {
         webcontainer,
         () => this.boltTerminal,
         this.#filesStore,
-        (actionId, actionToConfirm) => { // New onConfirmationRequired callback
+        (actionId, actionToConfirm) => {
+          // New onConfirmationRequired callback
           let title = 'Confirm Action';
           let description = `Are you sure you want to proceed with: ${actionToConfirm.type}?`;
           let confirmButtonVariant: 'default' | 'destructive' = 'default';
 
           if (actionToConfirm.type === 'shell') {
             description = `Are you sure you want to run the shell command: "${actionToConfirm.content}"?`;
+
             if (actionToConfirm.content.includes('rm -rf') || actionToConfirm.content.includes('sudo')) {
               title = 'Confirm Destructive Command';
               confirmButtonVariant = 'destructive';
@@ -450,6 +455,7 @@ export class WorkbenchStore {
             title = 'Confirm File Operation';
             description = `Are you sure you want to modify/create "${actionToConfirm.filePath}"?`;
           }
+
           // Add more specific cases here, e.g. for a future 'deleteFile' or 'createProject' type
 
           this.actionToConfirm.set({
@@ -462,25 +468,40 @@ export class WorkbenchStore {
             confirmButtonVariant,
           });
         },
-        (filePath) => { // onOpenFileRequested callback
-          // const wcWorkdir = webcontainer.workdir; // webcontainer is a promise here
-          // const fullPath = path.join(wcWorkdir, filePath); // This needs careful handling of path
+        (filePath) => {
+          // onOpenFileRequested callback
+          /*
+           * const wcWorkdir = webcontainer.workdir; // webcontainer is a promise here
+           * const fullPath = path.join(wcWorkdir, filePath); // This needs careful handling of path
+           */
           this.setSelectedFile(filePath);
           this.currentView.set('code');
           this.showWorkbench.set(true); // Ensure workbench is visible
         },
-        (alert) => { // onAlert
-          if (this.#reloadedMessages.has(messageId)) return;
+        (alert) => {
+          // onAlert
+          if (this.#reloadedMessages.has(messageId)) {
+            return;
+          }
+
           this.actionAlert.set(alert);
         },
-        (alert) => { // onSupabaseAlert
-          if (this.#reloadedMessages.has(messageId)) return;
+        (alert) => {
+          // onSupabaseAlert
+          if (this.#reloadedMessages.has(messageId)) {
+            return;
+          }
+
           this.supabaseAlert.set(alert);
         },
-        (alert) => { // onDeployAlert
-          if (this.#reloadedMessages.has(messageId)) return;
+        (alert) => {
+          // onDeployAlert
+          if (this.#reloadedMessages.has(messageId)) {
+            return;
+          }
+
           this.deployAlert.set(alert);
-        }
+        },
       ),
     });
   }
@@ -573,23 +594,33 @@ export class WorkbenchStore {
 
   async confirmCurrentAction() {
     const request = this.actionToConfirm.get();
-    if (!request) return;
+
+    if (!request) {
+      return;
+    }
 
     const artifact = this.#getArtifact(request.artifactId);
+
     if (artifact) {
       await artifact.runner.confirmAction(request.actionId);
     }
+
     this.actionToConfirm.set(null); // Clear the request
   }
 
   cancelCurrentAction() {
     const request = this.actionToConfirm.get();
-    if (!request) return;
+
+    if (!request) {
+      return;
+    }
 
     const artifact = this.#getArtifact(request.artifactId);
+
     if (artifact) {
       artifact.runner.cancelAction(request.actionId);
     }
+
     this.actionToConfirm.set(null); // Clear the request
   }
 

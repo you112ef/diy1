@@ -35,7 +35,7 @@ img {
 
 textarea {
   display: flex; // To enable flex properties if needed for alignment
-  width: 100%;  // Default to full width of container
+  width: 100%; // Default to full width of container
   min-height: 4rem; /* 44px at 11px root */
   padding: 0.55rem 0.73rem; /* original: 6px 8px -> 0.545rem 0.727rem */
   border-radius: 0.55rem; /* original: 6px -> 0.545rem */
@@ -47,7 +47,9 @@ textarea {
   &:focus-visible {
     outline: none;
     border-color: var(--bolt-elements-borderColorActive); // Example active border
-    box-shadow: 0 0 0 2px var(--bolt-elements-bg-depth-1), 0 0 0 4px var(--bolt-elements-borderColorActive); // Example focus ring
+    box-shadow:
+      0 0 0 2px var(--bolt-elements-bg-depth-1),
+      0 0 0 4px var(--bolt-elements-borderColorActive); // Example focus ring
   }
 
   &::placeholder {
@@ -61,9 +63,11 @@ textarea {
 }
 
 /* Constrain main content width on mobile/small tablet devices */
-@media (max-width: 69.8rem) { /* Approx 768px */
+@media (max-width: 69.8rem) {
+  /* Approx 768px */
   body,
-  main { /* Or a more specific main content wrapper like #root or .app-container */
+  main {
+    /* Or a more specific main content wrapper like #root or .app-container */
     max-width: 37.63rem; /* Approx 414px */
     margin-left: auto;
     margin-right: auto;
