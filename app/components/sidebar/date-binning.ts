@@ -1,4 +1,10 @@
-import { format, isAfter, isThisWeek, isThisYear, isToday, isYesterday, subDays } from 'date-fns';
+import format from 'date-fns/format';
+import isAfter from 'date-fns/isAfter';
+import isThisWeek from 'date-fns/isThisWeek';
+import isThisYear from 'date-fns/isThisYear';
+import isToday from 'date-fns/isToday';
+import isYesterday from 'date-fns/isYesterday';
+import subDays from 'date-fns/subDays';
 import type { ChatHistoryItem } from '~/lib/persistence';
 
 type Bin = { category: string; items: ChatHistoryItem[] };
