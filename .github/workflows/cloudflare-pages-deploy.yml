@@ -1,0 +1,53 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [ stable, main ]
+  pull_request:
+    branches: [ stable, main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install pnpm
+      uses: pnpm/action-setup@v2
+      with:
+        version: latest
+        
+    - name: Install dependencies
+      run: pnpm install --frozen-lockfile
+      
+    - name: Build project
+      run: pnpm run build
+      env:
+        NODE_ENV: production
+        
+    - name: Deploy to Cloudflare Pages
+      uses: cloudflare/pages-action@v1
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        projectName: ${{ secrets.CLOUDFLARE_PROJECT_NAME }}
+        directory: build/client
+        gitHubToken: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Notify deployment status
+      if: always()
+      run: |
+        if [ ${{ job.status }} == 'success' ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi

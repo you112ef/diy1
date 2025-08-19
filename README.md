@@ -112,6 +112,30 @@ If you're new to installing software from GitHub, don't worry! If you encounter 
 
 Let's get you up and running with the stable version of Bolt.DIY!
 
+## 🚀 Quick Deploy to Cloudflare Pages
+
+Want to deploy bolt.diy without installing anything locally? Use Cloudflare Pages!
+
+### One-Click Deploy
+1. **Fork** this repository to your GitHub account
+2. **Delete** the following files from your fork:
+   - `.tool-versions` (if exists)
+   - `wrangler.toml`
+3. **Connect** to [Cloudflare Pages](https://dash.cloudflare.com/)
+4. **Choose** your forked repository
+5. **Set build command**: `npm install pnpm && pnpm install && pnpm run build`
+6. **Add environment variables** from `.env.example`
+7. **Deploy**! 🎉
+
+📖 **Detailed Guide**: See [CLOUDFLARE_DEPLOYMENT_GUIDE.md](./CLOUDFLARE_DEPLOYMENT_GUIDE.md) for step-by-step instructions.
+
+### Why Cloudflare Pages?
+- ✅ **Free hosting** with global CDN
+- ✅ **No local setup** required
+- ✅ **Automatic deployments** from GitHub
+- ✅ **Built-in SSL** and security
+- ✅ **Fast performance** worldwide
+
 ## Quick Download
 
 [![Download Latest Release](https://img.shields.io/github/v/release/stackblitz-labs/bolt.diy?label=Download%20Bolt&sort=semver)](https://github.com/stackblitz-labs/bolt.diy/releases/latest) ← Click here to go the the latest release version!

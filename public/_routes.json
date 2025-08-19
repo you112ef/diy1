@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "include": ["/*"],
+  "exclude": [
+    "/api/*",
+    "/_worker/*",
+    "/build/*",
+    "/assets/*"
+  ],
+  "routes": [
+    {
+      "src": "/api/*",
+      "dest": "/api/*"
+    },
+    {
+      "src": "/*",
+      "dest": "/index.html"
+    }
+  ]
+}
