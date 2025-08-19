@@ -74,7 +74,7 @@ export async function checkOllamaStatus(): Promise<boolean> {
   try {
     const response = await fetch(`${OLLAMA_CONFIG.baseUrl}/api/tags`);
     if (response.ok) {
-      const data = await response.json();
+      const data = await response.json() as { models?: Array<{ name: string }> };
       console.log('✅ Ollama متصل، النماذج المتاحة:', data.models?.length || 0);
       return true;
     }

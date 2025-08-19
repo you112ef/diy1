@@ -67,7 +67,7 @@ export async function ensureOllamaModels(): Promise<boolean> {
       return false;
     }
     
-    const data = await healthResponse.json();
+    const data = await healthResponse.json() as { models: Array<{ name: string }> };
     const installedModels = data.models.map((model: any) => model.name);
     
     // التحقق من النماذج المطلوبة
