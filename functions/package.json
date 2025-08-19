@@ -1,0 +1,8 @@
+{
+  "name": "bolt-diy-ai-functions",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@remix-run/cloudflare": "^2.16.3"
+  }
+}
