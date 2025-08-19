@@ -19,7 +19,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Button } from '~/components/ui/Button';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '~/components/ui/Collapsible';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
+import { formatDistanceToNow } from 'date-fns/formatDistanceToNow';
 import { Badge } from '~/components/ui/Badge';
 
 // Add the Netlify logo SVG component at the top of the file
