@@ -14,8 +14,13 @@ We have also launched an experimental agent called the "bolt.diy Expert" that ca
 
 bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMedin) but has quickly grown into a massive community effort to build the BEST open source AI coding assistant!
 
+## Quick Start
+
+**⚡ Want to get started fast?** See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute setup guide!
+
 ## Table of Contents
 
+- [Quick Start](#quick-start)
 - [Join the Community](#join-the-community)
 - [Requested Additions](#requested-additions)
 - [Features](#features)
@@ -95,6 +100,80 @@ project, please check the [project management guide](./PROJECT.md) to get starte
 - ✅ Popout Window for Web Container(@stijnus)
 - ✅ Ability to change Popout window size (@stijnus)
 
+## Configuring API Keys and Providers
+
+### Adding Your API Keys
+
+There are two ways to configure your API keys:
+
+#### Method 1: Environment Variables (Recommended)
+
+1. **Copy the example file:**
+   ```bash
+   cp .env.example .env.local
+   ```
+
+2. **Edit `.env.local`** and add your API keys:
+   ```bash
+   # OpenAI (GPT models)
+   OPENAI_API_KEY=sk-your_openai_api_key_here
+   
+   # Anthropic (Claude models)
+   ANTHROPIC_API_KEY=sk-ant-your_anthropic_api_key_here
+   
+   # Google (Gemini models)
+   GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_api_key_here
+   
+   # Add other keys as needed
+   ```
+
+3. **Restart the application** for changes to take effect
+
+#### Method 2: UI Configuration
+
+1. **Start the application** and open it in your browser
+2. **Click the settings icon** (gear) in the sidebar
+3. **Go to the "Providers" tab**
+4. **Click "Edit"** next to the provider you want to configure
+5. **Enter your API key** and click "Save"
+
+### Supported Providers
+
+Bolt.diy supports many AI providers out of the box:
+
+| Provider | Models | Setup |
+|----------|--------|-------|
+| **OpenAI** | GPT-4, GPT-3.5 | Set `OPENAI_API_KEY` |
+| **Anthropic** | Claude 3.5, Claude 3 Opus | Set `ANTHROPIC_API_KEY` |
+| **Google** | Gemini 1.5, Gemini 2.0 | Set `GOOGLE_GENERATIVE_AI_API_KEY` |
+| **Mistral** | Mistral 7B, Mixtral 8x7B | Set `MISTRAL_API_KEY` |
+| **Cohere** | Command R+, Command R | Set `COHERE_API_KEY` |
+| **DeepSeek** | DeepSeek Coder, DeepSeek Chat | Set `DEEPSEEK_API_KEY` |
+| **Perplexity** | PPLX models | Set `PERPLEXITY_API_KEY` |
+| **Together** | Various open models | Set `TOGETHER_API_KEY` |
+| **Groq** | Fast inference models | Set `GROQ_API_KEY` |
+| **OpenRouter** | Access to many models | Set `OPEN_ROUTER_API_KEY` |
+| **xAI** | Grok models | Set `XAI_API_KEY` |
+| **HuggingFace** | Open source models | Set `HUGGINGFACE_API_KEY` |
+| **Amazon Bedrock** | AWS-hosted models | Set `AWS_BEDROCK_CONFIG` |
+| **GitHub Copilot** | GitHub-hosted models | Set `GITHUB_API_KEY` |
+
+### Local Models
+
+For privacy and offline use, you can also run models locally:
+
+| Provider | Setup |
+|----------|-------|
+| **Ollama** | Install Ollama, set `OLLAMA_API_BASE_URL=http://127.0.0.1:11434` |
+| **LM Studio** | Install LM Studio, set `LM_STUDIO_API_BASE_URL=http://127.0.0.1:1234` |
+
+### Custom Providers
+
+You can add custom providers by:
+1. Creating a new provider class in `app/lib/modules/llm/providers/`
+2. Extending the `BaseProvider` class
+3. Adding your provider to the registry in `app/lib/modules/llm/registry.ts`
+
 ## Features
 
 - **AI-powered full-stack web development** for **NodeJS based applications** directly in your browser.
@@ -108,122 +187,194 @@ project, please check the [project management guide](./PROJECT.md) to get starte
 
 ## Setup
 
-If you're new to installing software from GitHub, don't worry! If you encounter any issues, feel free to submit an "issue" using the provided links or improve this documentation by forking the repository, editing the instructions, and submitting a pull request. The following instruction will help you get the stable branch up and running on your local machine in no time.
+**📖 For detailed setup instructions, see [SETUP.md](./SETUP.md)**
 
-Let's get you up and running with the stable version of Bolt.DIY!
+### 1️⃣ Clone and Install
 
-## Quick Download
+```bash
+git clone https://github.com/stackblitz-labs/bolt.diy.git
+cd bolt.diy
+pnpm install
+```
 
-[![Download Latest Release](https://img.shields.io/github/v/release/stackblitz-labs/bolt.diy?label=Download%20Bolt&sort=semver)](https://github.com/stackblitz-labs/bolt.diy/releases/latest) ← Click here to go the the latest release version!
+### 2️⃣ Environment Configuration
 
-- Next **click source.zip**
+**Option A: Using .env.local file (Recommended for local development)**
 
-## Prerequisites
+1. Copy the example environment file:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-Before you begin, you'll need to install two important pieces of software:
+2. Edit `.env.local` and add your API keys:
+   ```bash
+   # Required for OpenAI models (GPT-4, GPT-3.5)
+   OPENAI_API_KEY=sk-your_openai_api_key_here
+   
+   # Required for Anthropic models (Claude)
+   ANTHROPIC_API_KEY=sk-ant-your_anthropic_api_key_here
+   
+   # Required for Google models (Gemini)
+   GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_api_key_here
+   
+   # Add other API keys as needed for different providers
+   ```
 
-### Install Node.js
+**Option B: Using Docker with environment variables**
 
-Node.js is required to run the application.
+```bash
+docker run -p 5173:5173 --env-file .env.local bolt-ai:development
+```
 
-1. Visit the [Node.js Download Page](https://nodejs.org/en/download/)
-2. Download the "LTS" (Long Term Support) version for your operating system
-3. Run the installer, accepting the default settings
-4. Verify Node.js is properly installed:
-   - **For Windows Users**:
-     1. Press `Windows + R`
-     2. Type "sysdm.cpl" and press Enter
-     3. Go to "Advanced" tab → "Environment Variables"
-     4. Check if `Node.js` appears in the "Path" variable
-   - **For Mac/Linux Users**:
-     1. Open Terminal
-     2. Type this command:
-        ```bash
-        echo $PATH
-        ```
-     3. Look for `/usr/local/bin` in the output
+**Option C: Using Docker Compose**
 
-## Running the Application
+```bash
+docker compose --profile development up
+```
+
+### 3️⃣ Get API Keys
+
+You'll need API keys from the providers you want to use:
+
+- **OpenAI**: [Get API Key](https://platform.openai.com/api-keys)
+- **Anthropic**: [Get API Key](https://console.anthropic.com/settings/keys)
+- **Google**: [Get API Key](https://aistudio.google.com/app/apikey)
+- **Mistral**: [Get API Key](https://console.mistral.ai/api-keys/)
+- **Cohere**: [Get API Key](https://dashboard.cohere.com/api-keys)
+- **DeepSeek**: [Get API Key](https://platform.deepseek.com/apiKeys)
+- **Perplexity**: [Get API Key](https://www.perplexity.ai/settings/api)
+- **Together**: [Get API Key](https://together.ai/settings/keys)
+- **Groq**: [Get API Key](https://console.groq.com/keys)
+- **OpenRouter**: [Get API Key](https://openrouter.ai/settings/keys)
+- **xAI**: [Get API Key](https://x.ai/api)
+- **HuggingFace**: [Get API Key](https://huggingface.co/settings/tokens)
+- **Amazon Bedrock**: [Get Config](https://console.aws.amazon.com/iam/home)
+
+### 4️⃣ Local Models (Optional)
+
+For local models, you can also set up:
+
+- **Ollama**: Install and run locally, then set `OLLAMA_API_BASE_URL=http://127.0.0.1:11434`
+- **LM Studio**: Install and run locally, then set `LM_STUDIO_API_BASE_URL=http://127.0.0.1:1234`
+
+## Run the Application
 
 You have two options for running Bolt.DIY: directly on your machine or using Docker.
 
 ### Option 1: Direct Installation (Recommended for Beginners)
 
-1. **Install Package Manager (pnpm)**:
-
-   ```bash
-   npm install -g pnpm
-   ```
-
-2. **Install Project Dependencies**:
-
-   ```bash
-   pnpm install
-   ```
-
-3. **Start the Application**:
-
+1. **Start the development server:**
    ```bash
    pnpm run dev
    ```
-   
-### Option 2: Using Docker
 
-This option requires some familiarity with Docker but provides a more isolated environment.
+2. **Open your browser** and navigate to the URL shown in the terminal (usually `http://localhost:5173`)
 
-#### Additional Prerequisite
+3. **Set up your API keys** in the UI:
+   - Click on the settings icon (gear) in the sidebar
+   - Go to the "Providers" tab
+   - Enter your API keys for the providers you want to use
+   - Or set them via environment variables in `.env.local`
 
-- Install Docker: [Download Docker](https://www.docker.com/)
+### Option 2: Docker (Recommended for Advanced Users)
 
-#### Steps:
-
-1. **Build the Docker Image**:
-
+1. **Build the Docker image:**
    ```bash
-   # Using npm script:
    npm run dockerbuild
-
-   # OR using direct Docker command:
-   docker build . --target bolt-ai-development
    ```
 
-2. **Run the Container**:
+2. **Run with Docker Compose:**
    ```bash
    docker compose --profile development up
    ```
+
+3. **Or run directly with Docker:**
+   ```bash
+   docker run -p 5173:5173 --env-file .env.local bolt-ai:development
+   ```
+
+4. **Open your browser** and navigate to `http://localhost:5173`
+
+### Troubleshooting
+
+- **"API Key Required" message**: Make sure you've set the required API keys in `.env.local` or via the UI
+- **Port already in use**: Change the port in the command or stop other services using port 5173
+- **Docker issues**: Make sure Docker is running and you have sufficient permissions
+- **API rate limits**: Some providers have rate limits; check their documentation for details
 
 ## Configuring API Keys and Providers
 
 ### Adding Your API Keys
 
-Setting up your API keys in Bolt.DIY is straightforward:
+There are two ways to configure your API keys:
 
-1. Open the home page (main interface)
-2. Select your desired provider from the dropdown menu
-3. Click the pencil (edit) icon
-4. Enter your API key in the secure input field
+#### Method 1: Environment Variables (Recommended)
 
-![API Key Configuration Interface](./docs/images/api-key-ui-section.png)
+1. **Copy the example file:**
+   ```bash
+   cp .env.example .env.local
+   ```
 
-### Configuring Custom Base URLs
+2. **Edit `.env.local`** and add your API keys:
+   ```bash
+   # OpenAI (GPT models)
+   OPENAI_API_KEY=sk-your_openai_api_key_here
+   
+   # Anthropic (Claude models)
+   ANTHROPIC_API_KEY=sk-ant-your_anthropic_api_key_here
+   
+   # Google (Gemini models)
+   GOOGLE_GENERATIVE_AI_API_KEY=your_google_ai_api_key_here
+   
+   # Add other keys as needed
+   ```
 
-For providers that support custom base URLs (such as Ollama or LM Studio), follow these steps:
+3. **Restart the application** for changes to take effect
 
-1. Click the settings icon in the sidebar to open the settings menu
-   ![Settings Button Location](./docs/images/bolt-settings-button.png)
+#### Method 2: UI Configuration
 
-2. Navigate to the "Providers" tab
-3. Search for your provider using the search bar
-4. Enter your custom base URL in the designated field
-   ![Provider Base URL Configuration](./docs/images/provider-base-url.png)
-
-> **Note**: Custom base URLs are particularly useful when running local instances of AI models or using custom API endpoints.
+1. **Start the application** and open it in your browser
+2. **Click the settings icon** (gear) in the sidebar
+3. **Go to the "Providers" tab**
+4. **Click "Edit"** next to the provider you want to configure
+5. **Enter your API key** and click "Save"
 
 ### Supported Providers
 
-- Ollama
-- LM Studio
-- OpenAILike
+Bolt.diy supports many AI providers out of the box:
+
+| Provider | Models | Setup |
+|----------|--------|-------|
+| **OpenAI** | GPT-4, GPT-3.5 | Set `OPENAI_API_KEY` |
+| **Anthropic** | Claude 3.5, Claude 3 Opus | Set `ANTHROPIC_API_KEY` |
+| **Google** | Gemini 1.5, Gemini 2.0 | Set `GOOGLE_GENERATIVE_AI_API_KEY` |
+| **Mistral** | Mistral 7B, Mixtral 8x7B | Set `MISTRAL_API_KEY` |
+| **Cohere** | Command R+, Command R | Set `COHERE_API_KEY` |
+| **DeepSeek** | DeepSeek Coder, DeepSeek Chat | Set `DEEPSEEK_API_KEY` |
+| **Perplexity** | PPLX models | Set `PERPLEXITY_API_KEY` |
+| **Together** | Various open models | Set `TOGETHER_API_KEY` |
+| **Groq** | Fast inference models | Set `GROQ_API_KEY` |
+| **OpenRouter** | Access to many models | Set `OPEN_ROUTER_API_KEY` |
+| **xAI** | Grok models | Set `XAI_API_KEY` |
+| **HuggingFace** | Open source models | Set `HUGGINGFACE_API_KEY` |
+| **Amazon Bedrock** | AWS-hosted models | Set `AWS_BEDROCK_CONFIG` |
+| **GitHub Copilot** | GitHub-hosted models | Set `GITHUB_API_KEY` |
+
+### Local Models
+
+For privacy and offline use, you can also run models locally:
+
+| Provider | Setup |
+|----------|-------|
+| **Ollama** | Install Ollama, set `OLLAMA_API_BASE_URL=http://127.0.0.1:11434` |
+| **LM Studio** | Install LM Studio, set `LM_STUDIO_API_BASE_URL=http://127.0.0.1:1234` |
+
+### Custom Providers
+
+You can add custom providers by:
+1. Creating a new provider class in `app/lib/modules/llm/providers/`
+2. Extending the `BaseProvider` class
+3. Adding your provider to the registry in `app/lib/modules/llm/registry.ts`
 
 ## Setup Using Git (For Developers only)
 
