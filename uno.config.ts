@@ -3,6 +3,8 @@ import fs from 'node:fs/promises';
 import { basename } from 'node:path';
 import { defineConfig, presetIcons, presetUno, transformerDirectives } from 'unocss';
 
+
+
 const iconPaths = globSync('./icons/*.svg');
 
 const collectionName = 'bolt';
@@ -238,7 +240,7 @@ export default defineConfig({
       },
     }),
     presetIcons({
-      warn: true,
+      warn: false,
       collections: {
         ...customIconCollection,
       },
