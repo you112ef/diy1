@@ -73,6 +73,11 @@ const gitInfo = getGitInfo();
 
 export default defineConfig((config) => {
   return {
+    resolve: {
+      alias: {
+        path: 'path-browserify',
+      },
+    },
     define: {
       __COMMIT_HASH: JSON.stringify(gitInfo.commitHash),
       __GIT_BRANCH: JSON.stringify(gitInfo.branch),
@@ -93,6 +98,8 @@ export default defineConfig((config) => {
     },
     build: {
       target: 'esnext',
+      sourcemap: false,
+      chunkSizeWarningLimit: 4096,
     },
     plugins: [
       nodePolyfills({
