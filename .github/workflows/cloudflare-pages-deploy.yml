@@ -1,0 +1,9 @@
+name: (disabled) Cloudflare Pages deploy
+
+on: {workflow_dispatch:}
+
+jobs:
+  disabled:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Cloudflare Pages workflow disabled; using Docker deployment."
