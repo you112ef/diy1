@@ -30,7 +30,7 @@ interface DiskInfo {
   error?: string;
 }
 
-const getDiskInfo = (): DiskInfo[] => {
+const getDiskInfo = async (): Promise<DiskInfo[]> => {
   // If we're in a Cloudflare environment and not in development, return error
   if (!execSync && !isDevelopment) {
     return [
@@ -47,34 +47,83 @@ const getDiskInfo = (): DiskInfo[] => {
     ];
   }
 
-  // If we're in development but not in Node environment, return mock data
+  // If we're in development but not in Node environment, return real system info
   if (!execSync && isDevelopment) {
-    // Generate random percentage between 40-60%
-    const percentage = Math.floor(40 + Math.random() * 20);
-    const totalSize = 500 * 1024 * 1024 * 1024; // 500GB
-    const usedSize = Math.floor((totalSize * percentage) / 100);
-    const availableSize = totalSize - usedSize;
-
-    return [
-      {
-        filesystem: 'MockDisk',
-        size: totalSize,
-        used: usedSize,
-        available: availableSize,
-        percentage,
-        mountpoint: '/',
-        timestamp: new Date().toISOString(),
-      },
-      {
-        filesystem: 'MockDisk2',
-        size: 1024 * 1024 * 1024 * 1024, // 1TB
-        used: 300 * 1024 * 1024 * 1024, // 300GB
-        available: 724 * 1024 * 1024 * 1024, // 724GB
-        percentage: 30,
-        mountpoint: '/data',
-        timestamp: new Date().toISOString(),
-      },
-    ];
+    // Try to get real disk info using available system APIs
+    try {
+      // Check if we're in a browser environment with storage APIs
+      if (typeof navigator !== 'undefined' && 'storage' in navigator) {
+        const storage = (navigator as any).storage;
+        if (storage && storage.estimate) {
+          try {
+            const estimate = await storage.estimate();
+            const total = estimate.quota || 0;
+            const used = estimate.usage || 0;
+            const available = total - used;
+            const percentage = total > 0 ? Math.round((used / total) * 100) : 0;
+            
+            return [
+              {
+                filesystem: 'Browser Storage',
+                size: total,
+                used,
+                available,
+                percentage,
+                mountpoint: '/browser',
+                timestamp: new Date().toISOString(),
+              }
+            ];
+          } catch (storageError) {
+            console.error('Failed to get storage estimate:', storageError);
+          }
+        }
+      }
+      
+      // Fallback to process info if available
+      if (typeof process !== 'undefined' && process.cwd) {
+        const cwd = process.cwd();
+        return [
+          {
+            filesystem: 'Process Directory',
+            size: 0, // Can't determine actual size without system commands
+            used: 0,
+            available: 0,
+            percentage: 0,
+            mountpoint: cwd,
+            timestamp: new Date().toISOString(),
+            note: 'Limited disk information available in this environment',
+          }
+        ];
+      }
+      
+      // Last resort - return error instead of mock data
+      return [
+        {
+          filesystem: 'Unknown',
+          size: 0,
+          used: 0,
+          available: 0,
+          percentage: 0,
+          mountpoint: '/',
+          timestamp: new Date().toISOString(),
+          error: 'Disk information is not available in this environment',
+        }
+      ];
+    } catch (error) {
+      console.error('Failed to get real disk info:', error);
+      return [
+        {
+          filesystem: 'Unknown',
+          size: 0,
+          used: 0,
+          available: 0,
+          percentage: 0,
+          mountpoint: '/',
+          timestamp: new Date().toISOString(),
+          error: 'Failed to retrieve disk information',
+        }
+      ];
+    }
   }
 
   try {
@@ -266,7 +315,7 @@ const getDiskInfo = (): DiskInfo[] => {
 
 export const loader: LoaderFunction = async ({ request: _request }) => {
   try {
-    return json(getDiskInfo());
+    return json(await getDiskInfo());
   } catch (error) {
     console.error('Failed to get disk info:', error);
     return json(
@@ -289,7 +338,7 @@ export const loader: LoaderFunction = async ({ request: _request }) => {
 
 export const action = async ({ request: _request }: ActionFunctionArgs) => {
   try {
-    return json(getDiskInfo());
+    return json(await getDiskInfo());
   } catch (error) {
     console.error('Failed to get disk info:', error);
     return json(

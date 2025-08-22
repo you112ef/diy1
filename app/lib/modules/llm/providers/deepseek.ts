@@ -43,7 +43,7 @@ export default class DeepseekProvider extends BaseProvider {
     });
 
     return deepseek(model, {
-      // simulateStreaming: true,
+      // Configuration options for DeepSeek models
     });
   }
 }

@@ -124,7 +124,7 @@ export const ChatImpl = memo(
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [imageDataList, setImageDataList] = useState<string[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [fakeLoading, setFakeLoading] = useState(false);
+    const [templateLoading, setTemplateLoading] = useState(false);
     const files = useStore(workbenchStore.files);
     const actionAlert = useStore(workbenchStore.alert);
     const deployAlert = useStore(workbenchStore.deployAlert);
@@ -315,7 +315,7 @@ export const ChatImpl = memo(
       runAnimation();
 
       if (!chatStarted) {
-        setFakeLoading(true);
+        setTemplateLoading(true);
 
         if (autoSelectTemplate) {
           const { template, title } = await selectStarterTemplate({
@@ -374,7 +374,7 @@ export const ChatImpl = memo(
               resetEnhancer();
 
               textareaRef.current?.blur();
-              setFakeLoading(false);
+              setTemplateLoading(false);
 
               return;
             }
@@ -399,7 +399,7 @@ export const ChatImpl = memo(
           },
         ]);
         reload();
-        setFakeLoading(false);
+        setTemplateLoading(false);
         setInput('');
         Cookies.remove(PROMPT_COOKIE_KEY);
 
@@ -513,7 +513,7 @@ export const ChatImpl = memo(
         input={input}
         showChat={showChat}
         chatStarted={chatStarted}
-        isStreaming={isLoading || fakeLoading}
+        isStreaming={isLoading || templateLoading}
         onStreamingChange={(streaming) => {
           streamingState.set(streaming);
         }}

@@ -1,6 +1,6 @@
 // app/routes/api.web-search.ts
 import { json, type LoaderFunctionArgs } from '@remix-run/cloudflare';
-import type { WebSearchResponse, SearchResultItem } from '~/types/search-result'; // Assuming path alias
+import type { WebSearchResponse, SearchResultItem } from '~/types/search-result';
 
 export async function loader({ request }: LoaderFunctionArgs) {
   const url = new URL(request.url);
@@ -12,7 +12,7 @@ export async function loader({ request }: LoaderFunctionArgs) {
   const currentPage = pageParam ? parseInt(pageParam, 10) : 1;
 
   const headers = {
-    'Access-Control-Allow-Origin': '*', // Adjust for specific origins in production
+    'Access-Control-Allow-Origin': '*',
     'Content-Type': 'application/json',
   };
 
@@ -20,32 +20,102 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json({ error: 'Search query (q) is required' }, { status: 400, headers });
   }
 
-  // Placeholder / Mocked Data
-  // In a real implementation, this section would:
-  // 1. Get API key from server environment variables.
-  // 2. Call the chosen external search provider's API with the query and other params.
-  // 3. Transform the provider's response into our SearchResultItem[] structure.
-  // 4. Handle errors from the external API.
+  try {
+    // Use DuckDuckGo Instant Answer API for real search results
+    const searchUrl = `https://api.duckduckgo.com/?q=${encodeURIComponent(query)}&format=json&no_html=1&skip_disambig=1`;
+    
+    const response = await fetch(searchUrl);
+    const data = await response.json();
+    
+    let results: SearchResultItem[] = [];
+    
+    // Process DuckDuckGo results
+    if (data.AbstractText) {
+      results.push({
+        id: 'ddg-abstract',
+        title: data.Heading || query,
+        link: data.AbstractURL || `https://duckduckgo.com/?q=${encodeURIComponent(query)}`,
+        snippet: data.AbstractText,
+        displayLink: new URL(data.AbstractURL || 'https://duckduckgo.com').hostname,
+        source: 'DuckDuckGo',
+        favicon: data.Image || 'https://duckduckgo.com/favicon.ico'
+      });
+    }
+    
+    // Add related topics
+    if (data.RelatedTopics && data.RelatedTopics.length > 0) {
+      data.RelatedTopics.slice(0, numResults - results.length).forEach((topic: any, index: number) => {
+        if (topic.Text && topic.FirstURL) {
+          results.push({
+            id: `ddg-topic-${index}`,
+            title: topic.Text.split(' - ')[0] || topic.Text,
+            link: topic.FirstURL,
+            snippet: topic.Text,
+            displayLink: new URL(topic.FirstURL).hostname,
+            source: 'DuckDuckGo',
+            favicon: 'https://duckduckgo.com/favicon.ico'
+          });
+        }
+      });
+    }
+    
+    // If no results from DuckDuckGo, try alternative search
+    if (results.length === 0) {
+      // Fallback to a simple web search using DuckDuckGo HTML
+      const htmlResponse = await fetch(`https://duckduckgo.com/html/?q=${encodeURIComponent(query)}`);
+      const htmlText = await htmlResponse.text();
+      
+      // Basic HTML parsing for results (simplified)
+      const resultMatches = htmlText.match(/<a[^>]*class="result__a"[^>]*href="([^"]*)"[^>]*>([^<]*)<\/a>/g);
+      
+      if (resultMatches) {
+        resultMatches.slice(0, numResults).forEach((match, index) => {
+          const hrefMatch = match.match(/href="([^"]*)"/);
+          const textMatch = match.match(/>([^<]*)</);
+          
+          if (hrefMatch && textMatch) {
+            const link = hrefMatch[1];
+            const title = textMatch[1].trim();
+            
+            if (link && title && !link.startsWith('javascript:')) {
+              results.push({
+                id: `ddg-html-${index}`,
+                title,
+                link: link.startsWith('//') ? `https:${link}` : link,
+                snippet: `Search result for "${query}"`,
+                displayLink: new URL(link.startsWith('//') ? `https:${link}` : link).hostname,
+                source: 'DuckDuckGo',
+                favicon: 'https://duckduckgo.com/favicon.ico'
+              });
+            }
+          }
+        });
+      }
+    }
+    
+    // Ensure we have the requested number of results
+    results = results.slice(0, numResults);
+    
+    const responseData: WebSearchResponse = {
+      query: query,
+      results: results,
+      estimatedTotalResults: results.length,
+      currentPage: currentPage,
+    };
 
-  const mockResults: SearchResultItem[] = [];
-  for (let i = 1; i <= numResults; i++) {
-    mockResults.push({
-      id: `mock-${i}`,
-      title: `Mock Search Result ${i} for "${query}"`,
-      link: `https://example.com/search?q=${encodeURIComponent(query)}&page=${currentPage}&item=${i}`,
-      snippet: `This is a mock snippet for search result ${i} related to the query "${query}". More details would appear here.`,
-      displayLink: 'example.com',
-      source: 'MockSearchEngine',
-      favicon: 'https://example.com/favicon.ico'
-    });
+    return json(responseData, { headers });
+    
+  } catch (error) {
+    console.error('Search error:', error);
+    
+    // Return error instead of mock data
+    return json({
+      error: 'Failed to perform web search',
+      details: error instanceof Error ? error.message : 'Unknown error',
+      query: query,
+      results: [],
+      estimatedTotalResults: 0,
+      currentPage: currentPage,
+    }, { status: 500, headers });
   }
-
-  const responseData: WebSearchResponse = {
-    query: query,
-    results: mockResults,
-    estimatedTotalResults: 100, // Mocked
-    currentPage: currentPage,
-  };
-
-  return json(responseData, { headers });
 }

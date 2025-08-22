@@ -12,12 +12,12 @@ export default class GithubProvider extends BaseProvider {
     apiTokenKey: 'GITHUB_API_KEY',
   };
 
-  // find more in https://github.com/marketplace?type=models
+  // Available models through GitHub Copilot Chat
   staticModels: ModelInfo[] = [
-    { name: 'gpt-4o', label: 'GPT-4o', provider: 'Github', maxTokenAllowed: 8000 },
-    { name: 'o1', label: 'o1-preview', provider: 'Github', maxTokenAllowed: 100000 },
-    { name: 'o1-mini', label: 'o1-mini', provider: 'Github', maxTokenAllowed: 8000 },
-    { name: 'gpt-4o-mini', label: 'GPT-4o Mini', provider: 'Github', maxTokenAllowed: 8000 },
+    { name: 'gpt-4o', label: 'GPT-4o (Latest)', provider: 'Github', maxTokenAllowed: 8000 },
+    { name: 'o1', label: 'O1 Preview', provider: 'Github', maxTokenAllowed: 100000 },
+    { name: 'o1-mini', label: 'O1 Mini', provider: 'Github', maxTokenAllowed: 8000 },
+    { name: 'gpt-4o-mini', label: 'GPT-4o Mini (Latest)', provider: 'Github', maxTokenAllowed: 8000 },
     { name: 'gpt-4-turbo', label: 'GPT-4 Turbo', provider: 'Github', maxTokenAllowed: 8000 },
     { name: 'gpt-4', label: 'GPT-4', provider: 'Github', maxTokenAllowed: 8000 },
     { name: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo', provider: 'Github', maxTokenAllowed: 8000 },
@@ -44,7 +44,7 @@ export default class GithubProvider extends BaseProvider {
     }
 
     const openai = createOpenAI({
-      baseURL: 'https://models.inference.ai.azure.com',
+      baseURL: 'https://api.github.com/copilot/v1',
       apiKey,
     });
 
