@@ -19,7 +19,7 @@ const menuVariants = {
   closed: {
     opacity: 0,
     visibility: 'hidden',
-    left: '-340px',
+    left: '-30.91rem', /* original: -340px */
     transition: {
       duration: 0.2,
       ease: cubicEasingFn,
@@ -329,7 +329,7 @@ export const Menu = () => {
         initial="closed"
         animate={open ? 'open' : 'closed'}
         variants={menuVariants}
-        style={{ width: '340px' }}
+        style={{ width: '30.91rem' /* original: 340px */ }}
         className={classNames(
           'flex selection-accent flex-col side-menu fixed top-0 h-full',
           'bg-white dark:bg-gray-950 border-r border-gray-100 dark:border-gray-800/50',
@@ -425,7 +425,8 @@ export const Menu = () => {
                   <div className="text-xs font-medium text-gray-500 dark:text-gray-400 sticky top-0 z-1 bg-white dark:bg-gray-950 px-4 py-1">
                     {category}
                   </div>
-                  <div className="space-y-0.5 pr-1">
+                  {/* Increased space-y from 0.5 to 1 for better history item separation */}
+                  <div className="space-y-1 pr-1">
                     {items.map((item) => (
                       <HistoryItem
                         key={item.id}

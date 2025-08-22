@@ -31,6 +31,7 @@ import { toast } from 'react-toastify';
 import StarterTemplates from './StarterTemplates';
 import type { ActionAlert, SupabaseAlert, DeployAlert } from '~/types/actions';
 import DeployChatAlert from '~/components/deploy/DeployAlert';
+import { ProjectTemplateList } from '~/components/templates/ProjectTemplateList'; // Added import
 import ChatAlert from './ChatAlert';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import ProgressCompilation from './ProgressCompilation';
@@ -319,12 +320,12 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
 
     const baseChat = (
       <div
-        ref={ref}
+        ref={ref || null} // Though `ref` here is from forwardRef, applying pattern for consistency if it could be undefined.
         className={classNames(styles.BaseChat, 'relative flex h-full w-full overflow-hidden')}
         data-chat-visible={showChat}
       >
         <ClientOnly>{() => <Menu />}</ClientOnly>
-        <div ref={scrollRef} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
+        <div ref={scrollRef || null} className="flex flex-col lg:flex-row overflow-y-auto w-full h-full">
           <div className={classNames(styles.Chat, 'flex flex-col flex-grow lg:min-w-[var(--chat-min-width)] h-full')}>
             {!chatStarted && (
               <div id="intro" className="mt-[16vh] max-w-chat mx-auto text-center px-4 lg:px-0">
@@ -340,13 +341,13 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
               className={classNames('pt-6 px-2 sm:px-6', {
                 'h-full flex flex-col': chatStarted,
               })}
-              ref={scrollRef}
+              ref={scrollRef || null}
             >
               <ClientOnly>
                 {() => {
                   return chatStarted ? (
                     <Messages
-                      ref={messageRef}
+                      ref={messageRef || null}
                       className="flex flex-col w-full flex-1 max-w-chat pb-6 mx-auto z-1"
                       messages={messages}
                       isStreaming={isStreaming}
@@ -483,7 +484,7 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                     )}
                   >
                     <textarea
-                      ref={textareaRef}
+                      ref={textareaRef || null}
                       className={classNames(
                         'w-full pl-4 pt-4 pr-16 outline-none resize-none text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary bg-transparent text-sm',
                         'transition-all duration-200',
@@ -491,11 +492,11 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       )}
                       onDragEnter={(e) => {
                         e.preventDefault();
-                        e.currentTarget.style.border = '2px solid #1488fc';
+                        e.currentTarget.style.border = '0.18rem solid #1488fc'; /* original: 2px */
                       }}
                       onDragOver={(e) => {
                         e.preventDefault();
-                        e.currentTarget.style.border = '2px solid #1488fc';
+                        e.currentTarget.style.border = '0.18rem solid #1488fc'; /* original: 2px */
                       }}
                       onDragLeave={(e) => {
                         e.preventDefault();
@@ -572,7 +573,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                       )}
                     </ClientOnly>
                     <div className="flex justify-between items-center text-sm p-4 pt-2">
-                      <div className="flex gap-1 items-center">
+                      {/* Increased gap from 1 to 2 for better button separation */}
+                      <div className="flex gap-2 items-center">
                         <IconButton title="Upload file" className="transition-all" onClick={() => handleFileUpload()}>
                           <div className="i-ph:paperclip text-xl"></div>
                         </IconButton>
@@ -634,6 +636,8 @@ export const BaseChat = React.forwardRef<HTMLDivElement, BaseChatProps>(
                   <GitCloneButton importChat={importChat} />
                 </div>
               )}
+              {/* Add ProjectTemplateList here */}
+              {!chatStarted && <ProjectTemplateList />}
               {!chatStarted &&
                 ExamplePrompts((event, messageInput) => {
                   if (isStreaming) {

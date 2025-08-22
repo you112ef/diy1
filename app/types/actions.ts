@@ -1,9 +1,17 @@
 import type { Change } from 'diff';
 
-export type ActionType = 'file' | 'shell' | 'supabase';
+export type ActionType =
+  | 'file'
+  | 'shell'
+  | 'supabase'
+  | 'start'       // Added for consistency with BoltAction
+  | 'build'       // Added for consistency with BoltAction
+  | 'openFile';   // Added
 
 export interface BaseAction {
   content: string;
+  lang?: string; // Added
+  requiresConfirmation?: boolean; // Added
 }
 
 export interface FileAction extends BaseAction {
@@ -13,6 +21,8 @@ export interface FileAction extends BaseAction {
 
 export interface ShellAction extends BaseAction {
   type: 'shell';
+  capturedOutput?: string;
+  exitCode?: number;
 }
 
 export interface StartAction extends BaseAction {
@@ -30,7 +40,12 @@ export interface SupabaseAction extends BaseAction {
   projectId?: string;
 }
 
-export type BoltAction = FileAction | ShellAction | StartAction | BuildAction | SupabaseAction;
+export interface OpenFileAction extends BaseAction {
+  type: 'openFile';
+  filePath: string;
+}
+
+export type BoltAction = FileAction | ShellAction | StartAction | BuildAction | SupabaseAction | OpenFileAction;
 
 export type BoltActionData = BoltAction | BaseAction;
 

@@ -8,8 +8,8 @@
     position: absolute;
     top: 0;
     bottom: 0;
-    left: -6px;
-    right: -5px;
+    left: -0.55rem; /* original: -6px */
+    right: -0.45rem; /* original: -5px */
     z-index: z-index.$zIndexMax;
   }
 
@@ -18,8 +18,8 @@
     position: absolute;
     left: 0;
     right: 0;
-    top: -5px;
-    bottom: -6px;
+    top: -0.45rem; /* original: -5px */
+    bottom: -0.55rem; /* original: -6px */
     z-index: z-index.$zIndexMax;
   }
 

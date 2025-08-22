@@ -4,12 +4,13 @@ import { atom, map, type MapStore } from 'nanostores';
 import type { ActionAlert, BoltAction, DeployAlert, FileHistory, SupabaseAction, SupabaseAlert } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
+import type { FilesStore } from '../stores/files'; // Added import
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
 
 const logger = createScopedLogger('ActionRunner');
 
-export type ActionStatus = 'pending' | 'running' | 'complete' | 'aborted' | 'failed';
+export type ActionStatus = 'pending' | 'running' | 'complete' | 'aborted' | 'failed' | 'awaiting-confirmation';
 
 export type BaseActionState = BoltAction & {
   status: Exclude<ActionStatus, 'failed'>;
@@ -69,23 +70,32 @@ export class ActionRunner {
   #shellTerminal: () => BoltShell;
   runnerId = atom<string>(`${Date.now()}`);
   actions: ActionsMap = map({});
+  #filesStoreInstance: FilesStore; // Added private member
   onAlert?: (alert: ActionAlert) => void;
   onSupabaseAlert?: (alert: SupabaseAlert) => void;
   onDeployAlert?: (alert: DeployAlert) => void;
+  public onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void;
+  public onOpenFileRequested?: (filePath: string) => void; // Added
   buildOutput?: { path: string; exitCode: number; output: string };
 
   constructor(
     webcontainerPromise: Promise<WebContainer>,
     getShellTerminal: () => BoltShell,
+    filesStore: FilesStore,
+    onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void,
+    onOpenFileRequested?: (filePath: string) => void, // Added
     onAlert?: (alert: ActionAlert) => void,
     onSupabaseAlert?: (alert: SupabaseAlert) => void,
     onDeployAlert?: (alert: DeployAlert) => void,
   ) {
     this.#webcontainer = webcontainerPromise;
     this.#shellTerminal = getShellTerminal;
+    this.#filesStoreInstance = filesStore;
     this.onAlert = onAlert;
     this.onSupabaseAlert = onSupabaseAlert;
     this.onDeployAlert = onDeployAlert;
+    this.onConfirmationRequired = onConfirmationRequired;
+    this.onOpenFileRequested = onOpenFileRequested; // Assigned
   }
 
   addAction(data: ActionCallbackData) {
@@ -149,14 +159,59 @@ export class ActionRunner {
   }
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {
-    const action = this.actions.get()[actionId];
+    const currentActionState = this.actions.get()[actionId];
+    if (!currentActionState) {
+      logger.warn(`Action ${actionId} not found in #executeAction`);
+      return;
+    }
 
-    this.#updateAction(actionId, { status: 'running' });
+    // Check for requiresConfirmation before proceeding
+    // Assuming 'requiresConfirmation' is a boolean on BoltAction from app/types/actions.ts
+    if (currentActionState.requiresConfirmation && currentActionState.status === 'pending') {
+      this.#updateAction(actionId, { status: 'awaiting-confirmation' });
+      this.onConfirmationRequired?.(actionId, currentActionState as BoltAction);
+      return;
+    }
+
+    // If action is awaiting confirmation, do not proceed further until confirmed.
+    if (currentActionState.status === 'awaiting-confirmation') {
+      return;
+    }
+
+    // Prevent re-execution of already finalized or running (non-streaming file) actions
+    if (['complete', 'aborted', 'failed'].includes(currentActionState.status)) {
+        // Allow streaming to update a "complete" file action's content, but not other finalized states.
+        if(!(currentActionState.type === 'file' && isStreaming && currentActionState.status === 'complete')) {
+            return;
+        }
+    }
+
+    // Set to running if it was pending (and not awaiting confirmation)
+    // For streaming file actions that were 'complete', they might re-enter here to append content,
+    // their status would already be 'running' or 'complete' from previous chunks.
+    if (currentActionState.status === 'pending') {
+         this.#updateAction(actionId, { status: 'running' });
+    }
+    // It's important to use currentActionState for the switch, as 'action' might be stale if status changed.
+    const action = currentActionState;
 
     try {
       switch (action.type) {
         case 'shell': {
-          await this.#runShellAction(action);
+          const shellResp = await this.#runShellAction(action as BaseActionState & { type: 'shell' }); // Ensure action is typed for ShellAction properties
+          this.#updateAction(actionId, {
+            capturedOutput: shellResp?.output || '',
+            exitCode: shellResp?.exitCode
+          });
+          break;
+        }
+        case 'openFile': { // Added case
+          if (action.type === 'openFile' && action.filePath) {
+            this.onOpenFileRequested?.(action.filePath);
+          } else {
+            logger.warn('OpenFileAction missing filePath or action type mismatch:', action);
+            this.#updateAction(actionId, { status: 'failed', error: 'Missing filePath for openFile action' });
+          }
           break;
         }
         case 'file': {
@@ -268,6 +323,7 @@ export class ActionRunner {
     if (resp?.exitCode != 0) {
       throw new ActionCommandError(`Failed To Execute Shell Command`, resp?.output || 'No Output Available');
     }
+    return resp; // Return the response object
   }
 
   async #runStartAction(action: ActionState) {
@@ -304,28 +360,14 @@ export class ActionRunner {
       unreachable('Expected file action');
     }
 
-    const webcontainer = await this.#webcontainer;
-    const relativePath = nodePath.relative(webcontainer.workdir, action.filePath);
-
-    let folder = nodePath.dirname(relativePath);
-
-    // remove trailing slashes
-    folder = folder.replace(/\/+$/g, '');
-
-    if (folder !== '.') {
-      try {
-        await webcontainer.fs.mkdir(folder, { recursive: true });
-        logger.debug('Created folder', folder);
-      } catch (error) {
-        logger.error('Failed to create folder\n\n', error);
-      }
-    }
-
+    // Use FilesStore to create/update the file
     try {
-      await webcontainer.fs.writeFile(relativePath, action.content);
-      logger.debug(`File written ${relativePath}`);
+      await this.#filesStoreInstance.createFile(action.filePath, action.content);
+      logger.debug(`File action processed via FilesStore: ${action.filePath}`);
     } catch (error) {
-      logger.error('Failed to write file\n\n', error);
+      logger.error(`Failed to process file action for ${action.filePath} via FilesStore:`, error);
+      // Optionally, re-throw or handle the error to set action status to failed
+      throw error; // Re-throwing to allow the caller to handle the failed status
     }
   }
 
@@ -362,6 +404,30 @@ export class ActionRunner {
 
   #getHistoryPath(filePath: string) {
     return nodePath.join('.history', filePath);
+  }
+
+  public async confirmAction(actionId: string) {
+    const action = this.actions.get()[actionId];
+    if (action && action.status === 'awaiting-confirmation') {
+      this.#updateAction(actionId, { status: 'running' });
+      // Ensure the execution is chained
+      this.#currentExecutionPromise = this.#currentExecutionPromise.then(async () => {
+        await this.#executeAction(actionId, false);
+      });
+      await this.#currentExecutionPromise;
+    }
+  }
+
+  public cancelAction(actionId: string) {
+    const action = this.actions.get()[actionId];
+    if (action && (action.status === 'awaiting-confirmation' || action.status === 'pending' || action.status === 'running')) {
+      // Prefer calling the action's own abort logic if available
+      if (typeof action.abort === 'function' && action.abortSignal && !action.abortSignal.aborted) {
+          action.abort(); // This should ideally also set status to 'aborted' via its own logic
+      } else {
+           this.#updateAction(actionId, { status: 'aborted' });
+      }
+    }
   }
 
   async #runBuildAction(action: ActionState) {

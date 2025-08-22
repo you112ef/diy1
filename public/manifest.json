@@ -1,0 +1,22 @@
+{
+  "name": "Bolt App",
+  "short_name": "Bolt",
+  "start_url": "/",
+  "display": "fullscreen",
+  "background_color": "#0A0A0A",
+  "theme_color": "#9C7DFF",
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -54,7 +54,7 @@ export default function VercelConnection() {
     } catch (error) {
       console.error('Auth error:', error);
       logStore.logError('Failed to authenticate with Vercel', { error });
-      toast.error('Failed to connect to Vercel');
+      toast.error(`Failed to connect to Vercel: ${error instanceof Error ? error.message : String(error)}`);
       updateVercelConnection({ user: null, token: '' });
     } finally {
       isConnecting.set(false);
@@ -84,6 +84,8 @@ export default function VercelConnection() {
               width="24"
               crossOrigin="anonymous"
               src={`https://cdn.simpleicons.org/vercel/black`}
+              loading="lazy"
+              alt="Vercel logo"
             />
             <h3 className="text-base font-medium text-bolt-elements-textPrimary">Vercel Connection</h3>
           </div>
@@ -177,6 +179,7 @@ export default function VercelConnection() {
                 crossOrigin="anonymous"
                 alt="User Avatar"
                 className="w-12 h-12 rounded-full border-2 border-bolt-elements-borderColorActive"
+                loading="lazy"
               />
               <div>
                 <h4 className="text-sm font-medium text-bolt-elements-textPrimary">
