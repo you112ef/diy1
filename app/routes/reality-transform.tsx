@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Form, useActionData, useNavigation } from '@remix-run/react';
-import { REALITY_TRANSFORMATION_MODES, TRANSFORMATION_PRIORITIES, REALITY_LEVELS } from '~/lib/.server/llm/constants';
+import { REALITY_TRANSFORMATION_MODES, TRANSFORMATION_PRIORITIES, REALITY_LEVELS } from '~/lib/common/reality-constants';
 import type { RealityTransformationResult } from '~/lib/.server/llm/reality-transformer';
 
 export default function RealityTransformPage() {
@@ -53,14 +53,26 @@ export default function RealityTransformPage() {
 
       if (response.ok) {
         const result: RealityTransformationResult = await response.json();
-        // Handle successful transformation
-        console.log('Transformation result:', result);
-        // You can redirect to a results page or show the result here
+        
+        if (result.success) {
+          // Generate a unique ID for the transformation
+          const transformationId = `rt_${Date.now()}_${Math.random().toString(36).substring(2)}`;
+          
+          // Store the result in localStorage for the results page
+          localStorage.setItem(`transformation_${transformationId}`, JSON.stringify(result));
+          
+          // Redirect to results page
+          window.location.href = `/reality-transform/result/${transformationId}`;
+        } else {
+          alert('Transformation failed. Please try again.');
+        }
       } else {
-        console.error('Transformation failed:', await response.text());
+        const errorData = await response.json();
+        alert(`Transformation failed: ${errorData.error || 'Unknown error'}`);
       }
     } catch (error) {
       console.error('Error during transformation:', error);
+      alert('Network error. Please check your connection and try again.');
     }
   };
 

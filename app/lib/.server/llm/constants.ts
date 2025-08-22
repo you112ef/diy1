@@ -6,25 +6,25 @@ export const MAX_RESPONSE_SEGMENTS = 2;
 
 // Enhanced constants for reality transformation
 export const REALITY_TRANSFORMATION_MODES = {
-  VIRTUAL_TO_REAL: 'virtual_to_real',
-  SIMULATION_TO_ACTUAL: 'simulation_to_actual',
-  CONCEPT_TO_IMPLEMENTATION: 'concept_to_implementation',
-  IDEA_TO_CODE: 'idea_to_code',
-  DREAM_TO_APPLICATION: 'dream_to_application'
+  VIRTUAL_TO_REAL: 'VIRTUAL_TO_REAL',
+  SIMULATION_TO_ACTUAL: 'SIMULATION_TO_ACTUAL',
+  CONCEPT_TO_IMPLEMENTATION: 'CONCEPT_TO_IMPLEMENTATION',
+  IDEA_TO_CODE: 'IDEA_TO_CODE',
+  DREAM_TO_APPLICATION: 'DREAM_TO_APPLICATION'
 } as const;
 
 export const TRANSFORMATION_PRIORITIES = {
-  HIGH: 'high',
-  MEDIUM: 'medium',
-  LOW: 'low'
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW'
 } as const;
 
 export const REALITY_LEVELS = {
-  CONCEPTUAL: 'conceptual',
-  PROTOTYPE: 'prototype',
-  FUNCTIONAL: 'functional',
-  PRODUCTION: 'production',
-  REAL_WORLD: 'real_world'
+  CONCEPTUAL: 'CONCEPTUAL',
+  PROTOTYPE: 'PROTOTYPE',
+  FUNCTIONAL: 'FUNCTIONAL',
+  PRODUCTION: 'PRODUCTION',
+  REAL_WORLD: 'REAL_WORLD'
 } as const;
 
 export interface File {

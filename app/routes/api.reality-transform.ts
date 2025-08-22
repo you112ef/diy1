@@ -41,16 +41,31 @@ export async function action({ request }: ActionFunctionArgs) {
     // Create transformer instance
     const transformer = createRealityTransformer('advanced');
 
-    // Execute transformation
-    const result = await transformer.transform({
-      mode,
-      priority,
-      targetLevel,
-      concept,
-      context,
-      constraints,
-      expectedOutcome
-    });
+    // Execute transformation with enhanced error handling
+    let result: RealityTransformationResult;
+    try {
+      result = await transformer.transform({
+        mode,
+        priority,
+        targetLevel,
+        concept,
+        context,
+        constraints,
+        expectedOutcome
+      });
+    } catch (transformError) {
+      logger.error('Transformation execution failed:', transformError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Transformation execution failed',
+          details: transformError instanceof Error ? transformError.message : 'Unknown transformation error'
+        }), 
+        { 
+          status: 500,
+          headers: { 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
     // Validate result
     if (!transformer.validateTransformation(result)) {
