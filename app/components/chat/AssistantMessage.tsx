@@ -4,10 +4,35 @@ import type { JSONValue } from 'ai';
 import Popover from '~/components/ui/Popover';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { WORK_DIR } from '~/utils/constants';
+import WithTooltip from '~/components/ui/Tooltip';
+import type { Message } from 'ai';
+import type { ProviderInfo } from '~/types/model';
+import type {
+  TextUIPart,
+  ReasoningUIPart,
+  ToolInvocationUIPart,
+  SourceUIPart,
+  FileUIPart,
+  StepStartUIPart,
+} from '@ai-sdk/ui-utils';
+import { ToolInvocations } from './ToolInvocations';
+import type { ToolCallAnnotation } from '~/types/context';
 
 interface AssistantMessageProps {
   content: string;
   annotations?: JSONValue[];
+  messageId?: string;
+  onRewind?: (messageId: string) => void;
+  onFork?: (messageId: string) => void;
+  append?: (message: Message) => void;
+  chatMode?: 'discuss' | 'build';
+  setChatMode?: (mode: 'discuss' | 'build') => void;
+  model?: string;
+  provider?: ProviderInfo;
+  parts?:
+    | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
+    | undefined;
+  addToolResult: ({ toolCallId, result }: { toolCallId: string; result: any }) => void;
 }
 
 function openArtifactInWorkbench(filePath: string) {
@@ -34,7 +59,20 @@ function normalizedFilePath(path: string) {
   return normalizedPath;
 }
 
-export const AssistantMessage = memo(({ content, annotations }: AssistantMessageProps) => {
+export const AssistantMessage = memo(({ 
+  content, 
+  annotations, 
+  messageId, 
+  onRewind, 
+  onFork, 
+  append, 
+  chatMode, 
+  setChatMode, 
+  model, 
+  provider, 
+  parts, 
+  addToolResult 
+}: AssistantMessageProps) => {
   const filteredAnnotations = (annotations?.filter(
     (annotation: JSONValue) => annotation && typeof annotation === 'object' && Object.keys(annotation).includes('type'),
   ) || []) as { type: string; value: any } & { [key: string]: any }[];
@@ -108,6 +146,33 @@ export const AssistantMessage = memo(({ content, annotations }: AssistantMessage
         </div>
       </>
       <Markdown html>{content}</Markdown>
+      
+      {/* Tool Invocations */}
+      {parts && parts.length > 0 && (
+        <ToolInvocations
+          invocations={parts
+            .filter((part): part is ToolInvocationUIPart => part.type === 'tool_invocation')
+            .map(part => ({
+              id: part.toolCallId,
+              toolName: part.toolName,
+              arguments: part.arguments,
+              status: part.status as any,
+              result: part.result,
+              error: part.error,
+              startTime: new Date(part.startTime || Date.now()),
+              endTime: part.endTime ? new Date(part.endTime) : undefined,
+              serverId: 'default'
+            }))}
+          onRetry={(invocationId) => {
+            // Handle retry logic
+            console.log('Retry tool invocation:', invocationId);
+          }}
+          onCancel={(invocationId) => {
+            // Handle cancel logic
+            console.log('Cancel tool invocation:', invocationId);
+          }}
+        />
+      )}
     </div>
   );
 });

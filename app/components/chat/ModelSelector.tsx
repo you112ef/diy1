@@ -5,6 +5,21 @@ import type { ModelInfo } from '~/lib/modules/llm/types';
 import { classNames } from '~/utils/classNames';
 import * as React from 'react';
 
+// Helper function to determine if a model is likely free
+const isModelLikelyFree = (model: ModelInfo, providerName?: string): boolean => {
+  // OpenRouter models with zero pricing in the label
+  if (providerName === 'OpenRouter' && model.label.includes('in:$0.00') && model.label.includes('out:$0.00')) {
+    return true;
+  }
+
+  // Models with "free" in the name or label
+  if (model.name.toLowerCase().includes('free') || model.label.toLowerCase().includes('free')) {
+    return true;
+  }
+
+  return false;
+};
+
 interface ModelSelectorProps {
   model?: string;
   setModel?: (model: string) => void;
@@ -28,6 +43,7 @@ export const ModelSelector = ({
   const [modelSearchQuery, setModelSearchQuery] = useState('');
   const [isModelDropdownOpen, setIsModelDropdownOpen] = useState(false);
   const [focusedIndex, setFocusedIndex] = useState(-1);
+  const [showFreeModelsOnly, setShowFreeModelsOnly] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const optionsRef = useRef<(HTMLDivElement | null)[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -45,19 +61,31 @@ export const ModelSelector = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Filter models based on search query
+  // Filter models based on search query and free models filter
   const filteredModels = [...modelList]
     .filter((e) => e.provider === provider?.name && e.name)
-    .filter(
-      (model) =>
+    .filter((model) => {
+      // Apply free models filter
+      if (showFreeModelsOnly && !isModelLikelyFree(model, provider?.name)) {
+        return false;
+      }
+
+      // Apply search filter
+      return (
         model.label.toLowerCase().includes(modelSearchQuery.toLowerCase()) ||
-        model.name.toLowerCase().includes(modelSearchQuery.toLowerCase()),
-    );
+        model.name.toLowerCase().includes(modelSearchQuery.toLowerCase())
+      );
+    });
 
   // Reset focused index when search query changes or dropdown opens/closes
   useEffect(() => {
     setFocusedIndex(-1);
-  }, [modelSearchQuery, isModelDropdownOpen]);
+  }, [modelSearchQuery, isModelDropdownOpen, showFreeModelsOnly]);
+
+  // Reset free models filter when provider changes
+  useEffect(() => {
+    setShowFreeModelsOnly(false);
+  }, [provider?.name]);
 
   // Focus search input when dropdown opens
   useEffect(() => {
@@ -229,7 +257,7 @@ export const ModelSelector = ({
             role="listbox"
             id="model-listbox"
           >
-            <div className="px-2 pb-2">
+            <div className="px-2 pb-2 space-y-2">
               <div className="relative">
                 <input
                   ref={searchInputRef}
@@ -252,6 +280,32 @@ export const ModelSelector = ({
                   <span className="i-ph:magnifying-glass text-bolt-elements-textTertiary" />
                 </div>
               </div>
+              
+              {/* Free Models Filter */}
+              {provider?.name === 'OpenRouter' && (
+                <div className="flex items-center justify-between">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setShowFreeModelsOnly(!showFreeModelsOnly);
+                    }}
+                    className={classNames(
+                      'flex items-center gap-2 px-3 py-1.5 text-xs rounded-md transition-all',
+                      'border border-bolt-elements-borderColor',
+                      showFreeModelsOnly
+                        ? 'bg-bolt-elements-focus text-bolt-elements-textPrimary'
+                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+                    )}
+                  >
+                    <span className={showFreeModelsOnly ? 'i-ph:check-circle-fill' : 'i-ph:circle'} />
+                    Free Models Only
+                  </button>
+                  <span className="text-xs text-bolt-elements-textTertiary">
+                    {filteredModels.length} model{filteredModels.length !== 1 ? 's' : ''}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div
