@@ -65,7 +65,9 @@ export default function ProfileTab() {
         {/* Personal Information Section */}
         <div>
           {/* Avatar Upload */}
-          <div className="flex items-start gap-6 mb-6"> {/* mb-8 to mb-6 */}
+          <div className="flex items-start gap-6 mb-6">
+            {' '}
+            {/* mb-8 to mb-6 */}
             <div
               className={classNames(
                 'w-20 h-20 rounded-full overflow-hidden', // w-24 h-24 to w-20 h-20
@@ -116,7 +118,6 @@ export default function ProfileTab() {
                 )}
               </label>
             </div>
-
             <div className="flex-1 pt-1">
               <label className="block text-base font-medium text-gray-900 dark:text-gray-100 mb-1">
                 Profile Picture
@@ -151,7 +152,9 @@ export default function ProfileTab() {
           </div>
 
           {/* Bio Input */}
-          <div className="mb-6"> {/* mb-8 to mb-6 */}
+          <div className="mb-6">
+            {' '}
+            {/* mb-8 to mb-6 */}
             <label className="block text-sm font-medium text-gray-900 dark:text-gray-100 mb-2">Bio</label>
             <div className="relative group">
               <div className="absolute left-3.5 top-3">

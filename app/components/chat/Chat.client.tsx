@@ -11,7 +11,7 @@ import { cssTransition, toast, ToastContainer } from 'react-toastify';
 import { useMessageParser, usePromptEnhancer, useShortcuts, useSnapScroll } from '~/lib/hooks';
 import { description, useChatHistory } from '~/lib/persistence';
 import { chatStore } from '~/lib/stores/chat';
-import { workbenchStore, type ActionToConfirmDetails } from '~/lib/stores/workbench'; // Added ActionToConfirmDetails
+import { workbenchStore } from '~/lib/stores/workbench';
 import { DEFAULT_MODEL, DEFAULT_PROVIDER, PROMPT_COOKIE_KEY, PROVIDER_LIST } from '~/utils/constants';
 import { cubicEasingFn } from '~/utils/easings';
 import { ConfirmationDialog } from '~/components/ui/Dialog'; // Added ConfirmationDialog
@@ -124,7 +124,8 @@ export const ChatImpl = memo(
     const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
     const [imageDataList, setImageDataList] = useState<string[]>([]);
     const [searchParams, setSearchParams] = useSearchParams();
-    const [fakeLoading, setFakeLoading] = useState(false);
+
+    // Removed fake loading state - using real loading state from useChat
     const files = useStore(workbenchStore.files);
     const actionAlert = useStore(workbenchStore.alert);
     const deployAlert = useStore(workbenchStore.deployAlert);
@@ -315,7 +316,7 @@ export const ChatImpl = memo(
       runAnimation();
 
       if (!chatStarted) {
-        setFakeLoading(true);
+        // Real loading is handled by useChat hook
 
         if (autoSelectTemplate) {
           const { template, title } = await selectStarterTemplate({
@@ -374,7 +375,8 @@ export const ChatImpl = memo(
               resetEnhancer();
 
               textareaRef.current?.blur();
-              setFakeLoading(false);
+
+              // Real loading is handled by useChat hook
 
               return;
             }
@@ -399,7 +401,8 @@ export const ChatImpl = memo(
           },
         ]);
         reload();
-        setFakeLoading(false);
+
+        // Real loading is handled by useChat hook
         setInput('');
         Cookies.remove(PROMPT_COOKIE_KEY);
 
@@ -506,94 +509,98 @@ export const ChatImpl = memo(
     };
 
     return (
-      <> {/* Main fragment at top level of ChatImpl return */}
+      <>
+        {' '}
+        {/* Main fragment at top level of ChatImpl return */}
         <BaseChat
           ref={animationScope}
           textareaRef={textareaRef}
-        input={input}
-        showChat={showChat}
-        chatStarted={chatStarted}
-        isStreaming={isLoading || fakeLoading}
-        onStreamingChange={(streaming) => {
-          streamingState.set(streaming);
-        }}
-        enhancingPrompt={enhancingPrompt}
-        promptEnhanced={promptEnhanced}
-        sendMessage={sendMessage}
-        model={model}
-        setModel={handleModelChange}
-        provider={provider}
-        setProvider={handleProviderChange}
-        providerList={activeProviders}
-        messageRef={messageRef}
-        scrollRef={scrollRef}
-        handleInputChange={(e) => {
-          onTextareaChange(e);
-          debouncedCachePrompt(e);
-        }}
-        handleStop={abort}
-        description={description}
-        importChat={importChat}
-        exportChat={exportChat}
-        messages={messages.map((message, i) => {
-          if (message.role === 'user') {
-            return message;
-          }
-
-          return {
-            ...message,
-            content: parsedMessages[i] || '',
-          };
-        })}
-        enhancePrompt={() => {
-          enhancePrompt(
-            input,
-            (input) => {
-              setInput(input);
-              scrollTextArea();
-            },
-            model,
-            provider,
-            apiKeys,
-          );
-        }}
-        uploadedFiles={uploadedFiles}
-        setUploadedFiles={setUploadedFiles}
-        imageDataList={imageDataList}
-        setImageDataList={setImageDataList}
-        actionAlert={actionAlert}
-        clearAlert={() => workbenchStore.clearAlert()}
-        supabaseAlert={supabaseAlert}
-        clearSupabaseAlert={() => workbenchStore.clearSupabaseAlert()}
-        deployAlert={deployAlert}
-        clearDeployAlert={() => workbenchStore.clearDeployAlert()}
-        data={chatData}
-      />
-
-      {actionToConfirmDetails && (
-        <ConfirmationDialog
-          isOpen={!!actionToConfirmDetails}
-          title={actionToConfirmDetails.title}
-          description={actionToConfirmDetails.description}
-          confirmLabel={actionToConfirmDetails.confirmButtonLabel || 'Confirm'}
-          cancelLabel={actionToConfirmDetails.cancelButtonLabel || 'Cancel'}
-          variant={actionToConfirmDetails.confirmButtonVariant || 'default'}
-          onConfirm={() => {
-            workbenchStore.confirmCurrentAction();
+          input={input}
+          showChat={showChat}
+          chatStarted={chatStarted}
+          isStreaming={isLoading}
+          onStreamingChange={(streaming) => {
+            streamingState.set(streaming);
           }}
-          onClose={() => {
-            // This onClose is typically for closing via X button or escape key.
-            // For explicit cancel button, that button calls cancelCurrentAction.
-            // If this dialog's onClose is also meant for cancellation, then call cancelCurrentAction.
-            // The existing ConfirmationDialog has its own cancel button.
-            // So, this onClose should likely be for closing without explicit cancel,
-            // which can be treated as a cancel.
-            workbenchStore.cancelCurrentAction();
+          enhancingPrompt={enhancingPrompt}
+          promptEnhanced={promptEnhanced}
+          sendMessage={sendMessage}
+          model={model}
+          setModel={handleModelChange}
+          provider={provider}
+          setProvider={handleProviderChange}
+          providerList={activeProviders}
+          messageRef={messageRef}
+          scrollRef={scrollRef}
+          handleInputChange={(e) => {
+            onTextareaChange(e);
+            debouncedCachePrompt(e);
           }}
-          // isLoading prop can be added if we want to show loading state on confirm button
+          handleStop={abort}
+          description={description}
+          importChat={importChat}
+          exportChat={exportChat}
+          messages={messages.map((message, i) => {
+            if (message.role === 'user') {
+              return message;
+            }
+
+            return {
+              ...message,
+              content: parsedMessages[i] || '',
+            };
+          })}
+          enhancePrompt={() => {
+            enhancePrompt(
+              input,
+              (input) => {
+                setInput(input);
+                scrollTextArea();
+              },
+              model,
+              provider,
+              apiKeys,
+            );
+          }}
+          uploadedFiles={uploadedFiles}
+          setUploadedFiles={setUploadedFiles}
+          imageDataList={imageDataList}
+          setImageDataList={setImageDataList}
+          actionAlert={actionAlert}
+          clearAlert={() => workbenchStore.clearAlert()}
+          supabaseAlert={supabaseAlert}
+          clearSupabaseAlert={() => workbenchStore.clearSupabaseAlert()}
+          deployAlert={deployAlert}
+          clearDeployAlert={() => workbenchStore.clearDeployAlert()}
+          data={chatData}
         />
-      )}
-    </>
+        {actionToConfirmDetails && (
+          <ConfirmationDialog
+            isOpen={!!actionToConfirmDetails}
+            title={actionToConfirmDetails.title}
+            description={actionToConfirmDetails.description}
+            confirmLabel={actionToConfirmDetails.confirmButtonLabel || 'Confirm'}
+            cancelLabel={actionToConfirmDetails.cancelButtonLabel || 'Cancel'}
+            variant={actionToConfirmDetails.confirmButtonVariant || 'default'}
+            onConfirm={() => {
+              workbenchStore.confirmCurrentAction();
+            }}
+            onClose={() => {
+              /*
+               * This onClose is typically for closing via X button or escape key.
+               * For explicit cancel button, that button calls cancelCurrentAction.
+               * If this dialog's onClose is also meant for cancellation, then call cancelCurrentAction.
+               * The existing ConfirmationDialog has its own cancel button.
+               * So, this onClose should likely be for closing without explicit cancel,
+               * which can be treated as a cancel.
+               */
+              workbenchStore.cancelCurrentAction();
+            }}
+
+            // isLoading prop can be added if we want to show loading state on confirm button
+          />
+        )}
+      </>
     );
   },
 );

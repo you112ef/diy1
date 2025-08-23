@@ -4,9 +4,9 @@ export type ActionType =
   | 'file'
   | 'shell'
   | 'supabase'
-  | 'start'       // Added for consistency with BoltAction
-  | 'build'       // Added for consistency with BoltAction
-  | 'openFile';   // Added
+  | 'start' // Added for consistency with BoltAction
+  | 'build' // Added for consistency with BoltAction
+  | 'openFile'; // Added
 
 export interface BaseAction {
   content: string;

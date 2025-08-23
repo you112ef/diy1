@@ -4,3 +4,26 @@ compatibility_flags = ["nodejs_compat"]
 compatibility_date = "2025-03-28"
 pages_build_output_dir = "./build/client"
 send_metrics = false
+
+[env.production]
+name = "bolt-production"
+
+[env.preview]
+name = "bolt-preview"
+
+# Environment variables for Cloudflare Pages
+[vars]
+NODE_ENV = "production"
+
+# Add your API keys here for production deployment
+# ANTHROPIC_API_KEY = "your-anthropic-key"
+# OPENAI_API_KEY = "your-openai-key"
+# GROQ_API_KEY = "your-groq-key"
+# HUGGINGFACE_API_KEY = "your-huggingface-key"
+# OPEN_ROUTER_API_KEY = "your-openrouter-key"
+# TOGETHER_API_KEY = "your-together-key"
+# DEEPSEEK_API_KEY = "your-deepseek-key"
+# GOOGLE_GENERATIVE_AI_API_KEY = "your-google-key"
+# MISTRAL_API_KEY = "your-mistral-key"
+# XAI_API_KEY = "your-xai-key"
+# PERPLEXITY_API_KEY = "your-perplexity-key"
