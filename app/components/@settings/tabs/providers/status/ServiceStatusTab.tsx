@@ -26,7 +26,8 @@ type ProviderName =
   | 'OpenRouter'
   | 'Perplexity'
   | 'Together'
-  | 'XAI';
+  | 'XAI'
+  | 'Ollama';
 
 type ServiceStatus = {
   provider: ProviderName;
@@ -162,6 +163,12 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     },
     testModel: 'grok-beta',
   },
+  Ollama: {
+    statusUrl: 'https://ollama.ai/status',
+    apiUrl: 'http://127.0.0.1:11434/api/tags',
+    headers: {},
+    testModel: 'llama2:7b',
+  },
   Deepseek: {
     statusUrl: 'https://status.deepseek.com/',
     apiUrl: 'https://api.deepseek.com/v1/models',
@@ -169,14 +176,6 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
       Authorization: 'Bearer $DEEPSEEK_API_KEY',
     },
     testModel: 'deepseek-chat',
-  },
-  Ollama: {
-    statusUrl: 'https://ollama.ai/status',
-    apiUrl: 'http://localhost:11434/api/tags',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    testModel: 'llama2',
   },
   LMStudio: {
     statusUrl: 'https://lmstudio.ai/status',

@@ -38,7 +38,33 @@ export default class OllamaProvider extends BaseProvider {
     apiTokenKey: 'OLLAMA_API_KEY',
   };
 
-  staticModels: ModelInfo[] = [];
+  staticModels: ModelInfo[] = [
+    // Fallback models if dynamic fetch fails
+    {
+      name: 'llama2:7b',
+      label: 'llama2:7b (7B parameters)',
+      provider: 'Ollama',
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'llama2:13b',
+      label: 'llama2:13b (13B parameters)',
+      provider: 'Ollama',
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'mistral:7b',
+      label: 'mistral:7b (7B parameters)',
+      provider: 'Ollama',
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'codellama:7b',
+      label: 'codellama:7b (7B parameters)',
+      provider: 'Ollama',
+      maxTokenAllowed: 32768,
+    },
+  ];
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
     if (!env) {
@@ -69,7 +95,7 @@ export default class OllamaProvider extends BaseProvider {
       return serverEnv?.OLLAMA_REMOTE_URL || serverEnv?.OLLAMA_API_BASE_URL || '';
     } else {
       // Use local Ollama in development
-      return serverEnv?.OLLAMA_LOCAL_URL || serverEnv?.OLLAMA_API_BASE_URL || '';
+      return serverEnv?.OLLAMA_LOCAL_URL || serverEnv?.OLLAMA_API_BASE_URL || 'http://127.0.0.1:11434';
     }
   }
 
@@ -81,14 +107,16 @@ export default class OllamaProvider extends BaseProvider {
     const baseUrl = this.getOllamaUrl(serverEnv);
 
     if (!baseUrl) {
-      logger.warn('No Ollama URL configured, returning empty model list');
-      return [];
+      logger.warn('No Ollama URL configured, returning static models');
+      return this.staticModels;
     }
 
     try {
       // Add timeout for production environments
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
+      logger.info(`Fetching Ollama models from: ${baseUrl}/api/tags`);
 
       const response = await fetch(`${baseUrl}/api/tags`, {
         signal: controller.signal,
@@ -105,19 +133,37 @@ export default class OllamaProvider extends BaseProvider {
 
       const data = (await response.json()) as OllamaApiResponse;
       
-      logger.info(`Successfully fetched ${data.models?.length || 0} models from Ollama`);
+      if (!data.models || data.models.length === 0) {
+        logger.warn('No models found in Ollama response, returning static models');
+        return this.staticModels;
+      }
+
+      logger.info(`Successfully fetched ${data.models.length} models from Ollama`);
       
-      return data.models.map((model: OllamaModel) => ({
+      const dynamicModels = data.models.map((model: OllamaModel) => ({
         name: model.name,
-        label: `${model.name} (${model.details.parameter_size})`,
+        label: `${model.name} (${model.details?.parameter_size || 'Unknown size'})`,
         provider: this.name,
-        maxTokenAllowed: 8000,
+        maxTokenAllowed: this.getDefaultNumCtx(serverEnv),
       }));
+
+      // Combine dynamic models with static models for better coverage
+      const allModels = [...dynamicModels];
+      
+      // Add static models that aren't already in dynamic models
+      this.staticModels.forEach(staticModel => {
+        if (!allModels.some(dynamicModel => dynamicModel.name === staticModel.name)) {
+          allModels.push(staticModel);
+        }
+      });
+
+      return allModels;
     } catch (error) {
       logger.error('Failed to fetch Ollama models:', error);
+      logger.info('Returning static models as fallback');
       
-      // Return empty array instead of throwing to prevent build errors
-      return [];
+      // Return static models instead of empty array to prevent build errors
+      return this.staticModels;
     }
   }
 
@@ -133,13 +179,16 @@ export default class OllamaProvider extends BaseProvider {
     const baseUrl = this.getOllamaUrl(envRecord);
 
     if (!baseUrl) {
-      throw new Error('No Ollama URL configured');
+      throw new Error('No Ollama URL configured. Please set OLLAMA_API_BASE_URL in your environment.');
     }
 
     logger.debug('Ollama Base Url used: ', baseUrl);
 
     const ollamaInstance = ollama(model, {
       numCtx: this.getDefaultNumCtx(serverEnv),
+      temperature: 0.7,
+      topP: 0.9,
+      topK: 40,
     }) as LanguageModelV1 & { config: any };
 
     ollamaInstance.config.baseURL = `${baseUrl}/api`;
