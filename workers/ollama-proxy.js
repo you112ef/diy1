@@ -4,7 +4,7 @@
  */
 
 // Configuration - Update this with your Ollama server details
-const OLLAMA_BASE_URL = 'http://YOUR_OLLAMA_SERVER_IP:11434';
+const OLLAMA_BASE_URL = 'http://127.0.0.1:11434';
 
 // CORS headers
 const corsHeaders = {
