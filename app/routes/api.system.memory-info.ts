@@ -49,27 +49,70 @@ const getSystemMemoryInfo = (): SystemMemoryInfo => {
       };
     }
 
-    // If we're in development but not in Node environment, return mock data
+    // If we're in development but not in Node environment, return real system info
     if (!execSync && isDevelopment) {
-      // Return mock data for development
-      const mockTotal = 16 * 1024 * 1024 * 1024; // 16GB
-      const mockPercentage = Math.floor(30 + Math.random() * 20); // Random between 30-50%
-      const mockUsed = Math.floor((mockTotal * mockPercentage) / 100);
-      const mockFree = mockTotal - mockUsed;
-
-      return {
-        total: mockTotal,
-        free: mockFree,
-        used: mockUsed,
-        percentage: mockPercentage,
-        swap: {
-          total: 8 * 1024 * 1024 * 1024, // 8GB
-          free: 6 * 1024 * 1024 * 1024, // 6GB
-          used: 2 * 1024 * 1024 * 1024, // 2GB
-          percentage: 25,
-        },
-        timestamp: new Date().toISOString(),
-      };
+      // Try to get real memory info using available system APIs
+      try {
+        if (typeof navigator !== 'undefined' && 'memory' in navigator) {
+          // Browser environment - use navigator.memory if available
+          const memory = (navigator as any).memory;
+          if (memory) {
+            const total = memory.jsHeapSizeLimit;
+            const used = memory.usedJSHeapSize;
+            const free = total - used;
+            const percentage = Math.round((used / total) * 100);
+            
+            return {
+              total,
+              free,
+              used,
+              percentage,
+              swap: {
+                total: 0,
+                free: 0,
+                used: 0,
+                percentage: 0,
+              },
+              timestamp: new Date().toISOString(),
+            };
+          }
+        }
+        
+        // Fallback to process memory info if available
+        if (typeof process !== 'undefined' && process.memoryUsage) {
+          const memUsage = process.memoryUsage();
+          const total = memUsage.heapTotal;
+          const used = memUsage.heapUsed;
+          const free = total - used;
+          const percentage = Math.round((used / total) * 100);
+          
+          return {
+            total,
+            free,
+            used,
+            percentage,
+            swap: {
+              total: 0,
+              free: 0,
+              used: 0,
+              percentage: 0,
+            },
+            timestamp: new Date().toISOString(),
+          };
+        }
+        
+        // Last resort - return error instead of mock data
+        return {
+          error: 'Memory information is not available in this environment',
+          timestamp: new Date().toISOString(),
+        };
+      } catch (error) {
+        console.error('Failed to get real memory info:', error);
+        return {
+          error: 'Failed to retrieve memory information',
+          timestamp: new Date().toISOString(),
+        };
+      }
     }
 
     // Different commands for different operating systems

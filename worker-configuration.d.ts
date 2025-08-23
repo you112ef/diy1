@@ -7,6 +7,9 @@ interface Env {
   HuggingFace_API_KEY: string;
   OPEN_ROUTER_API_KEY: string;
   OLLAMA_API_BASE_URL: string;
+  OLLAMA_REMOTE_URL: string;
+  OLLAMA_LOCAL_URL: string;
+  OLLAMA_API_KEY: string;
   OPENAI_LIKE_API_KEY: string;
   OPENAI_LIKE_API_BASE_URL: string;
   TOGETHER_API_KEY: string;
@@ -18,4 +21,5 @@ interface Env {
   XAI_API_KEY: string;
   PERPLEXITY_API_KEY: string;
   AWS_BEDROCK_CONFIG: string;
+  NODE_ENV: string;
 }

@@ -46,3 +46,8 @@ docs/instructions/Roadmap.md
 .cursorrules
 *.md
 .qodo
+
+# Local development files
+.env.local
+.env.local.*
+wrangler.local.toml

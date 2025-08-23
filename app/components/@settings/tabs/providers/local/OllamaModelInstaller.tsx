@@ -150,16 +150,23 @@ export default function OllamaModelInstaller({ onModelInstalled }: OllamaModelIn
   // Function to check installed models and their versions
   const checkInstalledModels = async () => {
     try {
+      console.log(`Checking Ollama models at: ${baseUrl}/api/tags`);
+      
       const response = await fetch(`${baseUrl}/api/tags`, {
         method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch installed models');
+        throw new Error(`Failed to fetch installed models: ${response.status} ${response.statusText}`);
       }
 
       const data = (await response.json()) as { models: Array<{ name: string; digest: string; latest: string }> };
       const installedModels = data.models || [];
+
+      console.log(`Found ${installedModels.length} installed models:`, installedModels.map(m => m.name));
 
       // Update models with installed versions
       setModels((prevModels) =>
@@ -180,6 +187,7 @@ export default function OllamaModelInstaller({ onModelInstalled }: OllamaModelIn
       );
     } catch (error) {
       console.error('Error checking installed models:', error);
+      toast('Failed to check installed models. Make sure Ollama is running.');
     }
   };
 

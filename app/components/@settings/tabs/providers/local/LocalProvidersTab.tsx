@@ -152,9 +152,31 @@ export default function LocalProvidersTab() {
   const fetchOllamaModels = async () => {
     try {
       setIsLoadingModels(true);
+      
+      // Get base URL from provider settings or use default
+      const baseUrl = providers?.Ollama?.settings?.baseUrl || OLLAMA_API_URL;
+      console.log(`Fetching Ollama models from: ${baseUrl}/api/tags`);
 
-      const response = await fetch('http://127.0.0.1:11434/api/tags');
+      const response = await fetch(`${baseUrl}/api/tags`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch models: ${response.status} ${response.statusText}`);
+      }
+
       const data = (await response.json()) as { models: OllamaModel[] };
+      
+      if (!data.models || data.models.length === 0) {
+        console.warn('No models found in Ollama response');
+        setOllamaModels([]);
+        return;
+      }
+
+      console.log(`Found ${data.models.length} Ollama models:`, data.models.map(m => m.name));
 
       setOllamaModels(
         data.models.map((model) => ({
@@ -164,6 +186,13 @@ export default function LocalProvidersTab() {
       );
     } catch (error) {
       console.error('Error fetching Ollama models:', error);
+      // Show user-friendly error message
+      toast({
+        title: 'Failed to fetch Ollama models',
+        description: 'Make sure Ollama is running and accessible. Check the console for details.',
+        variant: 'destructive',
+      });
+      setOllamaModels([]);
     } finally {
       setIsLoadingModels(false);
     }

@@ -26,7 +26,8 @@ type ProviderName =
   | 'OpenRouter'
   | 'Perplexity'
   | 'Together'
-  | 'XAI';
+  | 'XAI'
+  | 'Ollama';
 
 type ServiceStatus = {
   provider: ProviderName;
@@ -80,7 +81,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
       'x-api-key': '$ANTHROPIC_API_KEY',
       'anthropic-version': '2024-02-29',
     },
-    testModel: 'claude-3-sonnet-20240229',
+    testModel: 'claude-3-5-sonnet-latest',
   },
   Cohere: {
     statusUrl: 'https://status.cohere.com/',
@@ -88,7 +89,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       Authorization: 'Bearer $COHERE_API_KEY',
     },
-    testModel: 'command',
+    testModel: 'command-r-plus',
   },
   Google: {
     statusUrl: 'https://status.cloud.google.com/',
@@ -96,7 +97,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       'x-goog-api-key': '$GOOGLE_API_KEY',
     },
-    testModel: 'gemini-pro',
+    testModel: 'gemini-1.5-pro-latest',
   },
   HuggingFace: {
     statusUrl: 'https://status.huggingface.co/',
@@ -112,7 +113,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       Authorization: 'Bearer $MISTRAL_API_KEY',
     },
-    testModel: 'mistral-tiny',
+    testModel: 'mistral-small-latest',
   },
   Perplexity: {
     statusUrl: 'https://status.perplexity.com/',
@@ -120,7 +121,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       Authorization: 'Bearer $PERPLEXITY_API_KEY',
     },
-    testModel: 'pplx-7b-chat',
+    testModel: 'pplx-7b-online',
   },
   Together: {
     statusUrl: 'https://status.together.ai/',
@@ -136,7 +137,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       Authorization: 'Bearer $AWS_BEDROCK_CONFIG',
     },
-    testModel: 'anthropic.claude-3-sonnet-20240229-v1:0',
+    testModel: 'anthropic.claude-3-5-sonnet-20241022-v1:0',
   },
   Groq: {
     statusUrl: 'https://groqstatus.com/',
@@ -152,7 +153,7 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       Authorization: 'Bearer $OPEN_ROUTER_API_KEY',
     },
-    testModel: 'anthropic/claude-3-sonnet',
+    testModel: 'anthropic/claude-3-5-sonnet',
   },
   XAI: {
     statusUrl: 'https://status.x.ai/',
@@ -160,7 +161,13 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
     headers: {
       Authorization: 'Bearer $XAI_API_KEY',
     },
-    testModel: 'grok-1',
+    testModel: 'grok-beta',
+  },
+  Ollama: {
+    statusUrl: 'https://ollama.ai/status',
+    apiUrl: 'http://127.0.0.1:11434/api/tags',
+    headers: {},
+    testModel: 'llama2:7b',
   },
   Deepseek: {
     statusUrl: 'https://status.deepseek.com/',
@@ -169,6 +176,38 @@ const PROVIDER_STATUS_URLS: Record<ProviderName, ProviderConfig> = {
       Authorization: 'Bearer $DEEPSEEK_API_KEY',
     },
     testModel: 'deepseek-chat',
+  },
+  LMStudio: {
+    statusUrl: 'https://lmstudio.ai/status',
+    apiUrl: 'http://localhost:1234/v1/models',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    testModel: 'local-model',
+  },
+  Hyperbolic: {
+    statusUrl: 'https://hyperbolic.ai/status',
+    apiUrl: 'https://api.hyperbolic.ai/v1/models',
+    headers: {
+      Authorization: 'Bearer $HYPERBOLIC_API_KEY',
+    },
+    testModel: 'hyperbolic-1',
+  },
+  Github: {
+    statusUrl: 'https://www.githubstatus.com/',
+    apiUrl: 'https://api.github.com/copilot/v1/models',
+    headers: {
+      Authorization: 'Bearer $GITHUB_API_KEY',
+    },
+    testModel: 'gpt-4o',
+  },
+  OpenAILike: {
+    statusUrl: 'https://status.openai.com/',
+    apiUrl: 'https://api.openai.com/v1/models',
+    headers: {
+      Authorization: 'Bearer $OPENAI_API_KEY',
+    },
+    testModel: 'gpt-3.5-turbo',
   },
 };
 

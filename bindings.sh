@@ -28,6 +28,17 @@ else
   done
 fi
 
+# Add default Ollama configuration if not set
+if [[ ! "$bindings" =~ OLLAMA_API_BASE_URL ]]; then
+  if [ "$NODE_ENV" = "production" ] || [ "$NODE_ENV" = "preview" ]; then
+    bindings+="--binding OLLAMA_API_BASE_URL=https://your-ollama-server.com "
+    bindings+="--binding OLLAMA_REMOTE_URL=https://your-ollama-server.com "
+  else
+    bindings+="--binding OLLAMA_API_BASE_URL=http://127.0.0.1:11434 "
+    bindings+="--binding OLLAMA_LOCAL_URL=http://127.0.0.1:11434 "
+  fi
+fi
+
 bindings=$(echo $bindings | sed 's/[[:space:]]*$//')
 
 echo $bindings
