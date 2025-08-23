@@ -18,24 +18,22 @@ interface McpServerListProps {
   onAddServer: () => void;
 }
 
-export function McpServerList({
-  servers,
-  onConnect,
-  onDisconnect,
-  onDelete,
-  onAddServer,
-}: McpServerListProps) {
+export function McpServerList({ servers, onConnect, onDisconnect, onDelete, onAddServer }: McpServerListProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'connected' | 'disconnected' | 'error' | 'connecting'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'connected' | 'disconnected' | 'error' | 'connecting'>(
+    'all',
+  );
 
   const filteredServers = servers.filter((server) => {
-    const matchesSearch = server.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         (server.description && server.description.toLowerCase().includes(searchQuery.toLowerCase()));
+    const matchesSearch =
+      server.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (server.description && server.description.toLowerCase().includes(searchQuery.toLowerCase()));
     const matchesStatus = statusFilter === 'all' || server.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
-  const connectedCount = servers.filter(s => s.status === 'connected').length;
+  const connectedCount = servers.filter((s) => s.status === 'connected').length;
   const totalCount = servers.length;
 
   return (

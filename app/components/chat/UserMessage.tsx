@@ -6,20 +6,24 @@ import { MODEL_REGEX, PROVIDER_REGEX } from '~/utils/constants';
 import { Markdown } from './Markdown';
 import { useStore } from '@nanostores/react';
 import { profileStore } from '~/lib/stores/profile';
-import type {
-  TextUIPart,
-  ReasoningUIPart,
-  ToolInvocationUIPart,
-  SourceUIPart,
-  FileUIPart,
-  StepStartUIPart,
-} from '@ai-sdk/ui-utils';
+
+// Define basic types for now since @ai-sdk/ui-utils is not available
+interface TextUIPart {
+  type: 'text';
+  text: string;
+}
+
+interface FileUIPart {
+  type: 'file';
+  mimeType: string;
+  data: string;
+}
+
+type UIPart = TextUIPart | FileUIPart;
 
 interface UserMessageProps {
   content: string | Array<{ type: string; text?: string; image?: string }>;
-  parts?:
-    | (TextUIPart | ReasoningUIPart | ToolInvocationUIPart | SourceUIPart | FileUIPart | StepStartUIPart)[]
-    | undefined;
+  parts?: UIPart[] | undefined;
 }
 
 export function UserMessage({ content, parts }: UserMessageProps) {

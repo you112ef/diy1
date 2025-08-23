@@ -14,16 +14,18 @@ interface MCPToolsProps {
   onToolSelect: (tool: MCPTool) => void;
 }
 
-export function MCPTools({ tools, onToolSelect }: MCPToolsProps) {
+export function McpTools({ tools, onToolSelect }: MCPToolsProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<string>('all');
 
-  const providers = Array.from(new Set(tools.map(tool => tool.provider)));
-  
-  const filteredTools = tools.filter(tool => {
-    const matchesSearch = tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         tool.description.toLowerCase().includes(searchQuery.toLowerCase());
+  const providers = Array.from(new Set(tools.map((tool) => tool.provider)));
+
+  const filteredTools = tools.filter((tool) => {
+    const matchesSearch =
+      tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      tool.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesProvider = selectedProvider === 'all' || tool.provider === selectedProvider;
+
     return matchesSearch && matchesProvider;
   });
 
@@ -90,8 +92,10 @@ export function MCPTools({ tools, onToolSelect }: MCPToolsProps) {
           className="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           <option value="all">All Providers</option>
-          {providers.map(provider => (
-            <option key={provider} value={provider}>{provider}</option>
+          {providers.map((provider) => (
+            <option key={provider} value={provider}>
+              {provider}
+            </option>
           ))}
         </select>
       </div>
@@ -104,33 +108,27 @@ export function MCPTools({ tools, onToolSelect }: MCPToolsProps) {
             className={classNames(
               'p-4 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer transition-all',
               'hover:border-blue-300 dark:hover:border-blue-600 hover:shadow-sm',
-              'bg-white dark:bg-gray-800'
+              'bg-white dark:bg-gray-800',
             )}
             onClick={() => onToolSelect(tool)}
           >
             <div className="flex items-start justify-between">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">
-                    {tool.name}
-                  </h4>
+                  <h4 className="text-sm font-medium text-gray-900 dark:text-white truncate">{tool.name}</h4>
                   <span
                     className={classNames(
                       'inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full',
-                      getStatusColor(tool.status)
+                      getStatusColor(tool.status),
                     )}
                   >
                     <span className={getStatusIcon(tool.status)} />
                     {tool.status}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                  {tool.description}
-                </p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{tool.description}</p>
                 <div className="flex items-center gap-2 mt-2">
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    Provider: {tool.provider}
-                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">Provider: {tool.provider}</span>
                 </div>
               </div>
               <div className="ml-3 flex-shrink-0">

@@ -280,7 +280,7 @@ export const ModelSelector = ({
                   <span className="i-ph:magnifying-glass text-bolt-elements-textTertiary" />
                 </div>
               </div>
-              
+
               {/* Free Models Filter */}
               {provider?.name === 'OpenRouter' && (
                 <div className="flex items-center justify-between">
@@ -295,7 +295,7 @@ export const ModelSelector = ({
                       'border border-bolt-elements-borderColor',
                       showFreeModelsOnly
                         ? 'bg-bolt-elements-focus text-bolt-elements-textPrimary'
-                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3'
+                        : 'bg-bolt-elements-background-depth-2 text-bolt-elements-textSecondary hover:bg-bolt-elements-background-depth-3',
                     )}
                   >
                     <span className={showFreeModelsOnly ? 'i-ph:check-circle-fill' : 'i-ph:circle'} />

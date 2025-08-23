@@ -18,12 +18,7 @@ interface McpServerListItemProps {
   onDelete: (serverId: string) => void;
 }
 
-export function McpServerListItem({
-  server,
-  onConnect,
-  onDisconnect,
-  onDelete,
-}: McpServerListItemProps) {
+export function McpServerListItem({ server, onConnect, onDisconnect, onDelete }: McpServerListItemProps) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggle = () => {
@@ -53,12 +48,7 @@ export function McpServerListItem({
             onClick={handleToggle}
             className="flex items-center gap-2 text-left hover:text-bolt-elements-textPrimary transition-colors"
           >
-            <span
-              className={classNames(
-                'i-ph:caret-right transition-transform',
-                isExpanded && 'rotate-90',
-              )}
-            />
+            <span className={classNames('i-ph:caret-right transition-transform', isExpanded ? 'rotate-90' : '')} />
             <h3 className="font-medium text-bolt-elements-textPrimary">{server.name}</h3>
           </button>
           <McpStatusBadge status={server.status} size="sm" />
@@ -91,9 +81,7 @@ export function McpServerListItem({
 
       {isExpanded && (
         <div className="mt-4 space-y-3">
-          {server.description && (
-            <p className="text-sm text-bolt-elements-textSecondary">{server.description}</p>
-          )}
+          {server.description && <p className="text-sm text-bolt-elements-textSecondary">{server.description}</p>}
 
           {server.lastSeen && (
             <div className="text-sm text-bolt-elements-textTertiary">

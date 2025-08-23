@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { classNames } from '~/utils/classNames';
 
 interface ToolInvocation {
@@ -23,11 +23,13 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
 
   const toggleExpanded = (invocationId: string) => {
     const newExpanded = new Set(expandedInvocations);
+
     if (newExpanded.has(invocationId)) {
       newExpanded.delete(invocationId);
     } else {
       newExpanded.add(invocationId);
     }
+
     setExpandedInvocations(newExpanded);
   };
 
@@ -65,9 +67,15 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
     const end = endTime || new Date();
     const duration = end.getTime() - startTime.getTime();
     const seconds = Math.floor(duration / 1000);
-    
-    if (seconds < 60) return `${seconds}s`;
-    if (seconds < 3600) return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+
+    if (seconds < 60) {
+      return `${seconds}s`;
+    }
+
+    if (seconds < 3600) {
+      return `${Math.floor(seconds / 60)}m ${seconds % 60}s`;
+    }
+
     return `${Math.floor(seconds / 3600)}h ${Math.floor((seconds % 3600) / 60)}m`;
   };
 
@@ -85,21 +93,16 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-medium text-gray-900 dark:text-white">
-        Tool Invocations ({invocations.length})
-      </h3>
-      
+      <h3 className="text-sm font-medium text-gray-900 dark:text-white">Tool Invocations ({invocations.length})</h3>
+
       {invocations.map((invocation) => (
-        <div
-          key={invocation.id}
-          className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden"
-        >
+        <div key={invocation.id} className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
           {/* Header */}
           <div
             className={classNames(
               'px-4 py-3 cursor-pointer transition-colors',
               'hover:bg-gray-50 dark:hover:bg-gray-800',
-              'flex items-center justify-between'
+              'flex items-center justify-between',
             )}
             onClick={() => toggleExpanded(invocation.id)}
           >
@@ -107,17 +110,15 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
               <span
                 className={classNames(
                   'inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded-full',
-                  getStatusColor(invocation.status)
+                  getStatusColor(invocation.status),
                 )}
               >
                 <span className={getStatusIcon(invocation.status)} />
                 {invocation.status}
               </span>
-              <span className="text-sm font-medium text-gray-900 dark:text-white">
-                {invocation.toolName}
-              </span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">{invocation.toolName}</span>
             </div>
-            
+
             <div className="flex items-center gap-3">
               <span className="text-xs text-gray-500 dark:text-gray-400">
                 {formatDuration(invocation.startTime, invocation.endTime)}
@@ -125,7 +126,7 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
               <span
                 className={classNames(
                   'i-ph:caret-down transition-transform',
-                  expandedInvocations.has(invocation.id) && 'rotate-180'
+                  expandedInvocations.has(invocation.id) ? 'rotate-180' : '',
                 )}
               />
             </div>
@@ -137,9 +138,7 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
               <div className="pt-3 space-y-3">
                 {/* Arguments */}
                 <div>
-                  <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Arguments
-                  </h4>
+                  <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Arguments</h4>
                   <pre className="text-xs bg-white dark:bg-gray-900 p-3 rounded border overflow-x-auto">
                     {formatArguments(invocation.arguments)}
                   </pre>
@@ -148,9 +147,7 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
                 {/* Result or Error */}
                 {invocation.status === 'completed' && invocation.result && (
                   <div>
-                    <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">
-                      Result
-                    </h4>
+                    <h4 className="text-xs font-medium text-gray-700 dark:text-gray-300 mb-2">Result</h4>
                     <pre className="text-xs bg-white dark:bg-gray-900 p-3 rounded border overflow-x-auto">
                       {JSON.stringify(invocation.result, null, 2)}
                     </pre>
@@ -159,9 +156,7 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
 
                 {invocation.status === 'failed' && invocation.error && (
                   <div>
-                    <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-2">
-                      Error
-                    </h4>
+                    <h4 className="text-xs font-medium text-red-700 dark:text-red-300 mb-2">Error</h4>
                     <div className="text-xs text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/20 p-3 rounded border">
                       {invocation.error}
                     </div>
@@ -181,7 +176,7 @@ export function ToolInvocations({ invocations, onRetry, onCancel }: ToolInvocati
                       Retry
                     </button>
                   )}
-                  
+
                   {invocation.status === 'running' && onCancel && (
                     <button
                       onClick={(e) => {

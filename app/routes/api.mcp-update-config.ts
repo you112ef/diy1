@@ -8,7 +8,11 @@ export async function action({ request }: ActionFunctionArgs) {
   }
 
   try {
-    const { action, serverId, serverData } = await request.json();
+    const { action, serverId, serverData } = (await request.json()) as {
+      action: string;
+      serverId?: string;
+      serverData?: any;
+    };
 
     if (!action) {
       return json({ error: 'Action is required' }, { status: 400 });
@@ -21,7 +25,7 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         const { name, description, endpoint, capabilities, config } = serverData;
-        
+
         if (!name || !endpoint) {
           return json({ error: 'Server name and endpoint are required' }, { status: 400 });
         }
@@ -32,13 +36,13 @@ export async function action({ request }: ActionFunctionArgs) {
           endpoint,
           capabilities: capabilities || [],
           config: config || {},
-          status: 'disconnected'
+          status: 'disconnected',
         });
 
         return json({
           status: 'success',
           message: 'Server added successfully',
-          data: { serverId: newServerId }
+          data: { serverId: newServerId },
         });
 
       case 'remove_server':
@@ -47,14 +51,14 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         const removed = await mcpService.removeServer(serverId);
-        
+
         if (!removed) {
           return json({ error: 'Server not found' }, { status: 404 });
         }
 
         return json({
           status: 'success',
-          message: 'Server removed successfully'
+          message: 'Server removed successfully',
         });
 
       case 'connect_server':
@@ -63,14 +67,14 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         const connected = await mcpService.connectServer(serverId);
-        
+
         if (!connected) {
           return json({ error: 'Failed to connect to server' }, { status: 500 });
         }
 
         return json({
           status: 'success',
-          message: 'Server connected successfully'
+          message: 'Server connected successfully',
         });
 
       case 'disconnect_server':
@@ -79,14 +83,14 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         const disconnected = await mcpService.disconnectServer(serverId);
-        
+
         if (!disconnected) {
           return json({ error: 'Failed to disconnect from server' }, { status: 500 });
         }
 
         return json({
           status: 'success',
-          message: 'Server disconnected successfully'
+          message: 'Server disconnected successfully',
         });
 
       case 'update_server':
@@ -95,65 +99,69 @@ export async function action({ request }: ActionFunctionArgs) {
         }
 
         const server = mcpService.getServer(serverId);
+
         if (!server) {
           return json({ error: 'Server not found' }, { status: 404 });
         }
 
         // Update server properties
         const updatedServer = { ...server, ...serverData };
-        
+
         // Remove old server and add updated one
         await mcpService.removeServer(serverId);
+
         const updatedServerId = await mcpService.addServer({
           name: updatedServer.name,
           description: updatedServer.description,
           endpoint: updatedServer.endpoint,
           capabilities: updatedServer.capabilities,
           config: updatedServer.config,
-          status: updatedServer.status
+          status: updatedServer.status,
         });
 
         return json({
           status: 'success',
           message: 'Server updated successfully',
-          data: { serverId: updatedServerId }
+          data: { serverId: updatedServerId },
         });
 
       case 'get_servers':
         const servers = mcpService.getServers();
         return json({
           status: 'success',
-          data: { servers }
+          data: { servers },
         });
 
       case 'get_tools':
         const tools = mcpService.getTools();
         return json({
           status: 'success',
-          data: { tools }
+          data: { tools },
         });
 
       case 'get_invocations':
         const invocations = mcpService.getInvocations();
         return json({
           status: 'success',
-          data: { invocations }
+          data: { invocations },
         });
 
       default:
         return json({ error: 'Invalid action' }, { status: 400 });
     }
-
   } catch (error) {
     console.error('MCP config update failed:', error);
-    
-    return json({
-      status: 'error',
-      message: 'Failed to update MCP configuration',
-      details: {
-        error: error instanceof Error ? error.message : 'Unknown error'
-      }
-    }, { status: 500 });
+
+    return json(
+      {
+        status: 'error',
+        message: 'Failed to update MCP configuration',
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      },
+      { status: 500 },
+    );
   }
 }
 
