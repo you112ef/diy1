@@ -19,7 +19,7 @@ const menuVariants = {
   closed: {
     opacity: 0,
     visibility: 'hidden',
-    left: '-30.91rem', /* original: -340px */
+    left: '-30.91rem' /* original: -340px */,
     transition: {
       duration: 0.2,
       ease: cubicEasingFn,

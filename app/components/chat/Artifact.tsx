@@ -243,10 +243,12 @@ const ActionList = memo(({ actions }: ActionListProps) => {
                   />
                   {(action as ShellAction).capturedOutput && (
                     <div className="mt-1.5 pt-1.5 border-t border-bolt-elements-borderColor/50">
-                      <p className={classNames(
-                        "text-xs mb-0.5",
-                        (action as ShellAction).exitCode === 0 ? "text-bolt-elements-textTertiary" : "text-red-500"
-                      )}>
+                      <p
+                        className={classNames(
+                          'text-xs mb-0.5',
+                          (action as ShellAction).exitCode === 0 ? 'text-bolt-elements-textTertiary' : 'text-red-500',
+                        )}
+                      >
                         Output (Exit Code: {(action as ShellAction).exitCode}):
                       </p>
                       <ShellCodeBlock

@@ -89,6 +89,7 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
 
     if (!token) {
       const serverGithubToken = process.env.GITHUB_ACCESS_TOKEN || context.env?.GITHUB_ACCESS_TOKEN;
+
       if (serverGithubToken) {
         token = serverGithubToken;
         tokenSource = 'server env';
@@ -102,7 +103,10 @@ export const loader: LoaderFunction = async ({ request, context }: LoaderFunctio
     if (!token) {
       console.error('No GitHub token available');
       return json(
-        { error: 'No GitHub token available. Please provide a token in the Authorization header or set GITHUB_ACCESS_TOKEN on the server.' },
+        {
+          error:
+            'No GitHub token available. Please provide a token in the Authorization header or set GITHUB_ACCESS_TOKEN on the server.',
+        },
         {
           status: 401,
           headers: {
