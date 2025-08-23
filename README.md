@@ -18,9 +18,29 @@ bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMed
 
 **⚡ Want to get started fast?** See [QUICKSTART.md](./QUICKSTART.md) for a 5-minute setup guide!
 
+### Ollama Integration
+
+**🤖 Want to use local AI models?** See [OLLAMA_SETUP.md](./OLLAMA_SETUP.md) for complete Ollama setup!
+
+**⚡ Quick start**: [QUICKSTART_OLLAMA.md](./QUICKSTART_OLLAMA.md) for 3-minute setup!
+
+**🔧 Having issues?** See [TROUBLESHOOTING_OLLAMA.md](./TROUBLESHOOTING_OLLAMA.md) for solutions!
+
+**🚀 Want maximum performance?** See [OLLAMA_PERFORMANCE.md](./OLLAMA_PERFORMANCE.md) for optimization!
+
+```bash
+# Quick Ollama setup
+npm run ollama:install     # Simple installation (recommended)
+npm run ollama:setup       # Advanced setup (native)
+npm run ollama:docker      # Docker setup
+npm run ollama:status      # Check status
+npm run ollama:test        # Test installation
+```
+
 ## Table of Contents
 
 - [Quick Start](#quick-start)
+- [Ollama Integration](#ollama-integration)
 - [Join the Community](#join-the-community)
 - [Requested Additions](#requested-additions)
 - [Features](#features)
@@ -484,15 +504,31 @@ Remember to always commit your local changes or stash them before pulling update
 
 ## Available Scripts
 
-- **`pnpm run dev`**: Starts the development server.
-- **`pnpm run build`**: Builds the project.
-- **`pnpm run start`**: Runs the built application locally using Wrangler Pages.
-- **`pnpm run preview`**: Builds and runs the production build locally.
-- **`pnpm test`**: Runs the test suite using Vitest.
-- **`pnpm run typecheck`**: Runs TypeScript type checking.
-- **`pnpm run typegen`**: Generates TypeScript types using Wrangler.
-- **`pnpm run deploy`**: Deploys the project to Cloudflare Pages.
-- **`pnpm run lint:fix`**: Automatically fixes linting issues.
+### Development
+- `pnpm run dev` - Start development server
+- `pnpm run build` - Build for production
+- `pnpm run start` - Start production server
+- `pnpm run test` - Run tests
+- `pnpm run lint` - Run ESLint
+- `pnpm run typecheck` - Run TypeScript compiler
+
+### Docker
+- `pnpm run dockerbuild` - Build Docker image (development)
+- `pnpm run dockerbuild:prod` - Build Docker image (production)
+- `pnpm run dockerrun` - Run Docker container
+- `pnpm run dockerstart` - Start with Docker bindings
+
+### Ollama Integration
+- `pnpm run ollama:install` - Simple Ollama installation (recommended)
+- `pnpm run ollama:setup` - Complete Ollama setup (native)
+- `pnpm run ollama:docker` - Complete Ollama setup (Docker)
+- `pnpm run ollama:start` - Start Ollama service
+- `pnpm run ollama:status` - Check Ollama status
+- `pnpm run ollama:test` - Test Ollama installation
+
+### Deployment
+- `pnpm run deploy` - Deploy to Cloudflare Pages
+- `pnpm run preview` - Preview production build
 
 ---
 

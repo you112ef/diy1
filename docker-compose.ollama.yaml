@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # Ollama Service
+  ollama:
+    image: ollama/ollama:latest
+    container_name: bolt-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - /var/lib/ollama:/var/lib/ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+    restart: unless-stopped
+    networks:
+      - bolt-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Bolt.diy App with Ollama Integration
+  bolt-app:
+    image: bolt-ai:development
+    build:
+      context: .
+      target: bolt-ai-development
+    container_name: bolt-app
+    ports:
+      - "5173:5173"
+    env_file: '.env.local'
+    environment:
+      - NODE_ENV=development
+      - VITE_HMR_PROTOCOL=ws
+      - VITE_HMR_HOST=localhost
+      - VITE_HMR_PORT=5173
+      - CHOKIDAR_USEPOLLING=true
+      - WATCHPACK_POLLING=true
+      - PORT=5173
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - RUNNING_IN_DOCKER=true
+      - VITE_LOG_LEVEL=debug
+      - DEFAULT_NUM_CTX=32768
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+        consistency: cached
+      - /app/node_modules
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - bolt-network
+    command: pnpm run dev --host 0.0.0.0
+    profiles: ['ollama', 'default']
+
+  # Bolt.diy App (Production) with Ollama Integration
+  bolt-app-prod:
+    image: bolt-ai:production
+    build:
+      context: .
+      target: bolt-ai-production
+    container_name: bolt-app-prod
+    ports:
+      - "5173:5173"
+    env_file: '.env.local'
+    environment:
+      - NODE_ENV=production
+      - COMPOSE_PROFILES=production
+      - PORT=5173
+      - OLLAMA_API_BASE_URL=http://ollama:11434
+      - RUNNING_IN_DOCKER=true
+      - VITE_LOG_LEVEL=info
+      - DEFAULT_NUM_CTX=32768
+    depends_on:
+      ollama:
+        condition: service_healthy
+    networks:
+      - bolt-network
+    command: pnpm run dockerstart
+    profiles: ['ollama-prod']
+
+  # Ollama Model Manager (Optional)
+  ollama-manager:
+    image: ollama/ollama:latest
+    container_name: ollama-manager
+    ports:
+      - "11435:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+      - /var/lib/ollama:/var/lib/ollama
+    environment:
+      - OLLAMA_HOST=0.0.0.0
+      - OLLAMA_ORIGINS=*
+    restart: unless-stopped
+    networks:
+      - bolt-network
+    profiles: ['manager']
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  bolt-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
