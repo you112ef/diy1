@@ -56,16 +56,23 @@ check_prerequisites() {
 validate_environment() {
     print_status "Validating environment configuration..."
     
-    # Check if .env.local exists
+    # Check if .env.local exists for local development
     if [ ! -f ".env.local" ]; then
         print_warning ".env.local not found, creating with default values..."
-        cp .env.example .env.local
+        cp .env.local.example .env.local
     fi
     
-    # Check Ollama configuration
-    if grep -q "your-ollama-server.com" .env.local; then
-        print_warning "Please update OLLAMA_API_BASE_URL in .env.local with your actual Ollama server URL"
-        print_status "Current configuration may cause deployment issues"
+    # Check Ollama configuration for local development
+    if grep -q "your_openai_api_key_here" .env.local; then
+        print_warning "Please update API keys in .env.local for local development"
+    fi
+    
+    # Check if this is a Cloudflare deployment
+    if [ "$NODE_ENV" = "production" ] || [ "$NODE_ENV" = "preview" ]; then
+        print_status "Production/Preview environment detected - will use remote Ollama server"
+        print_warning "Make sure to set OLLAMA_API_BASE_URL in Cloudflare dashboard"
+    else
+        print_status "Local development environment detected - will use local Ollama server"
     fi
     
     print_success "Environment validation completed"

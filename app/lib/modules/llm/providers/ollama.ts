@@ -61,11 +61,11 @@ export default class OllamaProvider extends BaseProvider {
   }
 
   private getOllamaUrl(serverEnv?: Env): string {
-    // Check if we're in production (Cloudflare Pages)
-    const isProduction = serverEnv?.NODE_ENV === 'production';
+    // Check if we're in production or preview (Cloudflare Pages)
+    const isProduction = serverEnv?.NODE_ENV === 'production' || serverEnv?.NODE_ENV === 'preview';
     
     if (isProduction) {
-      // Use remote Ollama server in production
+      // Use remote Ollama server in production/preview
       return serverEnv?.OLLAMA_REMOTE_URL || serverEnv?.OLLAMA_API_BASE_URL || '';
     } else {
       // Use local Ollama in development

@@ -10,7 +10,7 @@ OLLAMA_API_BASE_URL = "https://your-ollama-server.com"
 OLLAMA_REMOTE_URL = "https://your-ollama-server.com"
 NODE_ENV = "production"
 
-[env.development]
-OLLAMA_API_BASE_URL = "http://127.0.0.1:11434"
-OLLAMA_LOCAL_URL = "http://127.0.0.1:11434"
-NODE_ENV = "development"
+[env.preview]
+OLLAMA_API_BASE_URL = "https://your-ollama-server.com"
+OLLAMA_REMOTE_URL = "https://your-ollama-server.com"
+NODE_ENV = "preview"
