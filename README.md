@@ -28,6 +28,10 @@ bolt.diy was originally started by [Cole Medin](https://www.youtube.com/@ColeMed
 
 **🚀 Want maximum performance?** See [OLLAMA_PERFORMANCE.md](./OLLAMA_PERFORMANCE.md) for optimization!
 
+**💡 Need examples?** See [OLLAMA_EXAMPLES.md](./OLLAMA_EXAMPLES.md) for practical usage!
+
+**☁️ Deploy to Cloudflare?** See [CLOUDFLARE_DEPLOYMENT.md](./CLOUDFLARE_DEPLOYMENT.md) for deployment guide!
+
 ```bash
 # Quick Ollama setup
 npm run ollama:install     # Simple installation (recommended)
@@ -35,6 +39,11 @@ npm run ollama:setup       # Advanced setup (native)
 npm run ollama:docker      # Docker setup
 npm run ollama:status      # Check status
 npm run ollama:test        # Test installation
+
+# Cloudflare deployment
+npm run deploy:cloudflare  # Standard deployment
+npm run deploy:cloudflare:clean  # Clean deployment
+npm run deploy:cloudflare:fast   # Fast deployment
 ```
 
 ## Table of Contents
@@ -525,6 +534,11 @@ Remember to always commit your local changes or stash them before pulling update
 - `pnpm run ollama:start` - Start Ollama service
 - `pnpm run ollama:status` - Check Ollama status
 - `pnpm run ollama:test` - Test Ollama installation
+
+### Cloudflare Deployment
+- `pnpm run deploy:cloudflare` - Standard deployment to Cloudflare Pages
+- `pnpm run deploy:cloudflare:clean` - Clean deployment (removes cache)
+- `pnpm run deploy:cloudflare:fast` - Fast deployment (skips checks)
 
 ### Deployment
 - `pnpm run deploy` - Deploy to Cloudflare Pages

@@ -29,12 +29,13 @@ export interface OllamaApiResponse {
 
 export default class OllamaProvider extends BaseProvider {
   name = 'Ollama';
-  getApiKeyLink = 'https://ollama.com/download';
-  labelForGetApiKey = 'Download Ollama';
+  getApiKeyLink = 'https://ollama.ai/cloud';
+  labelForGetApiKey = 'Get Ollama API Key';
   icon = 'i-ph:cloud-arrow-down';
 
   config = {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
+    apiTokenKey: 'OLLAMA_API_KEY',
   };
 
   staticModels: ModelInfo[] = [];
@@ -59,45 +60,65 @@ export default class OllamaProvider extends BaseProvider {
     return envRecord.DEFAULT_NUM_CTX ? parseInt(envRecord.DEFAULT_NUM_CTX, 10) : 32768;
   }
 
+  private getOllamaUrl(serverEnv?: Env): string {
+    // Check if we're in production (Cloudflare Pages)
+    const isProduction = serverEnv?.NODE_ENV === 'production';
+    
+    if (isProduction) {
+      // Use remote Ollama server in production
+      return serverEnv?.OLLAMA_REMOTE_URL || serverEnv?.OLLAMA_API_BASE_URL || '';
+    } else {
+      // Use local Ollama in development
+      return serverEnv?.OLLAMA_LOCAL_URL || serverEnv?.OLLAMA_API_BASE_URL || '';
+    }
+  }
+
   async getDynamicModels(
     apiKeys?: Record<string, string>,
     settings?: IProviderSetting,
     serverEnv: Record<string, string> = {},
   ): Promise<ModelInfo[]> {
-    let { baseUrl } = this.getProviderBaseUrlAndKey({
-      apiKeys,
-      providerSettings: settings,
-      serverEnv,
-      defaultBaseUrlKey: 'OLLAMA_API_BASE_URL',
-      defaultApiTokenKey: '',
-    });
+    const baseUrl = this.getOllamaUrl(serverEnv);
 
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      logger.warn('No Ollama URL configured, returning empty model list');
+      return [];
     }
 
-    if (typeof window === 'undefined') {
-      /*
-       * Running in Server
-       * Backend: Check if we're running in Docker
-       */
-      const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || serverEnv?.RUNNING_IN_DOCKER === 'true';
+    try {
+      // Add timeout for production environments
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      baseUrl = isDocker ? baseUrl.replace('localhost', 'host.docker.internal') : baseUrl;
-      baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
+      const response = await fetch(`${baseUrl}/api/tags`, {
+        signal: controller.signal,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        throw new Error(`Ollama API error: ${response.status} ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as OllamaApiResponse;
+      
+      logger.info(`Successfully fetched ${data.models?.length || 0} models from Ollama`);
+      
+      return data.models.map((model: OllamaModel) => ({
+        name: model.name,
+        label: `${model.name} (${model.details.parameter_size})`,
+        provider: this.name,
+        maxTokenAllowed: 8000,
+      }));
+    } catch (error) {
+      logger.error('Failed to fetch Ollama models:', error);
+      
+      // Return empty array instead of throwing to prevent build errors
+      return [];
     }
-
-    const response = await fetch(`${baseUrl}/api/tags`);
-    const data = (await response.json()) as OllamaApiResponse;
-
-    // console.log({ ollamamodels: data.models });
-
-    return data.models.map((model: OllamaModel) => ({
-      name: model.name,
-      label: `${model.name} (${model.details.parameter_size})`,
-      provider: this.name,
-      maxTokenAllowed: 8000,
-    }));
   }
 
   getModelInstance: (options: {
@@ -109,22 +130,11 @@ export default class OllamaProvider extends BaseProvider {
     const { apiKeys, providerSettings, serverEnv, model } = options;
     const envRecord = this._convertEnvToRecord(serverEnv);
 
-    let { baseUrl } = this.getProviderBaseUrlAndKey({
-      apiKeys,
-      providerSettings: providerSettings?.[this.name],
-      serverEnv: envRecord,
-      defaultBaseUrlKey: 'OLLAMA_API_BASE_URL',
-      defaultApiTokenKey: '',
-    });
+    const baseUrl = this.getOllamaUrl(envRecord);
 
-    // Backend: Check if we're running in Docker
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      throw new Error('No Ollama URL configured');
     }
-
-    const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || envRecord.RUNNING_IN_DOCKER === 'true';
-    baseUrl = isDocker ? baseUrl.replace('localhost', 'host.docker.internal') : baseUrl;
-    baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
 
     logger.debug('Ollama Base Url used: ', baseUrl);
 
