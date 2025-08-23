@@ -37,7 +37,69 @@ export default class OllamaProvider extends BaseProvider {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
   };
 
-  staticModels: ModelInfo[] = [];
+  // نماذج وهمية للاختبار والتطوير
+  staticModels: ModelInfo[] = [
+    {
+      name: 'llama3.2:3b',
+      label: 'llama3.2:3b (3B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'llama3.2:7b',
+      label: 'llama3.2:7b (7B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'llama3.2:8b',
+      label: 'llama3.2:8b (8B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'llama3.2:70b',
+      label: 'llama3.2:70b (70B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'mistral:7b',
+      label: 'mistral:7b (7B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'codellama:7b',
+      label: 'codellama:7b (7B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'phi3:mini',
+      label: 'phi3:mini (3.8B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'gemma:2b',
+      label: 'gemma:2b (2B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'qwen2.5:0.5b',
+      label: 'qwen2.5:0.5b (0.5B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    },
+    {
+      name: 'nous-hermes2:mixtral-8x7b-dpo',
+      label: 'nous-hermes2:mixtral-8x7b-dpo (47B parameters)',
+      provider: this.name,
+      maxTokenAllowed: 32768,
+    }
+  ];
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
     if (!env) {
@@ -96,19 +158,24 @@ export default class OllamaProvider extends BaseProvider {
       defaultApiTokenKey: '',
     });
 
+    // إذا لم يكن هناك baseUrl، استخدم النماذج الوهمية
     if (!baseUrl) {
-      // Default to local Ollama instance if no URL provided
-      baseUrl = 'http://127.0.0.1:11434';
+      logger.info('No Ollama base URL found, using static models for testing');
+      return this.staticModels;
     }
 
     baseUrl = this._normalizeBaseUrl(baseUrl);
 
     try {
+      logger.info(`Attempting to fetch models from: ${baseUrl}`);
+      
       const response = await fetch(`${baseUrl}/api/tags`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
         },
+        // إضافة timeout للاتصال
+        signal: AbortSignal.timeout(10000), // 10 seconds timeout
       });
 
       if (!response.ok) {
@@ -116,6 +183,7 @@ export default class OllamaProvider extends BaseProvider {
       }
 
       const data = (await response.json()) as OllamaApiResponse;
+      logger.info(`Successfully fetched ${data.models.length} models from Ollama`);
 
       return data.models.map((model: OllamaModel) => ({
         name: model.name,
@@ -124,8 +192,10 @@ export default class OllamaProvider extends BaseProvider {
         maxTokenAllowed: this.getDefaultNumCtx(serverEnv as any),
       }));
     } catch (error) {
-      logger.error('Failed to fetch Ollama models:', error);
-      return [];
+      logger.warn('Failed to fetch dynamic models from Ollama, falling back to static models:', error);
+      
+      // في حالة الفشل، نعود للنماذج الوهمية
+      return this.staticModels;
     }
   }
 
@@ -146,8 +216,10 @@ export default class OllamaProvider extends BaseProvider {
       defaultApiTokenKey: '',
     });
 
+    // إذا لم يكن هناك baseUrl، استخدم endpoint محلي
     if (!baseUrl) {
       baseUrl = 'http://127.0.0.1:11434';
+      logger.warn('No Ollama base URL configured, using default localhost endpoint');
     }
 
     baseUrl = this._normalizeBaseUrl(baseUrl);
@@ -158,6 +230,7 @@ export default class OllamaProvider extends BaseProvider {
       numCtx: this.getDefaultNumCtx(serverEnv),
     }) as LanguageModelV1 & { config: any };
 
+    // إعداد baseURL للـ API
     ollamaInstance.config.baseURL = `${baseUrl}/api`;
 
     return ollamaInstance;

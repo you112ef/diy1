@@ -7,6 +7,7 @@ import HuggingFaceProvider from './providers/huggingface';
 import LMStudioProvider from './providers/lmstudio';
 import MistralProvider from './providers/mistral';
 import OllamaProvider from './providers/ollama';
+import OllamaMockProvider from './providers/ollama-mock';
 import OpenRouterProvider from './providers/open-router';
 import OpenAILikeProvider from './providers/openai-like';
 import OpenAIProvider from './providers/openai';
@@ -27,6 +28,7 @@ export {
   HyperbolicProvider,
   MistralProvider,
   OllamaProvider,
+  OllamaMockProvider,
   OpenAIProvider,
   OpenRouterProvider,
   OpenAILikeProvider,
