@@ -2,81 +2,50 @@ import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
 import type { LanguageModelV1 } from 'ai';
-import { ollama } from 'ollama-ai-provider';
 import { logger } from '~/utils/logger';
 
 export default class OllamaMockProvider extends BaseProvider {
-  name = 'Ollama (Mock)';
+  name = 'Ollama (Mock - Testing Only)';
   getApiKeyLink = 'https://ollama.com/download';
-  labelForGetApiKey = 'Download Ollama';
+  labelForGetApiKey = 'Download Ollama for Real Models';
   icon = 'i-ph:cloud-arrow-down';
 
   config = {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
   };
 
-  // نماذج وهمية للاختبار والتطوير
+  // نماذج وهمية للاختبار فقط - لا تعمل فعلياً
   staticModels: ModelInfo[] = [
     {
       name: 'llama3.2:3b',
-      label: 'llama3.2:3b (3B parameters) - Mock',
+      label: 'llama3.2:3b (3B parameters) - MOCK ONLY',
       provider: this.name,
       maxTokenAllowed: 32768,
     },
     {
       name: 'llama3.2:7b',
-      label: 'llama3.2:7b (7B parameters) - Mock',
+      label: 'llama3.2:7b (7B parameters) - MOCK ONLY',
       provider: this.name,
       maxTokenAllowed: 32768,
     },
     {
       name: 'llama3.2:8b',
-      label: 'llama3.2:8b (8B parameters) - Mock',
-      provider: this.name,
-      maxTokenAllowed: 32768,
-    },
-    {
-      name: 'llama3.2:70b',
-      label: 'llama3.2:70b (70B parameters) - Mock',
+      label: 'llama3.2:8b (8B parameters) - MOCK ONLY',
       provider: this.name,
       maxTokenAllowed: 32768,
     },
     {
       name: 'mistral:7b',
-      label: 'mistral:7b (7B parameters) - Mock',
+      label: 'mistral:7b (7B parameters) - MOCK ONLY',
       provider: this.name,
       maxTokenAllowed: 32768,
     },
     {
       name: 'codellama:7b',
-      label: 'codellama:7b (7B parameters) - Mock',
+      label: 'codellama:7b (7B parameters) - MOCK ONLY',
       provider: this.name,
       maxTokenAllowed: 32768,
     },
-    {
-      name: 'phi3:mini',
-      label: 'phi3:mini (3.8B parameters) - Mock',
-      provider: this.name,
-      maxTokenAllowed: 32768,
-    },
-    {
-      name: 'gemma:2b',
-      label: 'gemma:2b (2B parameters) - Mock',
-      provider: this.name,
-      maxTokenAllowed: 32768,
-    },
-    {
-      name: 'qwen2.5:0.5b',
-      label: 'qwen2.5:0.5b (0.5B parameters) - Mock',
-      provider: this.name,
-      maxTokenAllowed: 32768,
-    },
-    {
-      name: 'nous-hermes2:mixtral-8x7b-dpo',
-      label: 'nous-hermes2:mixtral-8x7b-dpo (47B parameters) - Mock',
-      provider: this.name,
-      maxTokenAllowed: 32768,
-    }
   ];
 
   getDefaultNumCtx(serverEnv?: Env): number {
@@ -88,7 +57,7 @@ export default class OllamaMockProvider extends BaseProvider {
     settings?: IProviderSetting,
     serverEnv: Record<string, string> = {},
   ): Promise<ModelInfo[]> {
-    logger.info('Using mock Ollama models for testing');
+    logger.warn('Using MOCK Ollama models - these are for testing only and will not respond!');
     return this.staticModels;
   }
 
@@ -100,15 +69,37 @@ export default class OllamaMockProvider extends BaseProvider {
   }) => LanguageModelV1 = (options) => {
     const { model } = options;
     
-    logger.info(`Creating mock Ollama instance for model: ${model}`);
+    logger.warn(`Creating MOCK Ollama instance for model: ${model} - This will not work!`);
 
-    const ollamaInstance = ollama(model, {
-      numCtx: this.getDefaultNumCtx(),
-    }) as LanguageModelV1 & { config: any };
+    // إنشاء مزود وهمي لا يعمل
+    const mockProvider: LanguageModelV1 = {
+      id: model,
+      provider: this.name,
+      generateContent: async (messages: Message[]): Promise<GenerateContentResult> => {
+        logger.error('MOCK PROVIDER CALLED - This will not work! Use real Ollama instead.');
+        
+        return {
+          content: `❌ ERROR: This is a MOCK provider for ${model}. It will not work!\n\nPlease use:\n1. Ollama (Real) - for actual working models\n2. Install Ollama server: https://ollama.com/download\n3. Run: ollama serve`,
+          finishReason: 'stop',
+          usage: {
+            promptTokens: 0,
+            completionTokens: 0,
+            totalTokens: 0,
+          },
+        };
+      },
+      
+      streamText: async function* (messages: Message[]) {
+        yield `❌ ERROR: MOCK provider ${model} - This will not work!`;
+      },
+      
+      maxTokens: 32768,
+      temperature: 0.7,
+      topP: 0.9,
+      frequencyPenalty: 0,
+      presencePenalty: 0,
+    };
 
-    // إعداد baseURL وهمي
-    ollamaInstance.config.baseURL = 'http://mock-ollama.local/api';
-
-    return ollamaInstance;
+    return mockProvider;
   };
 }

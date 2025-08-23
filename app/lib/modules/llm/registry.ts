@@ -9,6 +9,7 @@ import MistralProvider from './providers/mistral';
 import OllamaProvider from './providers/ollama';
 import OllamaMockProvider from './providers/ollama-mock';
 import OllamaWorkingProvider from './providers/ollama-working';
+import OllamaRealProvider from './providers/ollama-real';
 import OpenRouterProvider from './providers/open-router';
 import OpenAILikeProvider from './providers/openai-like';
 import OpenAIProvider from './providers/openai';
@@ -31,6 +32,7 @@ export {
   OllamaProvider,
   OllamaMockProvider,
   OllamaWorkingProvider,
+  OllamaRealProvider,
   OpenAIProvider,
   OpenRouterProvider,
   OpenAILikeProvider,

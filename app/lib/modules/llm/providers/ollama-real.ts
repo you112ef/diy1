@@ -1,7 +1,7 @@
 import { BaseProvider } from '~/lib/modules/llm/base-provider';
 import type { ModelInfo } from '~/lib/modules/llm/types';
 import type { IProviderSetting } from '~/types/model';
-import type { LanguageModelV1 } from 'ai';
+import type { LanguageModelV1, Message, GenerateContentResult } from 'ai';
 import { ollama } from 'ollama-ai-provider';
 import { logger } from '~/utils/logger';
 
@@ -27,8 +27,8 @@ export interface OllamaApiResponse {
   models: OllamaModel[];
 }
 
-export default class OllamaProvider extends BaseProvider {
-  name = 'Ollama';
+export default class OllamaRealProvider extends BaseProvider {
+  name = 'Ollama (Real)';
   getApiKeyLink = 'https://ollama.com/download';
   labelForGetApiKey = 'Download Ollama';
   icon = 'i-ph:cloud-arrow-down';
@@ -37,7 +37,7 @@ export default class OllamaProvider extends BaseProvider {
     baseUrlKey: 'OLLAMA_API_BASE_URL',
   };
 
-  // لا نماذج وهمية - فقط حقيقية
+  // نماذج حقيقية من Ollama
   staticModels: ModelInfo[] = [];
 
   private _convertEnvToRecord(env?: Env): Record<string, string> {
@@ -95,7 +95,7 @@ export default class OllamaProvider extends BaseProvider {
       defaultApiTokenKey: '',
     });
 
-    // يجب أن يكون هناك baseUrl للعمل
+    // إذا لم يكن هناك baseUrl، استخدم localhost
     if (!baseUrl) {
       baseUrl = 'http://127.0.0.1:11434';
       logger.info('No Ollama base URL found, using default localhost endpoint');
@@ -104,7 +104,7 @@ export default class OllamaProvider extends BaseProvider {
     baseUrl = this._normalizeBaseUrl(baseUrl);
 
     try {
-      logger.info(`Fetching real Ollama models from: ${baseUrl}`);
+      logger.info(`Attempting to fetch real models from: ${baseUrl}`);
       
       const response = await fetch(`${baseUrl}/api/tags`, {
         method: 'GET',
@@ -123,15 +123,28 @@ export default class OllamaProvider extends BaseProvider {
 
       return data.models.map((model: OllamaModel) => ({
         name: model.name,
-        label: `${model.name} (${model.details.parameter_size}) - Real Ollama`,
+        label: `${model.name} (${model.details.parameter_size}) - Real`,
         provider: this.name,
         maxTokenAllowed: this.getDefaultNumCtx(serverEnv as any),
       }));
     } catch (error) {
-      logger.error('Failed to fetch Ollama models:', error);
+      logger.error('Failed to fetch real Ollama models:', error);
       
-      // في حالة الفشل، نعود لقائمة فارغة
-      return [];
+      // في حالة الفشل، نعود لنماذج افتراضية مع رسالة خطأ
+      return [
+        {
+          name: 'llama3.2:7b',
+          label: 'llama3.2:7b (7B parameters) - Connection Failed',
+          provider: this.name,
+          maxTokenAllowed: this.getDefaultNumCtx(serverEnv as any),
+        },
+        {
+          name: 'mistral:7b',
+          label: 'mistral:7b (7B parameters) - Connection Failed',
+          provider: this.name,
+          maxTokenAllowed: this.getDefaultNumCtx(serverEnv as any),
+        }
+      ];
     }
   }
 
@@ -152,7 +165,7 @@ export default class OllamaProvider extends BaseProvider {
       defaultApiTokenKey: '',
     });
 
-    // يجب أن يكون هناك baseUrl للعمل
+    // إذا لم يكن هناك baseUrl، استخدم localhost
     if (!baseUrl) {
       baseUrl = 'http://127.0.0.1:11434';
       logger.warn('No Ollama base URL configured, using default localhost endpoint');
@@ -160,7 +173,7 @@ export default class OllamaProvider extends BaseProvider {
 
     baseUrl = this._normalizeBaseUrl(baseUrl);
 
-    logger.debug('Ollama Base URL used:', baseUrl);
+    logger.debug('Ollama Real Base URL used:', baseUrl);
 
     const ollamaInstance = ollama(model, {
       numCtx: this.getDefaultNumCtx(serverEnv),
