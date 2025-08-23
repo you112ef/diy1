@@ -1,9 +1,12 @@
 // app/components/templates/ProjectTemplateDetail.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import type { ProjectTemplate } from '~/types/project-template';
 import { Button } from '~/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '~/components/ui/Card';
 import { classNames } from '~/utils/classNames';
+import { useStore } from '@nanostores/react';
+import { workbenchStore } from '~/lib/stores/workbench';
+import { toast } from 'react-toastify';
 
 interface ProjectTemplateDetailProps {
   template: ProjectTemplate;
@@ -11,6 +14,39 @@ interface ProjectTemplateDetailProps {
 }
 
 export function ProjectTemplateDetail({ template, onClose }: ProjectTemplateDetailProps) {
+  const [isLoading, setIsLoading] = useState(false);
+  const workbench = useStore(workbenchStore);
+
+  const handleUseTemplate = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Create files from template
+      const newFiles = template.files.map(file => ({
+        path: file.path,
+        content: file.content,
+        language: file.language || 'text',
+        isNew: true
+      }));
+
+      // Add files to workbench
+      workbenchStore.addFiles(newFiles);
+      
+      // Set the first file as active if available
+      if (newFiles.length > 0) {
+        workbenchStore.setActiveFile(newFiles[0].path);
+      }
+
+      toast.success(`Template "${template.name}" applied successfully!`);
+      onClose();
+    } catch (error) {
+      console.error('Error applying template:', error);
+      toast.error('Failed to apply template. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="p-4 md:p-6">
       <Button onClick={onClose} variant="outline" size="sm" className="mb-4">
@@ -62,9 +98,14 @@ export function ProjectTemplateDetail({ template, onClose }: ProjectTemplateDeta
           )}
         </CardContent>
         <CardFooter>
-          <Button size="lg" className="w-full md:w-auto" onClick={() => alert(`Placeholder: Using template '${template.name}'`)}>
-             <div className="i-ph:sparkle mr-2" />
-            Use This Template
+          <Button 
+            size="lg" 
+            className="w-full md:w-auto" 
+            onClick={handleUseTemplate}
+            disabled={isLoading}
+          >
+            <div className="i-ph:sparkle mr-2" />
+            {isLoading ? 'Applying Template...' : 'Use This Template'}
           </Button>
         </CardFooter>
       </Card>

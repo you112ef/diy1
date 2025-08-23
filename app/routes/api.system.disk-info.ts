@@ -1,24 +1,6 @@
 import type { ActionFunctionArgs, LoaderFunction } from '@remix-run/cloudflare';
 import { json } from '@remix-run/cloudflare';
 
-// Only import child_process if we're not in a Cloudflare environment
-let execSync: any;
-
-try {
-  // Check if we're in a Node.js environment
-  if (typeof process !== 'undefined' && process.platform) {
-    // Using dynamic import to avoid require()
-    const childProcess = { execSync: null };
-    execSync = childProcess.execSync;
-  }
-} catch {
-  // In Cloudflare environment, this will fail, which is expected
-  console.log('Running in Cloudflare environment, child_process not available');
-}
-
-// For development environments, we'll always provide mock data if real data isn't available
-const isDevelopment = process.env.NODE_ENV === 'development';
-
 interface DiskInfo {
   filesystem: string;
   size: number;
@@ -30,127 +12,78 @@ interface DiskInfo {
   error?: string;
 }
 
-const getDiskInfo = (): DiskInfo[] => {
-  // If we're in a Cloudflare environment and not in development, return error
-  if (!execSync && !isDevelopment) {
-    return [
-      {
-        filesystem: 'N/A',
-        size: 0,
-        used: 0,
-        available: 0,
-        percentage: 0,
-        mountpoint: 'N/A',
-        timestamp: new Date().toISOString(),
-        error: 'Disk information is not available in this environment',
-      },
-    ];
-  }
+// Cloudflare-compatible disk information
+const getCloudflareDiskInfo = (): DiskInfo[] => {
+  const timestamp = new Date().toISOString();
+  
+  // In Cloudflare Workers environment, disk information is not available
+  // Return a placeholder with information about the environment
+  return [
+    {
+      filesystem: 'Cloudflare Workers',
+      size: 0,
+      used: 0,
+      available: 0,
+      percentage: 0,
+      mountpoint: '/',
+      timestamp,
+      error: 'Disk information is not available in Cloudflare Workers environment'
+    }
+  ];
+};
 
-  // If we're in development but not in Node environment, return mock data
-  if (!execSync && isDevelopment) {
-    // Generate random percentage between 40-60%
-    const percentage = Math.floor(40 + Math.random() * 20);
-    const totalSize = 500 * 1024 * 1024 * 1024; // 500GB
-    const usedSize = Math.floor((totalSize * percentage) / 100);
-    const availableSize = totalSize - usedSize;
-
-    return [
-      {
-        filesystem: 'MockDisk',
-        size: totalSize,
-        used: usedSize,
-        available: availableSize,
-        percentage,
-        mountpoint: '/',
-        timestamp: new Date().toISOString(),
-      },
-      {
-        filesystem: 'MockDisk2',
-        size: 1024 * 1024 * 1024 * 1024, // 1TB
-        used: 300 * 1024 * 1024 * 1024, // 300GB
-        available: 724 * 1024 * 1024 * 1024, // 724GB
-        percentage: 30,
-        mountpoint: '/data',
-        timestamp: new Date().toISOString(),
-      },
-    ];
-  }
-
+// Node.js compatible disk information (for development)
+const getNodeDiskInfo = (): DiskInfo[] => {
   try {
-    // Different commands for different operating systems
-    const platform = process.platform;
-    let disks: DiskInfo[] = [];
-
-    if (platform === 'darwin') {
-      // macOS - use df command to get disk information
-      try {
-        const output = execSync('df -k', { encoding: 'utf-8' }).toString().trim();
-
-        // Skip the header line
-        const lines = output.split('\n').slice(1);
-
-        disks = lines.map((line: string) => {
-          const parts = line.trim().split(/\s+/);
-          const filesystem = parts[0];
-          const size = parseInt(parts[1], 10) * 1024; // Convert KB to bytes
-          const used = parseInt(parts[2], 10) * 1024;
-          const available = parseInt(parts[3], 10) * 1024;
-          const percentageStr = parts[4].replace('%', '');
-          const percentage = parseInt(percentageStr, 10);
-          const mountpoint = parts[5];
-
-          return {
-            filesystem,
-            size,
-            used,
-            available,
-            percentage,
-            mountpoint,
-            timestamp: new Date().toISOString(),
-          };
-        });
-
-        // Filter out non-physical disks
-        disks = disks.filter(
-          (disk) =>
-            !disk.filesystem.startsWith('devfs') &&
-            !disk.filesystem.startsWith('map') &&
-            !disk.mountpoint.startsWith('/System/Volumes') &&
-            disk.size > 0,
-        );
-      } catch (error) {
-        console.error('Failed to get macOS disk info:', error);
-        return [
-          {
-            filesystem: 'Unknown',
-            size: 0,
-            used: 0,
-            available: 0,
-            percentage: 0,
-            mountpoint: '/',
-            timestamp: new Date().toISOString(),
-            error: error instanceof Error ? error.message : 'Unknown error',
-          },
-        ];
+    // Only import fs if we're in a Node.js environment
+    let fs: any;
+    
+    try {
+      if (typeof process !== 'undefined' && process.platform) {
+        fs = require('fs');
       }
-    } else if (platform === 'linux') {
-      // Linux - use df command to get disk information
+    } catch {
+      // In Cloudflare environment, this will fail, which is expected
+      return getCloudflareDiskInfo();
+    }
+
+    if (!fs) {
+      return getCloudflareDiskInfo();
+    }
+
+    const platform = process.platform;
+    let diskInfo: DiskInfo[] = [];
+
+    if (platform === 'darwin' || platform === 'linux') {
       try {
-        const output = execSync('df -k', { encoding: 'utf-8' }).toString().trim();
+        // Use df command to get disk information
+        const { execSync } = require('child_process');
+        const output = execSync('df -h', { encoding: 'utf-8' }).toString().trim();
+        const lines = output.split('\n').slice(1); // Skip header
 
-        // Skip the header line
-        const lines = output.split('\n').slice(1);
-
-        disks = lines.map((line: string) => {
+        diskInfo = lines.map((line: string) => {
           const parts = line.trim().split(/\s+/);
           const filesystem = parts[0];
-          const size = parseInt(parts[1], 10) * 1024; // Convert KB to bytes
-          const used = parseInt(parts[2], 10) * 1024;
-          const available = parseInt(parts[3], 10) * 1024;
-          const percentageStr = parts[4].replace('%', '');
-          const percentage = parseInt(percentageStr, 10);
+          const sizeStr = parts[1];
+          const usedStr = parts[2];
+          const availableStr = parts[3];
+          const percentageStr = parts[4];
           const mountpoint = parts[5];
+
+          // Convert size strings to bytes
+          const parseSize = (sizeStr: string): number => {
+            const size = parseFloat(sizeStr);
+            if (sizeStr.includes('T')) return size * 1024 * 1024 * 1024 * 1024;
+            if (sizeStr.includes('G')) return size * 1024 * 1024 * 1024;
+            if (sizeStr.includes('M')) return size * 1024 * 1024;
+            if (sizeStr.includes('K')) return size * 1024;
+            return size;
+          };
+
+          const size = parseSize(sizeStr);
+          const used = parseSize(usedStr);
+          const available = parseSize(availableStr);
+          const percentage = parseInt(percentageStr.replace('%', ''), 10);
 
           return {
             filesystem,
@@ -162,106 +95,57 @@ const getDiskInfo = (): DiskInfo[] => {
             timestamp: new Date().toISOString(),
           };
         });
-
-        // Filter out non-physical disks
-        disks = disks.filter(
-          (disk) =>
-            !disk.filesystem.startsWith('/dev/loop') &&
-            !disk.filesystem.startsWith('tmpfs') &&
-            !disk.filesystem.startsWith('devtmpfs') &&
-            disk.size > 0,
-        );
       } catch (error) {
-        console.error('Failed to get Linux disk info:', error);
-        return [
-          {
-            filesystem: 'Unknown',
-            size: 0,
-            used: 0,
-            available: 0,
-            percentage: 0,
-            mountpoint: '/',
-            timestamp: new Date().toISOString(),
-            error: error instanceof Error ? error.message : 'Unknown error',
-          },
-        ];
+        console.error('Failed to get disk info:', error);
+        return getCloudflareDiskInfo();
       }
     } else if (platform === 'win32') {
-      // Windows - use PowerShell to get disk information
       try {
-        const output = execSync(
-          'powershell "Get-PSDrive -PSProvider FileSystem | Select-Object Name, Used, Free, @{Name=\'Size\';Expression={$_.Used + $_.Free}} | ConvertTo-Json"',
-          { encoding: 'utf-8' },
-        )
-          .toString()
-          .trim();
+        const { execSync } = require('child_process');
+        const output = execSync('wmic logicaldisk get size,freespace,caption', { encoding: 'utf-8' }).toString().trim();
+        const lines = output.split('\n').slice(1); // Skip header
 
-        const driveData = JSON.parse(output);
-        const drivesArray = Array.isArray(driveData) ? driveData : [driveData];
-
-        disks = drivesArray.map((drive) => {
-          const size = drive.Size || 0;
-          const used = drive.Used || 0;
-          const available = drive.Free || 0;
-          const percentage = size > 0 ? Math.round((used / size) * 100) : 0;
+        diskInfo = lines.map((line: string) => {
+          const parts = line.trim().split(/\s+/);
+          const caption = parts[0];
+          const freeSpace = parseInt(parts[1], 10);
+          const size = parseInt(parts[2], 10);
+          const used = size - freeSpace;
+          const percentage = Math.round((used / size) * 100);
 
           return {
-            filesystem: drive.Name + ':\\',
+            filesystem: `${caption}:`,
             size,
             used,
-            available,
+            available: freeSpace,
             percentage,
-            mountpoint: drive.Name + ':\\',
+            mountpoint: `${caption}:\\`,
             timestamp: new Date().toISOString(),
           };
         });
       } catch (error) {
         console.error('Failed to get Windows disk info:', error);
-        return [
-          {
-            filesystem: 'Unknown',
-            size: 0,
-            used: 0,
-            available: 0,
-            percentage: 0,
-            mountpoint: 'C:\\',
-            timestamp: new Date().toISOString(),
-            error: error instanceof Error ? error.message : 'Unknown error',
-          },
-        ];
+        return getCloudflareDiskInfo();
       }
-    } else {
-      console.warn(`Unsupported platform: ${platform}`);
-      return [
-        {
-          filesystem: 'Unknown',
-          size: 0,
-          used: 0,
-          available: 0,
-          percentage: 0,
-          mountpoint: '/',
-          timestamp: new Date().toISOString(),
-          error: `Unsupported platform: ${platform}`,
-        },
-      ];
     }
 
-    return disks;
+    return diskInfo.length > 0 ? diskInfo : getCloudflareDiskInfo();
   } catch (error) {
     console.error('Failed to get disk info:', error);
-    return [
-      {
-        filesystem: 'Unknown',
-        size: 0,
-        used: 0,
-        available: 0,
-        percentage: 0,
-        mountpoint: '/',
-        timestamp: new Date().toISOString(),
-        error: error instanceof Error ? error.message : 'Unknown error',
-      },
-    ];
+    return getCloudflareDiskInfo();
   }
+};
+
+const getDiskInfo = (): DiskInfo[] => {
+  // Check if we're in a Cloudflare environment
+  const isCloudflare = typeof globalThis !== 'undefined' && 'Cloudflare' in globalThis;
+  const isNode = typeof process !== 'undefined' && process.platform;
+  
+  if (isCloudflare || !isNode) {
+    return getCloudflareDiskInfo();
+  }
+  
+  return getNodeDiskInfo();
 };
 
 export const loader: LoaderFunction = async ({ request: _request }) => {
@@ -269,21 +153,7 @@ export const loader: LoaderFunction = async ({ request: _request }) => {
     return json(getDiskInfo());
   } catch (error) {
     console.error('Failed to get disk info:', error);
-    return json(
-      [
-        {
-          filesystem: 'Unknown',
-          size: 0,
-          used: 0,
-          available: 0,
-          percentage: 0,
-          mountpoint: '/',
-          timestamp: new Date().toISOString(),
-          error: error instanceof Error ? error.message : 'Unknown error',
-        },
-      ],
-      { status: 500 },
-    );
+    return json(getCloudflareDiskInfo(), { status: 500 });
   }
 };
 
@@ -292,20 +162,6 @@ export const action = async ({ request: _request }: ActionFunctionArgs) => {
     return json(getDiskInfo());
   } catch (error) {
     console.error('Failed to get disk info:', error);
-    return json(
-      [
-        {
-          filesystem: 'Unknown',
-          size: 0,
-          used: 0,
-          available: 0,
-          percentage: 0,
-          mountpoint: '/',
-          timestamp: new Date().toISOString(),
-          error: error instanceof Error ? error.message : 'Unknown error',
-        },
-      ],
-      { status: 500 },
-    );
+    return json(getCloudflareDiskInfo(), { status: 500 });
   }
 };

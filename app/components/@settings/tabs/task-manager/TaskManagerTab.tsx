@@ -531,21 +531,21 @@ const TaskManagerTab: React.FC = () => {
         } catch (retryError) {
           console.error(`Latency measurement failed after retry: ${retryError}`);
 
-          // Return a realistic random latency value for development
-          const mockLatency = 30 + Math.floor(Math.random() * 120); // 30-150ms
-          console.log(`Using mock latency: ${mockLatency}ms`);
+          // Return a realistic latency value for development
+          const fallbackLatency = 50; // 50ms fallback
+          console.log(`Using fallback latency: ${fallbackLatency}ms`);
 
-          return mockLatency;
+          return fallbackLatency;
         }
       }
     } catch (error) {
       console.error(`Error in latency measurement: ${error}`);
 
-      // Return a realistic random latency value
-      const mockLatency = 30 + Math.floor(Math.random() * 120); // 30-150ms
-      console.log(`Using mock latency due to error: ${mockLatency}ms`);
+      // Return a realistic latency value
+      const fallbackLatency = 50; // 50ms fallback
+      console.log(`Using fallback latency due to error: ${fallbackLatency}ms`);
 
-      return mockLatency;
+      return fallbackLatency;
     }
   };
 
