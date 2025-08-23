@@ -59,6 +59,30 @@ export default class OllamaProvider extends BaseProvider {
     return envRecord.DEFAULT_NUM_CTX ? parseInt(envRecord.DEFAULT_NUM_CTX, 10) : 32768;
   }
 
+  private _isCloudflarePages(): boolean {
+    // Check if running in Cloudflare Pages environment
+    return typeof process !== 'undefined' && 
+           (process.env.CF_PAGES === '1' || 
+            process.env.CLOUDFLARE_PAGES === '1' ||
+            typeof window === 'undefined' && typeof globalThis.fetch !== 'undefined');
+  }
+
+  private _normalizeBaseUrl(baseUrl: string): string {
+    // For Cloudflare Pages, don't modify URLs - they should be public endpoints
+    if (this._isCloudflarePages()) {
+      return baseUrl;
+    }
+
+    // For local development, handle Docker networking
+    const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true';
+    if (isDocker) {
+      baseUrl = baseUrl.replace('localhost', 'host.docker.internal');
+      baseUrl = baseUrl.replace('127.0.0.1', 'host.docker.internal');
+    }
+
+    return baseUrl;
+  }
+
   async getDynamicModels(
     apiKeys?: Record<string, string>,
     settings?: IProviderSetting,
@@ -73,31 +97,36 @@ export default class OllamaProvider extends BaseProvider {
     });
 
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      // Default to local Ollama instance if no URL provided
+      baseUrl = 'http://127.0.0.1:11434';
     }
 
-    if (typeof window === 'undefined') {
-      /*
-       * Running in Server
-       * Backend: Check if we're running in Docker
-       */
-      const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || serverEnv?.RUNNING_IN_DOCKER === 'true';
+    baseUrl = this._normalizeBaseUrl(baseUrl);
 
-      baseUrl = isDocker ? baseUrl.replace('localhost', 'host.docker.internal') : baseUrl;
-      baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
+    try {
+      const response = await fetch(`${baseUrl}/api/tags`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to fetch models: ${response.status} ${response.statusText}`);
+      }
+
+      const data = (await response.json()) as OllamaApiResponse;
+
+      return data.models.map((model: OllamaModel) => ({
+        name: model.name,
+        label: `${model.name} (${model.details.parameter_size})`,
+        provider: this.name,
+        maxTokenAllowed: this.getDefaultNumCtx(serverEnv as any),
+      }));
+    } catch (error) {
+      logger.error('Failed to fetch Ollama models:', error);
+      return [];
     }
-
-    const response = await fetch(`${baseUrl}/api/tags`);
-    const data = (await response.json()) as OllamaApiResponse;
-
-    // console.log({ ollamamodels: data.models });
-
-    return data.models.map((model: OllamaModel) => ({
-      name: model.name,
-      label: `${model.name} (${model.details.parameter_size})`,
-      provider: this.name,
-      maxTokenAllowed: 8000,
-    }));
   }
 
   getModelInstance: (options: {
@@ -117,16 +146,13 @@ export default class OllamaProvider extends BaseProvider {
       defaultApiTokenKey: '',
     });
 
-    // Backend: Check if we're running in Docker
     if (!baseUrl) {
-      throw new Error('No baseUrl found for OLLAMA provider');
+      baseUrl = 'http://127.0.0.1:11434';
     }
 
-    const isDocker = process?.env?.RUNNING_IN_DOCKER === 'true' || envRecord.RUNNING_IN_DOCKER === 'true';
-    baseUrl = isDocker ? baseUrl.replace('localhost', 'host.docker.internal') : baseUrl;
-    baseUrl = isDocker ? baseUrl.replace('127.0.0.1', 'host.docker.internal') : baseUrl;
+    baseUrl = this._normalizeBaseUrl(baseUrl);
 
-    logger.debug('Ollama Base Url used: ', baseUrl);
+    logger.debug('Ollama Base URL used:', baseUrl);
 
     const ollamaInstance = ollama(model, {
       numCtx: this.getDefaultNumCtx(serverEnv),

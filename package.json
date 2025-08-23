@@ -12,6 +12,9 @@
   },
   "scripts": {
     "deploy": "npm run build && wrangler pages deploy",
+    "deploy:ollama": "./scripts/deploy-ollama.sh",
+    "deploy:worker": "cd workers && wrangler deploy",
+    "deploy:pages": "wrangler pages deploy build/client --project-name=bolt-diy-ollama",
     "build": "remix vite:build",
     "dev": "node pre-start.cjs  && remix vite:dev",
     "test": "vitest --run",

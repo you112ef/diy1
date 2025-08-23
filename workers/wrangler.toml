@@ -1,0 +1,31 @@
+name = "ollama-proxy"
+main = "ollama-proxy.js"
+compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Worker routes - update these to match your domain
+# routes = [
+#   { pattern = "ollama.yourdomain.com/*", zone_name = "yourdomain.com" }
+# ]
+
+# Environment variables for the worker
+[env.production.vars]
+# Add any additional environment variables here if needed
+
+[env.development.vars]
+# Development environment variables
+
+# KV namespaces (if needed for caching)
+# [[kv_namespaces]]
+# binding = "CACHE"
+# id = "your-kv-namespace-id"
+
+# Durable Objects (if needed for state management)
+# [[durable_objects.bindings]]
+# name = "COUNTER"
+# class_name = "Counter"
+
+# R2 buckets (if needed for file storage)
+# [[r2_buckets]]
+# binding = "BUCKET"
+# bucket_name = "your-bucket-name"
