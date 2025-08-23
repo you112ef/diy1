@@ -14,11 +14,14 @@ export function ProjectTemplateList() {
 
   useEffect(() => {
     async function fetchTemplates() {
-      // Ensure selectedTemplate is cleared if the list is re-fetched or component re-mounts
-      // This might be too aggressive depending on desired UX, but good for now.
+      /*
+       * Ensure selectedTemplate is cleared if the list is re-fetched or component re-mounts
+       * This might be too aggressive depending on desired UX, but good for now.
+       */
       setSelectedTemplate(null);
       setIsLoading(true);
       setError(null);
+
       try {
         const fetchedTemplates = await getTemplates();
         setTemplates(fetchedTemplates);
@@ -60,12 +63,7 @@ export function ProjectTemplateList() {
 
   // New conditional rendering logic
   if (selectedTemplate) {
-    return (
-      <ProjectTemplateDetail
-        template={selectedTemplate}
-        onClose={() => setSelectedTemplate(null)}
-      />
-    );
+    return <ProjectTemplateDetail template={selectedTemplate} onClose={() => setSelectedTemplate(null)} />;
   }
 
   return (
@@ -80,17 +78,24 @@ export function ProjectTemplateList() {
             <CardHeader>
               <div className="flex items-center gap-3">
                 {template.icon && (
-                  <div className={classNames(template.icon, 'w-6 h-6 text-bolt-elements-item-contentAccent flex-shrink-0')} />
+                  <div
+                    className={classNames(template.icon, 'w-6 h-6 text-bolt-elements-item-contentAccent flex-shrink-0')}
+                  />
                 )}
                 <CardTitle className="text-lg">{template.name}</CardTitle>
               </div>
             </CardHeader>
-            <CardContent className="flex-grow"> {/* Use flex-grow to push footer down if card height is fixed/aligned */}
+            <CardContent className="flex-grow">
+              {' '}
+              {/* Use flex-grow to push footer down if card height is fixed/aligned */}
               <CardDescription className="text-sm">{template.description}</CardDescription>
               {template.tags && template.tags.length > 0 && (
                 <div className="mt-3 flex flex-wrap gap-1.5">
-                  {template.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
+                  {template.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="px-2 py-0.5 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
+                    >
                       {tag}
                     </span>
                   ))}

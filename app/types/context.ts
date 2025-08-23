@@ -16,3 +16,15 @@ export type ProgressAnnotation = {
   order: number;
   message: string;
 };
+
+export type ToolCallAnnotation = {
+  type: 'tool_call';
+  toolCallId: string;
+  toolName: string;
+  arguments: Record<string, any>;
+  result?: any;
+  error?: string;
+  status: 'pending' | 'running' | 'completed' | 'failed';
+  startTime: string;
+  endTime?: string;
+};

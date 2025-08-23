@@ -196,8 +196,10 @@ export const Preview = memo(() => {
         style={{
           position: 'absolute',
           top: 0,
-          ...(side === 'left' ? { left: 0, marginLeft: '-0.64rem' /* original: -7px */ } : { right: 0, marginRight: '-0.64rem' /* original: -7px */ }),
-          width: '1.36rem', /* original: 15px */
+          ...(side === 'left'
+            ? { left: 0, marginLeft: '-0.64rem' /* original: -7px */ }
+            : { right: 0, marginRight: '-0.64rem' /* original: -7px */ }),
+          width: '1.36rem' /* original: 15px */,
           height: '100%',
           cursor: 'ew-resize',
           background: 'var(--bolt-elements-background-depth-4, rgba(0,0,0,.3))',
@@ -380,8 +382,8 @@ export const Preview = memo(() => {
       <div
         style={{
           color: 'var(--bolt-elements-textSecondary, rgba(0,0,0,0.5))',
-          fontSize: '0.91rem', /* original: 10px */
-          lineHeight: '0.45rem', /* original: 5px */
+          fontSize: '0.91rem' /* original: 10px */,
+          lineHeight: '0.45rem' /* original: 5px */,
           userSelect: 'none',
           marginLeft: '1px',
         }}
@@ -980,14 +982,14 @@ export const Preview = memo(() => {
               <div
                 style={{
                   position: 'absolute',
-                  top: '-2.27rem', /* original: -25px */
+                  top: '-2.27rem' /* original: -25px */,
                   left: '50%',
                   transform: 'translateX(-50%)',
                   background: 'var(--bolt-elements-background-depth-3, rgba(0,0,0,0.7))',
                   color: 'var(--bolt-elements-textPrimary, white)',
-                  padding: '0.18rem 0.73rem', /* original: 2px 8px */
-                  borderRadius: '0.36rem', /* original: 4px */
-                  fontSize: '1.09rem', /* original: 12px */
+                  padding: '0.18rem 0.73rem' /* original: 2px 8px */,
+                  borderRadius: '0.36rem' /* original: 4px */,
+                  fontSize: '1.09rem' /* original: 12px */,
                   pointerEvents: 'none',
                   opacity: resizingState.current.isResizing ? 1 : 0,
                   transition: 'opacity 0.3s',

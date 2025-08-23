@@ -87,9 +87,13 @@ export const Messages = forwardRef<HTMLDivElement, MessagesProps>(
                   )}
                   <div className="grid grid-col-1 w-full">
                     {isUserMessage ? (
-                      <UserMessage content={content} />
+                      <UserMessage content={content} parts={message.parts as any} />
                     ) : (
-                      <AssistantMessage content={content} annotations={message.annotations} />
+                      <AssistantMessage
+                        content={content}
+                        annotations={message.annotations}
+                        addToolResult={() => {}} // Placeholder function
+                      />
                     )}
                   </div>
                   {!isUserMessage && (

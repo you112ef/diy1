@@ -4,7 +4,7 @@ import { atom, map, type MapStore } from 'nanostores';
 import type { ActionAlert, BoltAction, DeployAlert, FileHistory, SupabaseAction, SupabaseAlert } from '~/types/actions';
 import { createScopedLogger } from '~/utils/logger';
 import { unreachable } from '~/utils/unreachable';
-import type { FilesStore } from '../stores/files'; // Added import
+import type { FilesStore } from '~/lib/stores/files';
 import type { ActionCallbackData } from './message-parser';
 import type { BoltShell } from '~/utils/shell';
 
@@ -31,7 +31,8 @@ type BaseActionUpdate = Partial<Pick<BaseActionState, 'status' | 'abort' | 'exec
 
 export type ActionStateUpdate =
   | BaseActionUpdate
-  | (Omit<BaseActionUpdate, 'status'> & { status: 'failed'; error: string });
+  | (Omit<BaseActionUpdate, 'status'> & { status: 'failed'; error: string })
+  | { capturedOutput?: string; exitCode?: number };
 
 type ActionsMap = MapStore<Record<string, ActionState>>;
 
@@ -74,8 +75,8 @@ export class ActionRunner {
   onAlert?: (alert: ActionAlert) => void;
   onSupabaseAlert?: (alert: SupabaseAlert) => void;
   onDeployAlert?: (alert: DeployAlert) => void;
-  public onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void;
-  public onOpenFileRequested?: (filePath: string) => void; // Added
+  onConfirmationRequired?: (actionId: string, actionToConfirm: BoltAction) => void;
+  onOpenFileRequested?: (filePath: string) => void; // Added
   buildOutput?: { path: string; exitCode: number; output: string };
 
   constructor(
@@ -160,16 +161,20 @@ export class ActionRunner {
 
   async #executeAction(actionId: string, isStreaming: boolean = false) {
     const currentActionState = this.actions.get()[actionId];
+
     if (!currentActionState) {
       logger.warn(`Action ${actionId} not found in #executeAction`);
       return;
     }
 
-    // Check for requiresConfirmation before proceeding
-    // Assuming 'requiresConfirmation' is a boolean on BoltAction from app/types/actions.ts
+    /*
+     * Check for requiresConfirmation before proceeding
+     * Assuming 'requiresConfirmation' is a boolean on BoltAction from app/types/actions.ts
+     */
     if (currentActionState.requiresConfirmation && currentActionState.status === 'pending') {
       this.#updateAction(actionId, { status: 'awaiting-confirmation' });
       this.onConfirmationRequired?.(actionId, currentActionState as BoltAction);
+
       return;
     }
 
@@ -180,18 +185,21 @@ export class ActionRunner {
 
     // Prevent re-execution of already finalized or running (non-streaming file) actions
     if (['complete', 'aborted', 'failed'].includes(currentActionState.status)) {
-        // Allow streaming to update a "complete" file action's content, but not other finalized states.
-        if(!(currentActionState.type === 'file' && isStreaming && currentActionState.status === 'complete')) {
-            return;
-        }
+      // Allow streaming to update a "complete" file action's content, but not other finalized states.
+      if (!(currentActionState.type === 'file' && isStreaming && currentActionState.status === 'complete')) {
+        return;
+      }
     }
 
-    // Set to running if it was pending (and not awaiting confirmation)
-    // For streaming file actions that were 'complete', they might re-enter here to append content,
-    // their status would already be 'running' or 'complete' from previous chunks.
+    /*
+     * Set to running if it was pending (and not awaiting confirmation)
+     * For streaming file actions that were 'complete', they might re-enter here to append content,
+     * their status would already be 'running' or 'complete' from previous chunks.
+     */
     if (currentActionState.status === 'pending') {
-         this.#updateAction(actionId, { status: 'running' });
+      this.#updateAction(actionId, { status: 'running' });
     }
+
     // It's important to use currentActionState for the switch, as 'action' might be stale if status changed.
     const action = currentActionState;
 
@@ -201,17 +209,19 @@ export class ActionRunner {
           const shellResp = await this.#runShellAction(action as BaseActionState & { type: 'shell' }); // Ensure action is typed for ShellAction properties
           this.#updateAction(actionId, {
             capturedOutput: shellResp?.output || '',
-            exitCode: shellResp?.exitCode
+            exitCode: shellResp?.exitCode,
           });
           break;
         }
-        case 'openFile': { // Added case
+        case 'openFile': {
+          // Added case
           if (action.type === 'openFile' && action.filePath) {
             this.onOpenFileRequested?.(action.filePath);
           } else {
             logger.warn('OpenFileAction missing filePath or action type mismatch:', action);
             this.#updateAction(actionId, { status: 'failed', error: 'Missing filePath for openFile action' });
           }
+
           break;
         }
         case 'file': {
@@ -323,6 +333,7 @@ export class ActionRunner {
     if (resp?.exitCode != 0) {
       throw new ActionCommandError(`Failed To Execute Shell Command`, resp?.output || 'No Output Available');
     }
+
     return resp; // Return the response object
   }
 
@@ -366,6 +377,7 @@ export class ActionRunner {
       logger.debug(`File action processed via FilesStore: ${action.filePath}`);
     } catch (error) {
       logger.error(`Failed to process file action for ${action.filePath} via FilesStore:`, error);
+
       // Optionally, re-throw or handle the error to set action status to failed
       throw error; // Re-throwing to allow the caller to handle the failed status
     }
@@ -406,10 +418,12 @@ export class ActionRunner {
     return nodePath.join('.history', filePath);
   }
 
-  public async confirmAction(actionId: string) {
+  async confirmAction(actionId: string) {
     const action = this.actions.get()[actionId];
+
     if (action && action.status === 'awaiting-confirmation') {
       this.#updateAction(actionId, { status: 'running' });
+
       // Ensure the execution is chained
       this.#currentExecutionPromise = this.#currentExecutionPromise.then(async () => {
         await this.#executeAction(actionId, false);
@@ -418,14 +432,18 @@ export class ActionRunner {
     }
   }
 
-  public cancelAction(actionId: string) {
+  cancelAction(actionId: string) {
     const action = this.actions.get()[actionId];
-    if (action && (action.status === 'awaiting-confirmation' || action.status === 'pending' || action.status === 'running')) {
+
+    if (
+      action &&
+      (action.status === 'awaiting-confirmation' || action.status === 'pending' || action.status === 'running')
+    ) {
       // Prefer calling the action's own abort logic if available
       if (typeof action.abort === 'function' && action.abortSignal && !action.abortSignal.aborted) {
-          action.abort(); // This should ideally also set status to 'aborted' via its own logic
+        action.abort(); // This should ideally also set status to 'aborted' via its own logic
       } else {
-           this.#updateAction(actionId, { status: 'aborted' });
+        this.#updateAction(actionId, { status: 'aborted' });
       }
     }
   }

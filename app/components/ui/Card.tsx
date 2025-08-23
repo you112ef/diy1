@@ -17,8 +17,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref
 });
 Card.displayName = 'Card';
 
-// Padding reduced from p-6 to p-5 (p-5 = 1.25rem * 11px = 13.75px) to reduce empty space.
-// Increased space-y from 1.5 to 2 for better separation of title/description
+/*
+ * Padding reduced from p-6 to p-5 (p-5 = 1.25rem * 11px = 13.75px) to reduce empty space.
+ * Increased space-y from 1.5 to 2 for better separation of title/description
+ */
 const CardHeader = forwardRef<HTMLDivElement, CardProps>(({ className, ...props }, ref) => {
   return <div ref={ref} className={classNames('flex flex-col space-y-2 p-5', className)} {...props} />;
 });

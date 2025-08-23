@@ -20,14 +20,17 @@ export async function loader({ request }: LoaderFunctionArgs) {
     return json({ error: 'Search query (q) is required' }, { status: 400, headers });
   }
 
-  // Placeholder / Mocked Data
-  // In a real implementation, this section would:
-  // 1. Get API key from server environment variables.
-  // 2. Call the chosen external search provider's API with the query and other params.
-  // 3. Transform the provider's response into our SearchResultItem[] structure.
-  // 4. Handle errors from the external API.
+  /*
+   * Placeholder / Mocked Data
+   * In a real implementation, this section would:
+   * 1. Get API key from server environment variables.
+   * 2. Call the chosen external search provider's API with the query and other params.
+   * 3. Transform the provider's response into our SearchResultItem[] structure.
+   * 4. Handle errors from the external API.
+   */
 
   const mockResults: SearchResultItem[] = [];
+
   for (let i = 1; i <= numResults; i++) {
     mockResults.push({
       id: `mock-${i}`,
@@ -36,15 +39,15 @@ export async function loader({ request }: LoaderFunctionArgs) {
       snippet: `This is a mock snippet for search result ${i} related to the query "${query}". More details would appear here.`,
       displayLink: 'example.com',
       source: 'MockSearchEngine',
-      favicon: 'https://example.com/favicon.ico'
+      favicon: 'https://example.com/favicon.ico',
     });
   }
 
   const responseData: WebSearchResponse = {
-    query: query,
+    query,
     results: mockResults,
     estimatedTotalResults: 100, // Mocked
-    currentPage: currentPage,
+    currentPage,
   };
 
   return json(responseData, { headers });
