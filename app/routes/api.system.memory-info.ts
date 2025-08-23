@@ -13,16 +13,18 @@ interface MemoryInfo {
 // Cloudflare-compatible memory information
 const getCloudflareMemoryInfo = (): MemoryInfo => {
   const timestamp = new Date().toISOString();
-  
-  // In Cloudflare Workers environment, memory information is limited
-  // We can only get approximate values from the runtime
+
+  /*
+   * In Cloudflare Workers environment, memory information is limited
+   * We can only get approximate values from the runtime
+   */
   return {
     total: 128 * 1024 * 1024, // 128MB typical Worker memory limit
-    free: 64 * 1024 * 1024,   // Approximate free memory
-    used: 64 * 1024 * 1024,   // Approximate used memory
-    percentage: 50,            // Approximate usage percentage
+    free: 64 * 1024 * 1024, // Approximate free memory
+    used: 64 * 1024 * 1024, // Approximate used memory
+    percentage: 50, // Approximate usage percentage
     timestamp,
-    error: 'Memory information is approximate in Cloudflare Workers environment'
+    error: 'Memory information is approximate in Cloudflare Workers environment',
   };
 };
 
@@ -55,7 +57,7 @@ const getNodeMemoryInfo = (): MemoryInfo => {
 // Browser-compatible memory information
 const getBrowserMemoryInfo = (): MemoryInfo => {
   const timestamp = new Date().toISOString();
-  
+
   try {
     // Check if performance.memory is available (Chrome/Edge)
     if ('memory' in performance) {
@@ -81,7 +83,7 @@ const getBrowserMemoryInfo = (): MemoryInfo => {
       used: 0,
       percentage: 0,
       timestamp,
-      error: 'Memory information not available in this browser'
+      error: 'Memory information not available in this browser',
     };
   } catch (error) {
     console.error('Failed to get browser memory info:', error);
@@ -91,7 +93,7 @@ const getBrowserMemoryInfo = (): MemoryInfo => {
       used: 0,
       percentage: 0,
       timestamp,
-      error: 'Failed to get memory information'
+      error: 'Failed to get memory information',
     };
   }
 };
@@ -101,7 +103,7 @@ const getMemoryInfo = (): MemoryInfo => {
   const isCloudflare = typeof globalThis !== 'undefined' && 'Cloudflare' in globalThis;
   const isNode = typeof process !== 'undefined' && process.memoryUsage;
   const isBrowser = typeof window !== 'undefined';
-  
+
   if (isCloudflare) {
     return getCloudflareMemoryInfo();
   } else if (isNode) {

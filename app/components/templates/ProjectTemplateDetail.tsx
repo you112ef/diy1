@@ -4,7 +4,6 @@ import type { ProjectTemplate } from '~/types/project-template';
 import { Button } from '~/components/ui/Button';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from '~/components/ui/Card';
 import { classNames } from '~/utils/classNames';
-import { useStore } from '@nanostores/react';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { toast } from 'react-toastify';
 
@@ -15,26 +14,19 @@ interface ProjectTemplateDetailProps {
 
 export function ProjectTemplateDetail({ template, onClose }: ProjectTemplateDetailProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const workbench = useStore(workbenchStore);
 
   const handleUseTemplate = async () => {
     setIsLoading(true);
-    
-    try {
-      // Create files from template
-      const newFiles = template.files.map(file => ({
-        path: file.path,
-        content: file.content,
-        language: file.language || 'text',
-        isNew: true
-      }));
 
-      // Add files to workbench
-      workbenchStore.addFiles(newFiles);
-      
+    try {
+      // Create files from template using the workbench store
+      for (const file of template.files) {
+        await workbenchStore.createFile(file.path, file.content);
+      }
+
       // Set the first file as active if available
-      if (newFiles.length > 0) {
-        workbenchStore.setActiveFile(newFiles[0].path);
+      if (template.files.length > 0) {
+        workbenchStore.setSelectedFile(template.files[0].path);
       }
 
       toast.success(`Template "${template.name}" applied successfully!`);
@@ -58,15 +50,20 @@ export function ProjectTemplateDetail({ template, onClose }: ProjectTemplateDeta
         <CardHeader>
           <div className="flex items-center gap-3 mb-2">
             {template.icon && (
-              <div className={classNames(template.icon, 'w-8 h-8 text-bolt-elements-item-contentAccent flex-shrink-0')} />
+              <div
+                className={classNames(template.icon, 'w-8 h-8 text-bolt-elements-item-contentAccent flex-shrink-0')}
+              />
             )}
             <CardTitle className="text-2xl">{template.name}</CardTitle>
           </div>
           <CardDescription className="text-base">{template.description}</CardDescription>
           {template.tags && template.tags.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-2">
-              {template.tags.map(tag => (
-                <span key={tag} className="px-2.5 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full">
+              {template.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2.5 py-1 text-xs bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-full"
+                >
                   {tag}
                 </span>
               ))}
@@ -76,7 +73,7 @@ export function ProjectTemplateDetail({ template, onClose }: ProjectTemplateDeta
         <CardContent>
           <h4 className="text-md font-semibold mb-2 text-bolt-elements-textPrimary">Files in this template:</h4>
           <ul className="list-disc list-inside space-y-1 text-sm text-bolt-elements-textSecondary max-h-60 overflow-y-auto bg-gray-50 dark:bg-gray-800/50 p-3 rounded-md">
-            {template.files.map(file => (
+            {template.files.map((file) => (
               <li key={file.path} className="font-mono text-xs">
                 {file.path}
                 {/* Optionally display very short content:
@@ -91,19 +88,26 @@ export function ProjectTemplateDetail({ template, onClose }: ProjectTemplateDeta
           </ul>
           {(template.category || template.framework || template.language) && (
             <div className="mt-4 pt-4 border-t border-bolt-elements-borderColor">
-              {template.category && <p className="text-xs text-bolt-elements-textTertiary"><strong>Category:</strong> {template.category}</p>}
-              {template.framework && <p className="text-xs text-bolt-elements-textTertiary"><strong>Framework:</strong> {template.framework}</p>}
-              {template.language && <p className="text-xs text-bolt-elements-textTertiary"><strong>Language:</strong> {template.language}</p>}
+              {template.category && (
+                <p className="text-xs text-bolt-elements-textTertiary">
+                  <strong>Category:</strong> {template.category}
+                </p>
+              )}
+              {template.framework && (
+                <p className="text-xs text-bolt-elements-textTertiary">
+                  <strong>Framework:</strong> {template.framework}
+                </p>
+              )}
+              {template.language && (
+                <p className="text-xs text-bolt-elements-textTertiary">
+                  <strong>Language:</strong> {template.language}
+                </p>
+              )}
             </div>
           )}
         </CardContent>
         <CardFooter>
-          <Button 
-            size="lg" 
-            className="w-full md:w-auto" 
-            onClick={handleUseTemplate}
-            disabled={isLoading}
-          >
+          <Button size="lg" className="w-full md:w-auto" onClick={handleUseTemplate} disabled={isLoading}>
             <div className="i-ph:sparkle mr-2" />
             {isLoading ? 'Applying Template...' : 'Use This Template'}
           </Button>

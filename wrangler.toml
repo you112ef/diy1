@@ -8,8 +8,8 @@ send_metrics = false
 [env.production]
 name = "bolt-production"
 
-[env.staging]
-name = "bolt-staging"
+[env.preview]
+name = "bolt-preview"
 
 # Environment variables for Cloudflare Pages
 [vars]

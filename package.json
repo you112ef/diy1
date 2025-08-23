@@ -12,7 +12,7 @@
   },
   "scripts": {
     "deploy": "npm run build && wrangler pages deploy ./build/client --project-name=bolt",
-    "deploy:staging": "npm run build && wrangler pages deploy ./build/client --project-name=bolt --env=staging",
+    "deploy:preview": "npm run build && wrangler pages deploy ./build/client --project-name=bolt --env=preview",
     "deploy:production": "npm run build && wrangler pages deploy ./build/client --project-name=bolt --env=production",
     "build": "remix vite:build",
     "dev": "node pre-start.cjs  && remix vite:dev",

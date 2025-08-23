@@ -15,9 +15,11 @@ interface DiskInfo {
 // Cloudflare-compatible disk information
 const getCloudflareDiskInfo = (): DiskInfo[] => {
   const timestamp = new Date().toISOString();
-  
-  // In Cloudflare Workers environment, disk information is not available
-  // Return a placeholder with information about the environment
+
+  /*
+   * In Cloudflare Workers environment, disk information is not available
+   * Return a placeholder with information about the environment
+   */
   return [
     {
       filesystem: 'Cloudflare Workers',
@@ -27,20 +29,20 @@ const getCloudflareDiskInfo = (): DiskInfo[] => {
       percentage: 0,
       mountpoint: '/',
       timestamp,
-      error: 'Disk information is not available in Cloudflare Workers environment'
-    }
+      error: 'Disk information is not available in Cloudflare Workers environment',
+    },
   ];
 };
 
 // Node.js compatible disk information (for development)
-const getNodeDiskInfo = (): DiskInfo[] => {
+const getNodeDiskInfo = async (): Promise<DiskInfo[]> => {
   try {
     // Only import fs if we're in a Node.js environment
     let fs: any;
-    
+
     try {
       if (typeof process !== 'undefined' && process.platform) {
-        fs = require('fs');
+        fs = await import('fs');
       }
     } catch {
       // In Cloudflare environment, this will fail, which is expected
@@ -57,7 +59,7 @@ const getNodeDiskInfo = (): DiskInfo[] => {
     if (platform === 'darwin' || platform === 'linux') {
       try {
         // Use df command to get disk information
-        const { execSync } = require('child_process');
+        const { execSync } = await import('child_process');
         const output = execSync('df -h', { encoding: 'utf-8' }).toString().trim();
         const lines = output.split('\n').slice(1); // Skip header
 
@@ -73,10 +75,23 @@ const getNodeDiskInfo = (): DiskInfo[] => {
           // Convert size strings to bytes
           const parseSize = (sizeStr: string): number => {
             const size = parseFloat(sizeStr);
-            if (sizeStr.includes('T')) return size * 1024 * 1024 * 1024 * 1024;
-            if (sizeStr.includes('G')) return size * 1024 * 1024 * 1024;
-            if (sizeStr.includes('M')) return size * 1024 * 1024;
-            if (sizeStr.includes('K')) return size * 1024;
+
+            if (sizeStr.includes('T')) {
+              return size * 1024 * 1024 * 1024 * 1024;
+            }
+
+            if (sizeStr.includes('G')) {
+              return size * 1024 * 1024 * 1024;
+            }
+
+            if (sizeStr.includes('M')) {
+              return size * 1024 * 1024;
+            }
+
+            if (sizeStr.includes('K')) {
+              return size * 1024;
+            }
+
             return size;
           };
 
@@ -101,7 +116,7 @@ const getNodeDiskInfo = (): DiskInfo[] => {
       }
     } else if (platform === 'win32') {
       try {
-        const { execSync } = require('child_process');
+        const { execSync } = await import('child_process');
         const output = execSync('wmic logicaldisk get size,freespace,caption', { encoding: 'utf-8' }).toString().trim();
         const lines = output.split('\n').slice(1); // Skip header
 
@@ -136,21 +151,21 @@ const getNodeDiskInfo = (): DiskInfo[] => {
   }
 };
 
-const getDiskInfo = (): DiskInfo[] => {
+const getDiskInfo = async (): Promise<DiskInfo[]> => {
   // Check if we're in a Cloudflare environment
   const isCloudflare = typeof globalThis !== 'undefined' && 'Cloudflare' in globalThis;
   const isNode = typeof process !== 'undefined' && process.platform;
-  
+
   if (isCloudflare || !isNode) {
     return getCloudflareDiskInfo();
   }
-  
-  return getNodeDiskInfo();
+
+  return await getNodeDiskInfo();
 };
 
 export const loader: LoaderFunction = async ({ request: _request }) => {
   try {
-    return json(getDiskInfo());
+    return json(await getDiskInfo());
   } catch (error) {
     console.error('Failed to get disk info:', error);
     return json(getCloudflareDiskInfo(), { status: 500 });
@@ -159,7 +174,7 @@ export const loader: LoaderFunction = async ({ request: _request }) => {
 
 export const action = async ({ request: _request }: ActionFunctionArgs) => {
   try {
-    return json(getDiskInfo());
+    return json(await getDiskInfo());
   } catch (error) {
     console.error('Failed to get disk info:', error);
     return json(getCloudflareDiskInfo(), { status: 500 });
